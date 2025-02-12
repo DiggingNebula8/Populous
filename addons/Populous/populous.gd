@@ -3,7 +3,7 @@ extends EditorPlugin
 
 var panel
 var is_panel_open: bool = false
-const POPULOUS: PackedScene = preload("res://addons/Populous/Scenes/Populous.tscn")
+const POPULOUS: PackedScene = preload("res://addons/Populous/Scenes/PopulousTool.tscn")
 
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"

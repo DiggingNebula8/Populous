@@ -1,0 +1,165 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2bljxr5rp7gd"]
+
+[ext_resource type="Script" uid="uid://dehjydnf3e4hm" path="res://addons/Populous/Scripts/populous_tool.gd" id="1_nscky"]
+
+[node name="PopulousTool" type="VBoxContainer"]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 171.0
+grow_vertical = 2
+script = ExtResource("1_nscky")
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.884, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "Populous"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="HSeparator" type="HSeparator" parent="."]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="CrowdGenerator" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="CrowdSettings" type="VBoxContainer" parent="CrowdGenerator"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdSettings"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Main"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="CrowdType" type="HBoxContainer" parent="CrowdGenerator/CrowdSettings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdSettings/CrowdType"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Type"
+
+[node name="VSeparator" type="VSeparator" parent="CrowdGenerator/CrowdSettings/CrowdType"]
+layout_mode = 2
+
+[node name="Type" type="OptionButton" parent="CrowdGenerator/CrowdSettings/CrowdType"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+selected = 0
+item_count = 2
+popup/item_0/text = "Basic"
+popup/item_0/id = 0
+popup/item_1/text = "Complex"
+popup/item_1/id = 1
+
+[node name="HSeparator2" type="HSeparator" parent="CrowdGenerator"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="CrowdPlacement" type="VBoxContainer" parent="CrowdGenerator"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdPlacement"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Placement"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MaxCrowdDensity" type="HBoxContainer" parent="CrowdGenerator/CrowdPlacement"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdPlacement/MaxCrowdDensity"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Max Density"
+
+[node name="VSeparator" type="VSeparator" parent="CrowdGenerator/CrowdPlacement/MaxCrowdDensity"]
+layout_mode = 2
+
+[node name="Density" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/MaxCrowdDensity"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+suffix = "folks"
+
+[node name="HSeparator3" type="HSeparator" parent="CrowdGenerator/CrowdPlacement"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="RowsandColumns" type="HBoxContainer" parent="CrowdGenerator/CrowdPlacement"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Rows"
+
+[node name="VSeparator" type="VSeparator" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+
+[node name="Rows" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="VSeparator2" type="VSeparator" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Columns"
+
+[node name="Columns" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/RowsandColumns"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="HSeparator4" type="HSeparator" parent="CrowdGenerator/CrowdPlacement"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Padding" type="HBoxContainer" parent="CrowdGenerator/CrowdPlacement"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CrowdGenerator/CrowdPlacement/Padding"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Padding XYZ"
+
+[node name="VSeparator" type="VSeparator" parent="CrowdGenerator/CrowdPlacement/Padding"]
+layout_mode = 2
+
+[node name="PaddingX" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/Padding"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="PaddingY" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/Padding"]
+layout_mode = 2
+
+[node name="PaddingZ" type="SpinBox" parent="CrowdGenerator/CrowdPlacement/Padding"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="HSeparator3" type="HSeparator" parent="CrowdGenerator"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Crowd" type="VBoxContainer" parent="CrowdGenerator"]
+layout_mode = 2
+
+[node name="Generate" type="Button" parent="CrowdGenerator/Crowd"]
+layout_mode = 2
+text = "Generate"
