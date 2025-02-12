@@ -1,3 +1,6 @@
 [gd_scene format=3 uid="uid://bbgxbgvfv1omx"]
 
 [node name="PopulousDemo" type="Node3D"]
+
+[node name="PopulousContainer0" type="Node3D" parent="."]
+metadata/PopulousContainer = true

@@ -53,7 +53,7 @@ func _create_container():
 
 	# Set the owner to the scene root so it appears in the scene tree
 	container.owner = scene_root
-	container.set_meta("Container", "Populous")
+	container.set_meta("PopulousContainer", true)
 
 	print("Container created successfully: " + container.name)
 
