@@ -1,18 +1,20 @@
 @tool
 extends EditorPlugin
 
+const PopulousConstant = preload("res://addons/Populous/Scripts/populous_constants.gd")
+
 var panel
 var is_panel_open: bool = false
-const POPULOUS: PackedScene = preload("res://addons/Populous/Scenes/PopulousTool.tscn")
+const POPULOUS: PackedScene = preload(PopulousConstant.Paths.populous_panel)
 
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
-	add_tool_submenu_item("Populous", _create_populous_menu())
+	add_tool_submenu_item(PopulousConstant.Strings.populous, _create_populous_menu())
 
 func _create_populous_menu():
 	var menu = PopupMenu.new()
-	menu.add_item("Populous", 0)
-	menu.add_item("Create Container", 1)
+	menu.add_item(PopulousConstant.Strings.populous, 0)
+	menu.add_item(PopulousConstant.Strings.create_container, 1)
 	menu.id_pressed.connect(_on_populous_menu_selected)
 	return menu
 
@@ -41,19 +43,19 @@ func _create_container():
 	# Count existing PopulousContainers
 	var count = 0
 	for child in scene_root.get_children():
-		if child.name.begins_with("PopulousContainer"):
+		if child.name.begins_with(PopulousConstant.Strings.populous_container):
 			count += 1
 
 	# Create a new Node3D instance
 	var container = Node3D.new()
-	container.name = "PopulousContainer" + str(count)
+	container.name = PopulousConstant.Strings.populous_container + str(count)
 
 	# Add it as a child of the active scene root
 	scene_root.add_child(container)
 
 	# Set the owner to the scene root so it appears in the scene tree
 	container.owner = scene_root
-	container.set_meta("PopulousContainer", true)
+	container.set_meta(PopulousConstant.Strings.populous_container, true)
 
 	print("Container created successfully: " + container.name)
 
@@ -62,4 +64,4 @@ func _exit_tree():
 	if is_panel_open:
 		remove_control_from_docks(panel)
 		panel.queue_free()
-	remove_tool_menu_item("Populous")
+	remove_tool_menu_item(PopulousConstant.Strings.populous)
