@@ -26,7 +26,6 @@ layout_mode = 2
 
 [node name="DisabledState" type="Label" parent="."]
 unique_name_in_owner = true
-visible = false
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
@@ -37,12 +36,13 @@ autowrap_mode = 3
 
 [node name="PopulousMenu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
-[node name="CrowdSettings" type="VBoxContainer" parent="PopulousMenu"]
+[node name="PopulousSettings" type="VBoxContainer" parent="PopulousMenu"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdSettings"]
+[node name="Label" type="Label" parent="PopulousMenu/PopulousSettings"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
@@ -51,45 +51,46 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/CrowdSettings"]
+[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/PopulousSettings"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PopulousMenu/CrowdSettings"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PopulousMenu/PopulousSettings"]
 layout_mode = 2
 
-[node name="NPCLable" type="RichTextLabel" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+[node name="NPCLable" type="RichTextLabel" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
 text = "NPC Class"
 fit_content = true
 
-[node name="Details" type="RichTextLabel" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+[node name="Details" type="RichTextLabel" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
 text = "Please select the NPC Resource  which you want to use to populate"
 fit_content = true
 
-[node name="NPCResourcePicker" type="EditorResourcePicker" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+[node name="NPCResourcePicker" type="EditorResourcePicker" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 base_type = "PackedScene"
 script = ExtResource("2_g7vlh")
 metadata/_custom_type_script = ExtResource("2_g7vlh")
 
-[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/CrowdSettings"]
+[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/PopulousSettings"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="CrowdType" type="HBoxContainer" parent="PopulousMenu/CrowdSettings"]
+[node name="PopulousGenType" type="HBoxContainer" parent="PopulousMenu/PopulousSettings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdSettings/CrowdType"]
+[node name="Label" type="Label" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Type"
 
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/CrowdSettings/CrowdType"]
+[node name="VSeparator" type="VSeparator" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
 layout_mode = 2
 
-[node name="Type" type="OptionButton" parent="PopulousMenu/CrowdSettings/CrowdType"]
+[node name="Type" type="OptionButton" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 selected = 0
@@ -103,10 +104,10 @@ popup/item_1/id = 1
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="CrowdPlacement" type="VBoxContainer" parent="PopulousMenu"]
+[node name="NPCPlacmentSettings" type="VBoxContainer" parent="PopulousMenu"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdPlacement"]
+[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
@@ -115,80 +116,80 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="MaxCrowdDensity" type="HBoxContainer" parent="PopulousMenu/CrowdPlacement"]
+[node name="MaxDensity" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdPlacement/MaxCrowdDensity"]
+[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Max Density"
 
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/CrowdPlacement/MaxCrowdDensity"]
+[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
 layout_mode = 2
 
-[node name="Density" type="SpinBox" parent="PopulousMenu/CrowdPlacement/MaxCrowdDensity"]
+[node name="Density" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
 layout_mode = 2
 min_value = 2.0
 value = 2.0
 suffix = "folks"
 
-[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/CrowdPlacement"]
+[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/NPCPlacmentSettings"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="RowsandColumns" type="HBoxContainer" parent="PopulousMenu/CrowdPlacement"]
+[node name="RowsandColumns" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Rows"
 
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 
-[node name="Rows" type="SpinBox" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="Rows" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 min_value = 1.0
 value = 1.0
 
-[node name="VSeparator2" type="VSeparator" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="VSeparator2" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="Label2" type="Label" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Columns"
 
-[node name="Columns" type="SpinBox" parent="PopulousMenu/CrowdPlacement/RowsandColumns"]
+[node name="Columns" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
 layout_mode = 2
 min_value = 2.0
 value = 2.0
 
-[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/CrowdPlacement"]
+[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/NPCPlacmentSettings"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="Padding" type="HBoxContainer" parent="PopulousMenu/CrowdPlacement"]
+[node name="Padding" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousMenu/CrowdPlacement/Padding"]
+[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Padding XYZ"
 
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/CrowdPlacement/Padding"]
+[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
 layout_mode = 2
 
-[node name="PaddingX" type="SpinBox" parent="PopulousMenu/CrowdPlacement/Padding"]
+[node name="PaddingX" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
 layout_mode = 2
 min_value = 2.0
 value = 2.0
 
-[node name="PaddingY" type="SpinBox" parent="PopulousMenu/CrowdPlacement/Padding"]
+[node name="PaddingY" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
 layout_mode = 2
 
-[node name="PaddingZ" type="SpinBox" parent="PopulousMenu/CrowdPlacement/Padding"]
+[node name="PaddingZ" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
 layout_mode = 2
 min_value = 2.0
 value = 2.0
@@ -197,9 +198,11 @@ value = 2.0
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="Crowd" type="VBoxContainer" parent="PopulousMenu"]
+[node name="PopulousGenerate" type="VBoxContainer" parent="PopulousMenu"]
 layout_mode = 2
 
-[node name="Generate" type="Button" parent="PopulousMenu/Crowd"]
+[node name="GeneratePopulous" type="Button" parent="PopulousMenu/PopulousGenerate"]
 layout_mode = 2
-text = "Generate"
+text = "Generate Populous"
+
+[connection signal="pressed" from="PopulousMenu/PopulousGenerate/GeneratePopulous" to="." method="_on_generate_populous_pressed"]

@@ -7,6 +7,7 @@ var populous_menu: VBoxContainer
 var menu_disabled_label: Label
 
 var is_container_selected: bool = false
+var populous_container: Node3D = null
 
 func _ready() -> void:
 	populous_menu = %PopulousMenu
@@ -26,5 +27,19 @@ func _on_selection_changed() -> void:
 	var selected_nodes = EditorInterface.get_selection().get_selected_nodes()
 	if selected_nodes.size() > 0 and selected_nodes[0].has_meta(PopulousConstants.Strings.populous_container):
 		is_container_selected = true
+		populous_container = selected_nodes[0]
 	else:
 		is_container_selected = false
+		populous_container = null
+
+
+func _on_generate_populous_pressed() -> void:
+	if populous_container == null:
+		print_debug("Could not find populous container")
+		return
+	if %NPCResourcePicker == null:
+		print_debug("No NPC Resource!")
+		return
+	var spawned_npc = %NPCResourcePicker.edited_resource.instantiate()
+	populous_container.add_child(spawned_npc)
+	spawned_npc.owner = get_tree().edited_scene_root
