@@ -1,6 +1,8 @@
 @tool
 extends VBoxContainer
 
+const PopulousConstants = preload("res://addons/Populous/Scripts/populous_constants.gd")
+
 var populous_menu: VBoxContainer
 var menu_disabled_label: Label
 
@@ -22,7 +24,7 @@ func _process(delta: float) -> void:
 func _on_selection_changed() -> void:
 	# Get the selected nodes
 	var selected_nodes = EditorInterface.get_selection().get_selected_nodes()
-	if selected_nodes.size() > 0 and selected_nodes[0].has_meta("PopulousContainer"):
+	if selected_nodes.size() > 0 and selected_nodes[0].has_meta(PopulousConstants.Strings.populous_container):
 		is_container_selected = true
 	else:
 		is_container_selected = false

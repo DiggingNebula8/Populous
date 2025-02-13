@@ -4,3 +4,9 @@
 
 [node name="PopulousContainer0" type="Node3D" parent="."]
 metadata/PopulousContainer = true
+
+[node name="PopulousContainer1" type="Node3D" parent="."]
+metadata/PopulousContainer = true
+
+[node name="PopulousContainer2" type="Node3D" parent="."]
+metadata/PopulousContainer = true

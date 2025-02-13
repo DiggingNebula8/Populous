@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2bljxr5rp7gd"]
+[gd_scene load_steps=3 format=3 uid="uid://d2bljxr5rp7gd"]
 
 [ext_resource type="Script" uid="uid://dehjydnf3e4hm" path="res://addons/Populous/Scripts/populous_tool.gd" id="1_nscky"]
+[ext_resource type="Script" uid="uid://i7ydektq0vas" path="res://addons/Populous/Scripts/npc_resource_picker.gd" id="2_g7vlh"]
 
 [node name="PopulousTool" type="VBoxContainer"]
 anchors_preset = 9
@@ -25,6 +26,7 @@ layout_mode = 2
 
 [node name="DisabledState" type="Label" parent="."]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
@@ -35,7 +37,6 @@ autowrap_mode = 3
 
 [node name="PopulousMenu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
 [node name="CrowdSettings" type="VBoxContainer" parent="PopulousMenu"]
@@ -49,6 +50,33 @@ text = "Main"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/CrowdSettings"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopulousMenu/CrowdSettings"]
+layout_mode = 2
+
+[node name="NPCLable" type="RichTextLabel" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+layout_mode = 2
+text = "NPC Class"
+fit_content = true
+
+[node name="Details" type="RichTextLabel" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+layout_mode = 2
+text = "Please select the NPC Resource  which you want to use to populate"
+fit_content = true
+
+[node name="NPCResourcePicker" type="EditorResourcePicker" parent="PopulousMenu/CrowdSettings/VBoxContainer"]
+layout_mode = 2
+base_type = "PackedScene"
+script = ExtResource("2_g7vlh")
+metadata/_custom_type_script = ExtResource("2_g7vlh")
+
+[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/CrowdSettings"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
 
 [node name="CrowdType" type="HBoxContainer" parent="PopulousMenu/CrowdSettings"]
 layout_mode = 2
