@@ -205,4 +205,10 @@ layout_mode = 2
 layout_mode = 2
 text = "Generate Populous"
 
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/MaxDensity/Density" to="." method="_on_density_value_changed"]
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/RowsandColumns/Rows" to="." method="_on_rows_value_changed"]
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/RowsandColumns/Columns" to="." method="_on_columns_value_changed"]
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingX" to="." method="_on_padding_x_value_changed"]
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingY" to="." method="_on_padding_y_value_changed"]
+[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingZ" to="." method="_on_padding_z_value_changed"]
 [connection signal="pressed" from="PopulousMenu/PopulousGenerate/GeneratePopulous" to="." method="_on_generate_populous_pressed"]
