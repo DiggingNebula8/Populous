@@ -45,12 +45,42 @@ func _on_generate_populous_pressed() -> void:
 	if populous_container == null:
 		print_debug("Could not find populous container")
 		return
-	if %NPCResourcePicker == null:
+		
+	var npc_resource = %NPCResourcePicker.edited_resource
+	
+	if npc_resource == null:
 		print_debug("No NPC Resource!")
 		return
-	var spawned_npc = %NPCResourcePicker.edited_resource.instantiate()
-	populous_container.add_child(spawned_npc)
-	spawned_npc.owner = get_tree().edited_scene_root
+		
+	for child in populous_container.get_children():
+		child.queue_free() #clean previous
+	
+	# Generate populous based of settings
+	var count = 0
+	for row in range(rows):
+		for col in range(columns):
+			if count >= populous_density: # Stop spawning if density is reached
+				return
+			var spawned_npc = npc_resource.instantiate()
+			populous_container.add_child(spawned_npc)
+			spawned_npc.owner = get_tree().edited_scene_root
+			
+			# Calculate position for the spawn
+			var position = Vector3(
+				col * spawn_padding.x, # Column-based X spacing
+				0,                    # Grounded on Y axis
+				row * spawn_padding.z # Row-based Z spacing
+			)
+			
+			if spawned_npc is Node3D:
+				var new_transform = spawned_npc.transform
+				new_transform.origin = position
+				spawned_npc.transform = new_transform
+			else:
+				print("Spawned NPC is not a Node3D and cannot be positioned:", spawned_npc)
+
+			count += 1
+			print("Spawned NPC at position:", position)
 
 
 func _on_density_value_changed(value: float) -> void:
