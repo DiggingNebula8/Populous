@@ -1,4 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://bbgxbgvfv1omx"]
+[gd_scene load_steps=6 format=3 uid="uid://bbgxbgvfv1omx"]
+
+[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Scenes/DemoNPC.tscn" id="1_e33k1"]
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_yht1l"]
 
@@ -41,3 +43,15 @@ visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.122041, 0)
 size = Vector3(1000, 0.01, 1000)
 material = SubResource("StandardMaterial3D_e33k1")
+
+[node name="PopulousContainer0" type="Node3D" parent="."]
+metadata/PopulousContainer = true
+
+[node name="AmeliaMitchell2" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+metadata/FirstName = "Amelia"
+metadata/LastName = "Nelson"
+
+[node name="CharlotteEvans" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+metadata/FirstName = "Amelia"
+metadata/LastName = "Thompson"

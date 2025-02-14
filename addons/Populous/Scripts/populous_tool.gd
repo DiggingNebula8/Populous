@@ -80,11 +80,7 @@ func _on_generate_populous_pressed() -> void:
 			var spawned_npc = npc_resource.instantiate()
 			populous_container.add_child(spawned_npc)
 			spawned_npc.owner = get_tree().edited_scene_root
-			var first_name = npc_meta_resource.generate_first_name()
-			var last_name = npc_meta_resource.generate_last_name()
-			spawned_npc.name = first_name + " " + last_name
-			spawned_npc.set_meta(npc_meta_resource.first_name_key,first_name)
-			spawned_npc.set_meta(npc_meta_resource.last_name_key,last_name)
+			npc_meta_resource.set_npc_metadata(spawned_npc)
 			
 			# Calculate position for the spawn
 			var position = Vector3(
