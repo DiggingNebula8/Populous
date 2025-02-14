@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://d2bljxr5rp7gd"]
 
 [ext_resource type="Script" uid="uid://dehjydnf3e4hm" path="res://addons/Populous/Scripts/populous_tool.gd" id="1_nscky"]
-[ext_resource type="Script" uid="uid://i7ydektq0vas" path="res://addons/Populous/Scripts/Resource/npc_resource_picker.gd" id="2_g7vlh"]
+[ext_resource type="Script" uid="uid://dhan2lmfl5wq4" path="res://addons/Populous/Scripts/Resource/ResourcePicker/populous_resource_picker.gd" id="2_g7vlh"]
 
 [node name="PopulousTool" type="VBoxContainer"]
 anchors_preset = 9
@@ -58,20 +58,20 @@ layout_mode = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="PopulousMenu/PopulousSettings"]
 layout_mode = 2
 
-[node name="NPCLable" type="RichTextLabel" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
+[node name="Populous Resource" type="RichTextLabel" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
-text = "NPC Class"
+text = "Populous Resource"
 fit_content = true
 
 [node name="Details" type="RichTextLabel" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
-text = "Please select the NPC Resource  which you want to use to populate"
+text = "Please input the Populous Resource which you want to use to populate"
 fit_content = true
 
-[node name="NPCResourcePicker" type="EditorResourcePicker" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
+[node name="PopulousResourcePicker" type="EditorResourcePicker" parent="PopulousMenu/PopulousSettings/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-base_type = "PackedScene"
+base_type = "PopulousResource"
 script = ExtResource("2_g7vlh")
 metadata/_custom_type_script = ExtResource("2_g7vlh")
 

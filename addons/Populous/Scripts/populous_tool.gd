@@ -10,7 +10,9 @@ var menu_disabled_label: Label
 
 var is_container_selected: bool = false
 var populous_container: Node = null
-var npc_resource: PackedScene = null
+var populpus_resource: PopulousResource
+var npc_resource: PackedScene
+var npc_meta_resource: NPCMetaResource
 
 var populous_density: int = 2
 var populous_type: int = 0
@@ -47,11 +49,24 @@ func _on_generate_populous_pressed() -> void:
 		print_debug("Could not find populous container")
 		return
 		
-	npc_resource = %NPCResourcePicker.edited_resource
+	populpus_resource = %PopulousResourcePicker.edited_resource
+	
+	if populpus_resource == null:
+		print_debug("No Populous Resource!")
+		return
+		
+	npc_resource = populpus_resource.npc_resource
+	npc_meta_resource = populpus_resource.npc_meta_resource
 	
 	if npc_resource == null:
-		print_debug("No NPC Resource!")
+		print_debug("Missing NPC Resource")
 		return
+		
+	if npc_meta_resource == null:
+		print_debug("Missing NPC Meta Resource")
+		return
+	else:
+		print_debug(npc_meta_resource.first_name_key + ": " + npc_meta_resource.generate_first_name() )
 		
 	for child in populous_container.get_children():
 		child.queue_free() #clean previous
@@ -65,6 +80,11 @@ func _on_generate_populous_pressed() -> void:
 			var spawned_npc = npc_resource.instantiate()
 			populous_container.add_child(spawned_npc)
 			spawned_npc.owner = get_tree().edited_scene_root
+			var first_name = npc_meta_resource.generate_first_name()
+			var last_name = npc_meta_resource.generate_last_name()
+			spawned_npc.name = first_name + " " + last_name
+			spawned_npc.set_meta(npc_meta_resource.first_name_key,first_name)
+			spawned_npc.set_meta(npc_meta_resource.last_name_key,last_name)
 			
 			# Calculate position for the spawn
 			var position = Vector3(

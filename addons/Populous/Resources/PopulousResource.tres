@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PopulousResource" load_steps=4 format=3 uid="uid://cvwyh7kne6vby"]
+
+[ext_resource type="Script" uid="uid://d2yrbrsdobybu" path="res://addons/Populous/Scripts/Resource/populous_resource.gd" id="1_w7ib1"]
+[ext_resource type="Resource" uid="uid://dspiahahljh1v" path="res://addons/Populous/Resources/R_NPCMetaResource.tres" id="2_24m04"]
+[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Scenes/DemoNPC.tscn" id="3_4w0nb"]
+
+[resource]
+script = ExtResource("1_w7ib1")
+npc_resource = ExtResource("3_4w0nb")
+npc_meta_resource = ExtResource("2_24m04")
+metadata/_custom_type_script = ExtResource("1_w7ib1")
