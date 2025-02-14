@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-const PopulousConstant = preload("res://addons/Populous/Scripts/populous_constants.gd")
+const PopulousConstant = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
 
 var panel
 var is_panel_open: bool = false

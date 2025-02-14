@@ -3,13 +3,14 @@ extends VBoxContainer
 
 class_name PopulousTool
 
-const PopulousConstants = preload("res://addons/Populous/Scripts/populous_constants.gd")
+const PopulousConstants = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
 
 var populous_menu: VBoxContainer
 var menu_disabled_label: Label
 
 var is_container_selected: bool = false
-var populous_container: Node3D = null
+var populous_container: Node = null
+var npc_resource: PackedScene = null
 
 var populous_density: int = 2
 var populous_type: int = 0
@@ -46,7 +47,7 @@ func _on_generate_populous_pressed() -> void:
 		print_debug("Could not find populous container")
 		return
 		
-	var npc_resource = %NPCResourcePicker.edited_resource
+	npc_resource = %NPCResourcePicker.edited_resource
 	
 	if npc_resource == null:
 		print_debug("No NPC Resource!")

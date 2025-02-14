@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://d2bljxr5rp7gd"]
 
 [ext_resource type="Script" uid="uid://dehjydnf3e4hm" path="res://addons/Populous/Scripts/populous_tool.gd" id="1_nscky"]
-[ext_resource type="Script" uid="uid://i7ydektq0vas" path="res://addons/Populous/Scripts/npc_resource_picker.gd" id="2_g7vlh"]
+[ext_resource type="Script" uid="uid://i7ydektq0vas" path="res://addons/Populous/Scripts/Resource/npc_resource_picker.gd" id="2_g7vlh"]
 
 [node name="PopulousTool" type="VBoxContainer"]
 anchors_preset = 9
