@@ -1,7 +1,5 @@
 @tool
-extends EditorResourcePicker
-
-class_name PopulousResourcePicker
+class_name PopulousResourcePicker extends EditorResourcePicker
 
 func _ready() -> void:
 	base_type = "PopulousResource"
