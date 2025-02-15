@@ -75,126 +75,7 @@ base_type = "PopulousResource"
 script = ExtResource("2_g7vlh")
 metadata/_custom_type_script = ExtResource("2_g7vlh")
 
-[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/PopulousSettings"]
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-
-[node name="PopulousGenType" type="HBoxContainer" parent="PopulousMenu/PopulousSettings"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Type"
-
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
-layout_mode = 2
-
-[node name="Type" type="OptionButton" parent="PopulousMenu/PopulousSettings/PopulousGenType"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-selected = 0
-item_count = 2
-popup/item_0/text = "Basic"
-popup/item_0/id = 0
-popup/item_1/text = "Complex"
-popup/item_1/id = 1
-
 [node name="HSeparator2" type="HSeparator" parent="PopulousMenu"]
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-
-[node name="NPCPlacmentSettings" type="VBoxContainer" parent="PopulousMenu"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings"]
-custom_minimum_size = Vector2(0, 1)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Placement"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-
-[node name="MaxDensity" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Max Density"
-
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
-layout_mode = 2
-
-[node name="Density" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/MaxDensity"]
-layout_mode = 2
-min_value = 2.0
-value = 2.0
-suffix = "folks"
-
-[node name="HSeparator3" type="HSeparator" parent="PopulousMenu/NPCPlacmentSettings"]
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-
-[node name="RowsandColumns" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Rows"
-
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-
-[node name="Rows" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-min_value = 1.0
-value = 1.0
-
-[node name="VSeparator2" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Columns"
-
-[node name="Columns" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/RowsandColumns"]
-layout_mode = 2
-min_value = 2.0
-value = 2.0
-
-[node name="HSeparator4" type="HSeparator" parent="PopulousMenu/NPCPlacmentSettings"]
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-
-[node name="Padding" type="HBoxContainer" parent="PopulousMenu/NPCPlacmentSettings"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Padding XYZ"
-
-[node name="VSeparator" type="VSeparator" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
-layout_mode = 2
-
-[node name="PaddingX" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
-layout_mode = 2
-min_value = 2.0
-value = 2.0
-
-[node name="PaddingY" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
-layout_mode = 2
-
-[node name="PaddingZ" type="SpinBox" parent="PopulousMenu/NPCPlacmentSettings/Padding"]
-layout_mode = 2
-min_value = 2.0
-value = 2.0
-
-[node name="HSeparator3" type="HSeparator" parent="PopulousMenu"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
@@ -202,13 +83,9 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="GeneratePopulous" type="Button" parent="PopulousMenu/PopulousGenerate"]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "Generate Populous"
 
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/MaxDensity/Density" to="." method="_on_density_value_changed"]
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/RowsandColumns/Rows" to="." method="_on_rows_value_changed"]
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/RowsandColumns/Columns" to="." method="_on_columns_value_changed"]
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingX" to="." method="_on_padding_x_value_changed"]
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingY" to="." method="_on_padding_y_value_changed"]
-[connection signal="value_changed" from="PopulousMenu/NPCPlacmentSettings/Padding/PaddingZ" to="." method="_on_padding_z_value_changed"]
 [connection signal="pressed" from="PopulousMenu/PopulousGenerate/GeneratePopulous" to="." method="_on_generate_populous_pressed"]

@@ -1,9 +1,7 @@
-[gd_resource type="Resource" script_class="NPCMetaResource" load_steps=3 format=3 uid="uid://dspiahahljh1v"]
+[gd_resource type="Resource" script_class="PopulousMeta" load_steps=2 format=3 uid="uid://dspiahahljh1v"]
 
-[ext_resource type="Script" uid="uid://8w48nvclamyx" path="res://addons/Populous/Scripts/Resource/npc_meta_resource.gd" id="1_k7ky6"]
-[ext_resource type="Resource" uid="uid://dt1telq02ukap" path="res://addons/Populous/Data/npc_data.tres" id="2_es6rd"]
+[ext_resource type="Script" uid="uid://8w48nvclamyx" path="res://addons/Populous/Scripts/Base/Sub/populous_meta.gd" id="1_k7ky6"]
 
 [resource]
 script = ExtResource("1_k7ky6")
-name_resource = ExtResource("2_es6rd")
 metadata/_custom_type_script = ExtResource("1_k7ky6")

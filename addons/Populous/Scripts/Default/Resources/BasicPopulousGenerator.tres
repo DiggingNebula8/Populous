@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BasicPopulousGenerator" load_steps=4 format=3 uid="uid://n13gtasvcjnx"]
+
+[ext_resource type="Script" uid="uid://bf2ax8ysesyx4" path="res://addons/Populous/Scripts/Default/basic_populous_generator.gd" id="1_462tw"]
+[ext_resource type="Resource" uid="uid://cwtje8xkf3m6g" path="res://addons/Populous/Scripts/Default/Resources/BasicPopulousMeta.tres" id="1_hmc3a"]
+[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Scenes/DemoNPC.tscn" id="3_ygn4t"]
+
+[resource]
+script = ExtResource("1_462tw")
+populous_density = 20
+spawn_padding = Vector3(2, 0, 2)
+rows = 10
+columns = 2
+resource = ExtResource("3_ygn4t")
+meta_resource = ExtResource("1_hmc3a")
+metadata/_custom_type_script = ExtResource("1_462tw")

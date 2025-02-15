@@ -1,0 +1,93 @@
+[gd_scene format=3 uid="uid://dk7wwc36yfjim"]
+
+[node name="BasicPopulousGenerator" type="VBoxContainer"]
+
+[node name="NPCPlacmentSettings" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="NPCPlacmentSettings"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Placement"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MaxDensity" type="HBoxContainer" parent="NPCPlacmentSettings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="NPCPlacmentSettings/MaxDensity"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Max Density"
+
+[node name="VSeparator" type="VSeparator" parent="NPCPlacmentSettings/MaxDensity"]
+layout_mode = 2
+
+[node name="Density" type="SpinBox" parent="NPCPlacmentSettings/MaxDensity"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+suffix = "folks"
+
+[node name="HSeparator3" type="HSeparator" parent="NPCPlacmentSettings"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="RowsandColumns" type="HBoxContainer" parent="NPCPlacmentSettings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Rows"
+
+[node name="VSeparator" type="VSeparator" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+
+[node name="Rows" type="SpinBox" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="VSeparator2" type="VSeparator" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Columns"
+
+[node name="Columns" type="SpinBox" parent="NPCPlacmentSettings/RowsandColumns"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="HSeparator4" type="HSeparator" parent="NPCPlacmentSettings"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Padding" type="HBoxContainer" parent="NPCPlacmentSettings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="NPCPlacmentSettings/Padding"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Padding XYZ"
+
+[node name="VSeparator" type="VSeparator" parent="NPCPlacmentSettings/Padding"]
+layout_mode = 2
+
+[node name="PaddingX" type="SpinBox" parent="NPCPlacmentSettings/Padding"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="PaddingY" type="SpinBox" parent="NPCPlacmentSettings/Padding"]
+layout_mode = 2
+
+[node name="PaddingZ" type="SpinBox" parent="NPCPlacmentSettings/Padding"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0

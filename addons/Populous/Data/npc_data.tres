@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="JSONResource" load_steps=2 format=3 uid="uid://dt1telq02ukap"]
 
-[ext_resource type="Script" uid="uid://c4xxy716t80b8" path="res://addons/Populous/Scripts/Resource/json_resource.gd" id="1_ov882"]
+[ext_resource type="Script" uid="uid://c4xxy716t80b8" path="res://addons/Populous/Scripts/Tools/JSON_TRES/json_resource.gd" id="1_ov882"]
 
 [resource]
 script = ExtResource("1_ov882")

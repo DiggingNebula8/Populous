@@ -3,13 +3,11 @@ extends EditorPlugin
 
 const populous_constants = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
 
-var populous_panel
+var populous_panel: Control
 var is_populous_panel_open: bool = false
-const populous_tool: PackedScene = preload(populous_constants.Paths.populous_tool)
 
-var names_resource_panel
-var is_names_resource_panel_open: bool = false
-const names_resource_tool: PackedScene = preload(populous_constants.Paths.names_resource_tool)
+var json_tres_panel: Control
+var is_json_tres_panel_open: bool = false
 
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
@@ -19,7 +17,7 @@ func _create_populous_menu():
 	var menu = PopupMenu.new()
 	menu.add_item(populous_constants.Strings.populous, 0)
 	menu.add_item(populous_constants.Strings.create_container, 1)
-	menu.add_item(populous_constants.Strings.generate_names_resource, 2)
+	menu.add_item(populous_constants.Strings.json_tres, 2)
 	menu.id_pressed.connect(_on_populous_menu_selected)
 	return menu
 
@@ -35,7 +33,7 @@ func _toggle_populous_panel():
 		populous_panel.queue_free()
 		is_populous_panel_open = false
 	else:
-		populous_panel = populous_tool.instantiate()
+		populous_panel = PopulousConstant.Scenes.populous_tool.instantiate()
 		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, populous_panel)
 		is_populous_panel_open = true
 
@@ -66,17 +64,20 @@ func _create_container():
 	print("Container created successfully: " + container.name)
 	
 func _generate_names():
-	if is_names_resource_panel_open:
-		remove_control_from_docks(names_resource_panel)
-		names_resource_panel.queue_free()
-		is_names_resource_panel_open = false
+	if is_json_tres_panel_open:
+		remove_control_from_docks(json_tres_panel)
+		json_tres_panel.queue_free()
+		is_json_tres_panel_open = false
 	else:
-		names_resource_panel = names_resource_tool.instantiate()
-		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, names_resource_panel)
-		is_names_resource_panel_open = true
+		json_tres_panel = PopulousConstant.Scenes.json_tres_tool.instantiate()
+		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, json_tres_panel)
+		is_json_tres_panel_open = true
 
 func _exit_tree():
 	if is_populous_panel_open:
 		remove_control_from_docks(populous_panel)
 		populous_panel.queue_free()
+	if is_json_tres_panel_open:
+		remove_control_from_docks(json_tres_panel)
+		json_tres_panel.queue_free()
 	remove_tool_menu_item(populous_constants.Strings.populous)

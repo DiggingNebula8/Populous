@@ -47,11 +47,5 @@ material = SubResource("StandardMaterial3D_e33k1")
 [node name="PopulousContainer0" type="Node3D" parent="."]
 metadata/PopulousContainer = true
 
-[node name="AmeliaMitchell2" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-metadata/FirstName = "Amelia"
-metadata/LastName = "Nelson"
-
-[node name="CharlotteEvans" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
-metadata/FirstName = "Amelia"
-metadata/LastName = "Thompson"
+[node name="PopulousNPC2" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+metadata/PopulousMeta = true

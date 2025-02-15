@@ -1,11 +1,12 @@
+@tool
 class_name PopulousConstant
 
-class Paths:
-	const populous_tool: String = "res://addons/Populous/Scenes/PopulousTool.tscn"
-	const names_resource_tool: String = "res://addons/Populous/Scenes/NamesResourceTool.tscn"
+class Scenes:
+	const populous_tool: PackedScene = preload("res://addons/Populous/Scenes/PopulousTool.tscn")
+	const json_tres_tool: PackedScene = preload("res://addons/Populous/Scenes/JSON_TRESTool.tscn")
 
 class Strings:
 	const populous: String = "Populous"
 	const populous_container: String = "PopulousContainer"
-	const create_container: String = "Create Container"
-	const generate_names_resource: String = "Generate Names"
+	const create_container: String = "Create a Populous Container"
+	const json_tres: String = "Create a JSON Resource"

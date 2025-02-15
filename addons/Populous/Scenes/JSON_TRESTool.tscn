@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://bgf1cwntlnbjb"]
 
-[ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Scripts/names_resource_tool.gd" id="1_0cfbo"]
+[ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Scripts/Tools/JSON_TRES/json_tres.gd" id="1_0t5wg"]
 
-[node name="NamesResourceTool" type="VBoxContainer"]
-script = ExtResource("1_0cfbo")
+[node name="JSON_TRES" type="VBoxContainer"]
+script = ExtResource("1_0t5wg")
 
 [node name="CreateResource" type="Button" parent="."]
 layout_mode = 2
