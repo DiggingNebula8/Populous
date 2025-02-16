@@ -32,5 +32,9 @@ func _generate(populous_container: Node) -> void:
 	npc_meta_resource.set_metadata(spawned_npc)
 	
 	print_debug("Spawned NPC")
-		
-	
+
+func _get_params() -> Dictionary:
+	return {}  # Can be extended in child classes
+
+func _set_params(params: Dictionary) -> void:
+	pass  # Child classes handle actual params

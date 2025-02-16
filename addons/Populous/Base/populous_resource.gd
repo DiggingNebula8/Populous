@@ -5,3 +5,9 @@ class_name  PopulousResource extends Resource
 
 func run_populous(populous_container: Node):
 	generator._generate(populous_container)
+
+func get_generator_params() -> Dictionary:
+	return generator._get_params()
+	
+func set_generator_params(params: Dictionary) -> void:
+	generator._set_params(params)
