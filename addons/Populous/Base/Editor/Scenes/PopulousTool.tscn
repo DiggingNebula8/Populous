@@ -4,16 +4,42 @@
 [ext_resource type="Script" uid="uid://dhan2lmfl5wq4" path="res://addons/Populous/Base/ResourcePicker/populous_resource_picker.gd" id="2_k42f2"]
 
 [node name="Window" type="Window"]
+position = Vector2i(0, 36)
+size = Vector2i(720, 480)
 
-[node name="PopulousTool" type="VBoxContainer" parent="."]
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="Control"]
+layout_mode = 2
+offset_right = 720.0
+offset_bottom = 480.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 5
+
+[node name="PopulousTool" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer"]
+layout_mode = 2
 script = ExtResource("1_did74")
 
-[node name="Label" type="Label" parent="PopulousTool"]
+[node name="Label" type="Label" parent="Control/VBoxContainer/MarginContainer/PopulousTool"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.42, 0.884, 1, 1)
@@ -23,11 +49,11 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="HSeparator" type="HSeparator" parent="PopulousTool"]
+[node name="HSeparator" type="HSeparator" parent="Control/VBoxContainer/MarginContainer/PopulousTool"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="DisabledState" type="Label" parent="PopulousTool"]
+[node name="DisabledState" type="Label" parent="Control/VBoxContainer/MarginContainer/PopulousTool"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
@@ -37,15 +63,22 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="PopulousMenu" type="VBoxContainer" parent="PopulousTool"]
+[node name="MarginContainer2" type="MarginContainer" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 10
+
+[node name="PopulousMenu" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="PopulousSettings" type="VBoxContainer" parent="PopulousTool/PopulousMenu"]
+[node name="PopulousSettings" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PopulousTool/PopulousMenu/PopulousSettings"]
+[node name="Label" type="Label" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
@@ -54,41 +87,44 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="HSeparator4" type="HSeparator" parent="PopulousTool/PopulousMenu/PopulousSettings"]
+[node name="HSeparator4" type="HSeparator" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PopulousTool/PopulousMenu/PopulousSettings"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings"]
 layout_mode = 2
 
-[node name="Populous Resource" type="RichTextLabel" parent="PopulousTool/PopulousMenu/PopulousSettings/VBoxContainer"]
+[node name="Populous Resource" type="RichTextLabel" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
 text = "Populous Resource"
 fit_content = true
 
-[node name="Details" type="RichTextLabel" parent="PopulousTool/PopulousMenu/PopulousSettings/VBoxContainer"]
+[node name="Details" type="RichTextLabel" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings/VBoxContainer"]
 layout_mode = 2
 text = "Please input the Populous Resource which you want to use to populate"
 fit_content = true
 
-[node name="PopulousResourcePicker" type="EditorResourcePicker" parent="PopulousTool/PopulousMenu/PopulousSettings/VBoxContainer"]
+[node name="PopulousResourcePicker" type="EditorResourcePicker" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousSettings/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 base_type = "PopulousResource"
 script = ExtResource("2_k42f2")
 metadata/_custom_type_script = ExtResource("2_k42f2")
 
-[node name="HSeparator2" type="HSeparator" parent="PopulousTool/PopulousMenu"]
+[node name="HSeparator2" type="HSeparator" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="PopulousGenerate" type="VBoxContainer" parent="PopulousTool/PopulousMenu"]
+[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="GeneratePopulous" type="Button" parent="PopulousTool/PopulousMenu/PopulousGenerate"]
+[node name="PopulousGenerate" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+layout_mode = 2
+
+[node name="GeneratePopulous" type="Button" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 text = "Generate Populous"
 
-[connection signal="pressed" from="PopulousTool/PopulousMenu/PopulousGenerate/GeneratePopulous" to="PopulousTool" method="_on_generate_populous_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/GeneratePopulous" to="Control/VBoxContainer/MarginContainer/PopulousTool" method="_on_generate_populous_pressed"]

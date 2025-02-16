@@ -12,15 +12,12 @@ var is_container_selected: bool = false
 var populous_container: Node = null
 var populpus_resource: PopulousResource
 
-var populous_density: int = 2
-var populous_type: int = 0
-var spawn_padding: Vector3 = Vector3(2, 0, 2)
-var rows: int = 1
-var columns: int = 2
+var dynamic_ui_container: VBoxContainer
 
 func _ready() -> void:
 	populous_menu = %PopulousMenu
 	menu_disabled_label = %DisabledState
+	dynamic_ui_container = %DynamicUIContainer
 
 	# Connect the selection changed signal (only works in the editor)
 	if Engine.is_editor_hint():
