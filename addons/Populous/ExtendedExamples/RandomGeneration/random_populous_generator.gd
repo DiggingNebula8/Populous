@@ -53,3 +53,24 @@ func _generate(populous_container: Node) -> void:
 
 			count += 1
 			print("Spawned NPC at position:", position)
+
+func _get_params() -> Dictionary:
+	var base_params = super._get_params()  # Ensures we include parent class params if needed
+	base_params.merge({
+		"populous_density": populous_density,
+		"spawn_padding": spawn_padding,
+		"rows": rows,
+		"columns": columns
+	})
+	return base_params
+
+func _set_params(params: Dictionary) -> void:
+	super._set_params(params)  # Calls parent setter in case it has additional logic
+	if params.has("populous_density"):
+		populous_density = params["populous_density"]
+	if params.has("spawn_padding"):
+		spawn_padding = params["spawn_padding"]
+	if params.has("rows"):
+		rows = params["rows"]
+	if params.has("columns"):
+		columns = params["columns"]
