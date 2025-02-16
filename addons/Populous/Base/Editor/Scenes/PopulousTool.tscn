@@ -16,9 +16,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="Control"]
-layout_mode = 2
-offset_right = 720.0
-offset_bottom = 480.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control"]
 layout_mode = 1
@@ -115,7 +118,11 @@ metadata/_custom_type_script = ExtResource("2_k42f2")
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 
@@ -124,6 +131,7 @@ layout_mode = 2
 
 [node name="GeneratePopulous" type="Button" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "Generate Populous"
 

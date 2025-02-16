@@ -28,11 +28,10 @@ func _process(delta: float) -> void:
 	populous_menu.visible = is_container_selected
 	menu_disabled_label.visible = not is_container_selected
 	
-	populpus_resource = %PopulousResourcePicker.edited_resource
-	if populpus_resource == null:
-		%GeneratePopulous.visible = false
-	else:
-		%GeneratePopulous.visible = true
+	var new_resource = %PopulousResourcePicker.edited_resource
+	if new_resource != populpus_resource:
+		populpus_resource = new_resource
+		_update_ui()  # Call function to update UI only when resource changes
 	
 func _on_selection_changed() -> void:
 	# Get the selected nodes
@@ -46,3 +45,104 @@ func _on_selection_changed() -> void:
 
 func _on_generate_populous_pressed() -> void:
 	populpus_resource.run_populous(populous_container)
+	
+func _update_ui():
+	if populpus_resource == null:
+		%GeneratePopulous.visible = false
+		return
+
+	%GeneratePopulous.visible = true
+	var populous_generator_params = populpus_resource.get_generator_params()
+
+	# Clear the UI container before adding new elements
+	for child in dynamic_ui_container.get_children():
+		dynamic_ui_container.remove_child(child)
+		child.queue_free()
+
+	# Generate new UI elements inside the referenced VBoxContainer
+	_make_ui(populous_generator_params)
+
+func _make_ui(params: Dictionary):
+	for key in params.keys():
+		var value = params[key]
+
+		var label = Label.new()
+		label.text = key
+
+		var input_field = null  # Placeholder for UI element
+
+		# Create input fields based on the type of value
+		match typeof(value):
+			TYPE_INT:
+				var spinbox = SpinBox.new()
+				spinbox.min_value = 0
+				spinbox.max_value = 100  # Adjust limits if needed
+				spinbox.value = value
+				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
+				input_field = spinbox
+
+			TYPE_FLOAT:
+				var spinbox = SpinBox.new()
+				spinbox.min_value = -1000.0
+				spinbox.max_value = 1000.0
+				spinbox.step = 0.1
+				spinbox.value = value
+				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
+				input_field = spinbox
+
+			TYPE_BOOL:
+				var checkbox = CheckBox.new()
+				checkbox.button_pressed = value
+				checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
+				input_field = checkbox
+
+			TYPE_VECTOR3:
+				var hbox = HBoxContainer.new()
+				
+				var x_spin = SpinBox.new()
+				x_spin.value = value.x
+				x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
+				
+				var y_spin = SpinBox.new()
+				y_spin.value = value.y
+				y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
+
+				var z_spin = SpinBox.new()
+				z_spin.value = value.z
+				z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
+
+				hbox.add_child(x_spin)
+				hbox.add_child(y_spin)
+				hbox.add_child(z_spin)
+				input_field = hbox
+
+			_:
+				var line_edit = LineEdit.new()
+				line_edit.text = str(value)
+				line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
+				input_field = line_edit
+
+		# Add label and input field to dynamic UI container
+		dynamic_ui_container.add_child(label)
+		dynamic_ui_container.add_child(input_field)
+
+func _on_value_changed(new_value, key):
+	if populpus_resource:
+		var updated_params = populpus_resource.get_generator_params()
+		updated_params[key] = new_value
+		populpus_resource.set_generator_params(updated_params)
+
+func _on_vector3_changed(new_value, key, axis):
+	if populpus_resource:
+		var updated_params = populpus_resource.get_generator_params()
+		var vector3_value = updated_params[key] as Vector3
+
+		if axis == 0:
+			vector3_value.x = new_value
+		elif axis == 1:
+			vector3_value.y = new_value
+		elif axis == 2:
+			vector3_value.z = new_value
+
+		updated_params[key] = vector3_value
+		populpus_resource.set_generator_params(updated_params)
