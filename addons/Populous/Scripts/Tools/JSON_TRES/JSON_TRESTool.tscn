@@ -1,0 +1,68 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgf1cwntlnbjb"]
+
+[ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Scripts/Tools/JSON_TRES/json_tres.gd" id="1_sgjq3"]
+
+[node name="Window" type="Window"]
+position = Vector2i(0, 36)
+
+[node name="JSON to TRES" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sgjq3")
+
+[node name="JSONContainer" type="HBoxContainer" parent="JSON to TRES"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="JSON to TRES/JSONContainer"]
+layout_mode = 2
+text = "JSON File"
+
+[node name="JSONLineEdit" type="LineEdit" parent="JSON to TRES/JSONContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+placeholder_text = "Path to your json"
+
+[node name="BrowseJSON" type="Button" parent="JSON to TRES/JSONContainer"]
+layout_mode = 2
+text = "Browse"
+
+[node name="HSeparator2" type="HSeparator" parent="JSON to TRES"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="TRESContainer" type="HBoxContainer" parent="JSON to TRES"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="JSON to TRES/TRESContainer"]
+layout_mode = 2
+text = "Godot Resource:"
+
+[node name="TRESLineEdit" type="LineEdit" parent="JSON to TRES/TRESContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+placeholder_text = "Path to save the tres"
+
+[node name="BrowseTres" type="Button" parent="JSON to TRES/TRESContainer"]
+layout_mode = 2
+text = "Browse"
+
+[node name="FileDialog" type="FileDialog" parent="JSON to TRES"]
+unique_name_in_owner = true
+
+[node name="HSeparator" type="HSeparator" parent="JSON to TRES"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="CreateResource" type="Button" parent="JSON to TRES"]
+layout_mode = 2
+text = "Create Resource"
+
+[connection signal="pressed" from="JSON to TRES/JSONContainer/BrowseJSON" to="JSON to TRES" method="_on_browse_json_pressed"]
+[connection signal="pressed" from="JSON to TRES/TRESContainer/BrowseTres" to="JSON to TRES" method="_on_browse_tres_pressed"]
+[connection signal="file_selected" from="JSON to TRES/FileDialog" to="JSON to TRES" method="_on_file_dialog_file_selected"]
+[connection signal="pressed" from="JSON to TRES/CreateResource" to="JSON to TRES" method="_on_create_resource_pressed"]

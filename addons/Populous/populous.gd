@@ -3,11 +3,11 @@ extends EditorPlugin
 
 const populous_constants = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
 
-var populous_panel: Control
-var is_populous_panel_open: bool = false
+var populous_window: Window
+var is_populous_window_open: bool = false
 
-var json_tres_panel: Control
-var is_json_tres_panel_open: bool = false
+var json_tres_window: Window
+var is_json_tres_window_open: bool = false
 
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
@@ -23,19 +23,39 @@ func _create_populous_menu():
 
 func _on_populous_menu_selected(id: int):
 	match id:
-		0: _toggle_populous_panel()
+		0: _toggle_populous_window()
 		1: _create_container()
-		2: _generate_names()
+		2: _toggle_json_tres_window()
 
-func _toggle_populous_panel():
-	if is_populous_panel_open:
-		remove_control_from_docks(populous_panel)
-		populous_panel.queue_free()
-		is_populous_panel_open = false
-	else:
-		populous_panel = PopulousConstant.Scenes.populous_tool.instantiate()
-		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, populous_panel)
-		is_populous_panel_open = true
+func _toggle_populous_window():
+		populous_window = PopulousConstant.Scenes.populous_tool.instantiate() as Window
+		populous_window.title = "Populous Tool"
+		populous_window.size = Vector2i(500, 400)
+		populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
+		populous_window.always_on_top = true
+		get_editor_interface().get_base_control().add_child(populous_window)
+		populous_window.show()
+		is_populous_window_open = true
+		populous_window.close_requested.connect(_on_populous_window_closed)
+
+func _on_populous_window_closed():
+	is_populous_window_open = false
+	populous_window.queue_free()
+
+func _toggle_json_tres_window():
+		json_tres_window = PopulousConstant.Scenes.json_tres_tool.instantiate() as Window
+		json_tres_window.title = "JSON Tres Tool"
+		json_tres_window.size = Vector2i(500, 400)
+		json_tres_window.position = (Vector2i(get_editor_interface().get_base_control().size) - json_tres_window.size) / 2
+		json_tres_window.always_on_top = true
+		get_editor_interface().get_base_control().add_child(json_tres_window)
+		json_tres_window.show()
+		is_json_tres_window_open = true
+		json_tres_window.close_requested.connect(_on_json_tres_window_closed)
+
+func _on_json_tres_window_closed():
+	is_json_tres_window_open = false
+	json_tres_window.queue_free()
 
 func _create_container():
 	# Get the root node of the current scene
@@ -62,22 +82,10 @@ func _create_container():
 	container.set_meta(populous_constants.Strings.populous_container, true)
 
 	print("Container created successfully: " + container.name)
-	
-func _generate_names():
-	if is_json_tres_panel_open:
-		remove_control_from_docks(json_tres_panel)
-		json_tres_panel.queue_free()
-		is_json_tres_panel_open = false
-	else:
-		json_tres_panel = PopulousConstant.Scenes.json_tres_tool.instantiate()
-		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BL, json_tres_panel)
-		is_json_tres_panel_open = true
 
 func _exit_tree():
-	if is_populous_panel_open:
-		remove_control_from_docks(populous_panel)
-		populous_panel.queue_free()
-	if is_json_tres_panel_open:
-		remove_control_from_docks(json_tres_panel)
-		json_tres_panel.queue_free()
+	if is_populous_window_open:
+		populous_window.queue_free()
+	if is_json_tres_window_open:
+		json_tres_window.queue_free()
 	remove_tool_menu_item(populous_constants.Strings.populous)
