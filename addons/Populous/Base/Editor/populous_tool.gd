@@ -66,8 +66,16 @@ func _make_ui(params: Dictionary):
 	for key in params.keys():
 		var value = params[key]
 
+		# Create a row container for better alignment
+		var row_container = HBoxContainer.new()
+		row_container.alignment = BoxContainer.ALIGNMENT_CENTER  # Center align horizontally
+		row_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
 		var label = Label.new()
 		label.text = key
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL  # Makes label take space equally
 
 		var input_field = null  # Placeholder for UI element
 
@@ -78,6 +86,8 @@ func _make_ui(params: Dictionary):
 				spinbox.min_value = 0
 				spinbox.max_value = 100  # Adjust limits if needed
 				spinbox.value = value
+				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
+				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
 				input_field = spinbox
 
@@ -87,44 +97,54 @@ func _make_ui(params: Dictionary):
 				spinbox.max_value = 1000.0
 				spinbox.step = 0.1
 				spinbox.value = value
+				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
+				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
 				input_field = spinbox
 
 			TYPE_BOOL:
 				var checkbox = CheckBox.new()
 				checkbox.button_pressed = value
+				checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
 				input_field = checkbox
 
 			TYPE_VECTOR3:
 				var hbox = HBoxContainer.new()
-				
+				hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+				hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
 				var x_spin = SpinBox.new()
 				x_spin.value = value.x
 				x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
-				
+				hbox.add_child(x_spin)
+
 				var y_spin = SpinBox.new()
 				y_spin.value = value.y
 				y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
+				hbox.add_child(y_spin)
 
 				var z_spin = SpinBox.new()
 				z_spin.value = value.z
 				z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
-
-				hbox.add_child(x_spin)
-				hbox.add_child(y_spin)
 				hbox.add_child(z_spin)
+
 				input_field = hbox
 
 			_:
 				var line_edit = LineEdit.new()
 				line_edit.text = str(value)
+				line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+				line_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
 				input_field = line_edit
 
-		# Add label and input field to dynamic UI container
-		dynamic_ui_container.add_child(label)
-		dynamic_ui_container.add_child(input_field)
+		# Add label and input field to row container
+		row_container.add_child(label)
+		row_container.add_child(input_field)
+
+		# Add row container to dynamic UI container
+		dynamic_ui_container.add_child(row_container)
 
 func _on_value_changed(new_value, key):
 	if populpus_resource:
