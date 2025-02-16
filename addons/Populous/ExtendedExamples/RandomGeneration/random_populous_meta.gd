@@ -21,5 +21,5 @@ func set_metadata(npc: Node) -> void:
 	first_name = generate_first_name()
 	last_name = generate_last_name()
 	npc.name = first_name + "-" + last_name
-	npc.set_meta(first_name_key, generate_first_name())
-	npc.set_meta(last_name_key, generate_last_name())
+	npc.set_meta(first_name_key, first_name)
+	npc.set_meta(last_name_key, last_name)
