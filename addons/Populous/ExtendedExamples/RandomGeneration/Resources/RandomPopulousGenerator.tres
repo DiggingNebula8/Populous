@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RandomPopulousGenerator" load_steps=4 format=3 uid="uid://2ny5c7lcka1j"]
+
+[ext_resource type="Resource" uid="uid://dtnu064diw2i5" path="res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/RandomPopulousMeta.tres" id="1_qtpwc"]
+[ext_resource type="Script" uid="uid://bf2ax8ysesyx4" path="res://addons/Populous/ExtendedExamples/RandomGeneration/random_populous_generator.gd" id="2_a2mwl"]
+[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousNPC.tscn" id="3_7s04m"]
+
+[resource]
+script = ExtResource("2_a2mwl")
+populous_density = 6
+spawn_padding = Vector3(2, 0, 2)
+rows = 3
+columns = 2
+resource = ExtResource("3_7s04m")
+meta_resource = ExtResource("1_qtpwc")
+metadata/_custom_type_script = ExtResource("2_a2mwl")

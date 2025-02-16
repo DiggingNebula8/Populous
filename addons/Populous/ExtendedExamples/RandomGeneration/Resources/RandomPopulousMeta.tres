@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RandomPopulousMeta" load_steps=3 format=3 uid="uid://dtnu064diw2i5"]
+
+[ext_resource type="Script" uid="uid://bae1617vrpetc" path="res://addons/Populous/ExtendedExamples/RandomGeneration/random_populous_meta.gd" id="1_a5tht"]
+[ext_resource type="Resource" uid="uid://c3ehvdq3w38g" path="res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres" id="2_yv3gb"]
+
+[resource]
+script = ExtResource("1_a5tht")
+names_list = ExtResource("2_yv3gb")
+metadata/_custom_type_script = ExtResource("1_a5tht")

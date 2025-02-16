@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bgf1cwntlnbjb"]
 
-[ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Scripts/Tools/JSON_TRES/json_tres.gd" id="1_sgjq3"]
+[ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Tools/JSON_TRES/json_tres.gd" id="1_sgjq3"]
 
 [node name="Window" type="Window"]
 position = Vector2i(0, 36)
@@ -12,6 +12,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_sgjq3")
+
+[node name="Label" type="Label" parent="JSON to TRES"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.884, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "JSON to TRES"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="JSONContainer" type="HBoxContainer" parent="JSON to TRES"]
 layout_mode = 2

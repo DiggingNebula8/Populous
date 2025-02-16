@@ -3,7 +3,7 @@ extends VBoxContainer
 
 class_name PopulousTool
 
-const PopulousConstants = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
+const PopulousConstants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 
 var populous_menu: VBoxContainer
 var menu_disabled_label: Label

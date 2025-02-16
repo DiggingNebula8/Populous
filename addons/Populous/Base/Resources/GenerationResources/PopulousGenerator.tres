@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PopulousGenerator" load_steps=4 format=3 uid="uid://6axy4f3ssjnm"]
+
+[ext_resource type="Resource" uid="uid://dmvsx3s6q2mbr" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres" id="1_usm4g"]
+[ext_resource type="Script" uid="uid://dm0iedj67hd16" path="res://addons/Populous/Base/GenerationClasses/populous_generator.gd" id="1_xn5cg"]
+[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousNPC.tscn" id="3_jlkpp"]
+
+[resource]
+script = ExtResource("1_xn5cg")
+resource = ExtResource("3_jlkpp")
+meta_resource = ExtResource("1_usm4g")
+metadata/_custom_type_script = ExtResource("1_xn5cg")

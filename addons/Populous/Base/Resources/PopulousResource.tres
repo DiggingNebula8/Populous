@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PopulousResource" load_steps=3 format=3 uid="uid://deou4wvk6703p"]
+
+[ext_resource type="Script" uid="uid://d2yrbrsdobybu" path="res://addons/Populous/Base/populous_resource.gd" id="1_2fi40"]
+[ext_resource type="Resource" uid="uid://6axy4f3ssjnm" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousGenerator.tres" id="1_ck3vp"]
+
+[resource]
+script = ExtResource("1_2fi40")
+generator = ExtResource("1_ck3vp")
+metadata/_custom_type_script = ExtResource("1_2fi40")

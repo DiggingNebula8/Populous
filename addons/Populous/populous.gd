@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-const populous_constants = preload("res://addons/Populous/Scripts/Constants/populous_constants.gd")
+const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 
 var populous_window: Window
 var is_populous_window_open: bool = false

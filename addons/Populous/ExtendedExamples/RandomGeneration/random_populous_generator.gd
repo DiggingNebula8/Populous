@@ -1,5 +1,5 @@
 @tool
-class_name BasicPopulousGenerator extends PopulousGenerator
+class_name RandomPopulousGenerator extends PopulousGenerator
 
 @export var populous_density: int = 6
 @export var spawn_padding: Vector3 = Vector3(2, 0, 2)

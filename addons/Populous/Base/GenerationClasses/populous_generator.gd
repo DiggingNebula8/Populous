@@ -1,8 +1,8 @@
 @tool
 class_name PopulousGenerator extends Resource
 
-@export var resource: PackedScene
-@export var meta_resource: PopulousMeta
+@export var resource: PackedScene = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousNPC.tscn")
+@export var meta_resource: PopulousMeta = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres")
 
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:

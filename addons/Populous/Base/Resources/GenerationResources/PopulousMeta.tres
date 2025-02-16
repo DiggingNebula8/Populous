@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="PopulousMeta" load_steps=2 format=3 uid="uid://dmvsx3s6q2mbr"]
+
+[ext_resource type="Script" uid="uid://8w48nvclamyx" path="res://addons/Populous/Base/GenerationClasses/populous_meta.gd" id="1_7v6o0"]
+
+[resource]
+script = ExtResource("1_7v6o0")
+metadata/_custom_type_script = ExtResource("1_7v6o0")

@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="BasicPopulousMeta" load_steps=3 format=3 uid="uid://cwtje8xkf3m6g"]
-
-[ext_resource type="Script" uid="uid://bae1617vrpetc" path="res://addons/Populous/Scripts/Default/basic_populous_meta.gd" id="1_podkp"]
-[ext_resource type="Resource" uid="uid://dt1telq02ukap" path="res://addons/Populous/Data/npc_data.tres" id="2_11irb"]
-
-[resource]
-script = ExtResource("1_podkp")
-names_list = ExtResource("2_11irb")
-metadata/_custom_type_script = ExtResource("1_podkp")
