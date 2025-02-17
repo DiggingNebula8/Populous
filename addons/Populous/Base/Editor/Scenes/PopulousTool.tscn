@@ -5,7 +5,7 @@
 
 [node name="Window" type="Window"]
 position = Vector2i(0, 36)
-size = Vector2i(720, 480)
+size = Vector2i(720, 720)
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -118,11 +118,22 @@ metadata/_custom_type_script = ExtResource("2_k42f2")
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
-custom_minimum_size = Vector2(0, 100)
+[node name="GeneratorSettingsLabel" type="Label" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Generator Settings"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GeneratorScrollContainer" type="ScrollContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 
-[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/ScrollContainer"]
+[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/GeneratorScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

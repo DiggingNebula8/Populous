@@ -12,11 +12,15 @@ var is_container_selected: bool = false
 var populous_container: Node = null
 var populpus_resource: PopulousResource
 
+var generator_settings_label: Label
+var generator_scroll_container: ScrollContainer
 var dynamic_ui_container: VBoxContainer
 
 func _ready() -> void:
 	populous_menu = %PopulousMenu
 	menu_disabled_label = %DisabledState
+	generator_settings_label = %GeneratorSettingsLabel
+	generator_scroll_container = %GeneratorScrollContainer
 	dynamic_ui_container = %DynamicUIContainer
 
 	# Connect the selection changed signal (only works in the editor)
@@ -53,14 +57,20 @@ func _update_ui():
 
 	%GeneratePopulous.visible = true
 	var populous_generator_params = populpus_resource.get_generator_params()
+	
+	if populous_generator_params.is_empty():
+		generator_settings_label.visible = false
+		generator_scroll_container.visible = false
+	else:
+		generator_settings_label.visible = true
+		generator_scroll_container.visible = true
+		# Clear the UI container before adding new elements
+		for child in dynamic_ui_container.get_children():
+			dynamic_ui_container.remove_child(child)
+			child.queue_free()
 
-	# Clear the UI container before adding new elements
-	for child in dynamic_ui_container.get_children():
-		dynamic_ui_container.remove_child(child)
-		child.queue_free()
-
-	# Generate new UI elements inside the referenced VBoxContainer
-	_make_ui(populous_generator_params)
+		# Generate new UI elements inside the referenced VBoxContainer
+		_make_ui(populous_generator_params)
 
 func _make_ui(params: Dictionary):
 	for key in params.keys():
@@ -142,9 +152,16 @@ func _make_ui(params: Dictionary):
 		# Add label and input field to row container
 		row_container.add_child(label)
 		row_container.add_child(input_field)
+		
+		var margin_container: MarginContainer = MarginContainer.new()
+		margin_container.add_child(row_container)
+		margin_container.add_theme_constant_override("margin_left", 10)
+		margin_container.add_theme_constant_override("margin_top", 5)
+		margin_container.add_theme_constant_override("margin_right", 10)
+		margin_container.add_theme_constant_override("margin_bottom", 5)
 
 		# Add row container to dynamic UI container
-		dynamic_ui_container.add_child(row_container)
+		dynamic_ui_container.add_child(margin_container)
 
 func _on_value_changed(new_value, key):
 	if populpus_resource:

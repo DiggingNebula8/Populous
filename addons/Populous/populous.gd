@@ -31,7 +31,7 @@ func _toggle_populous_window():
 	if is_populous_window_open == false:
 		populous_window = PopulousConstant.Scenes.populous_tool.instantiate() as Window
 		populous_window.title = "Populous Tool"
-		populous_window.size = Vector2i(720, 480)
+		populous_window.size = Vector2i(720, 720)
 		populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
 		populous_window.always_on_top = true
 		get_editor_interface().get_base_control().add_child(populous_window)
