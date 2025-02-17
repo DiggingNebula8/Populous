@@ -5,12 +5,9 @@ class_name RandomPopulousGenerator extends PopulousGenerator
 @export var spawn_padding: Vector3 = Vector3(2, 0, 2)
 @export var rows: int = 3
 @export var columns: int = 2
+@export var isRandomAlbedo: bool = true
 
 func _generate(populous_container: Node) -> void:
-	if populous_container == null:
-		print_debug("Could not find populous container")
-		return
-		
 	var npc_resource: PackedScene = resource
 	var npc_meta_resource = meta_resource
 	
@@ -35,6 +32,14 @@ func _generate(populous_container: Node) -> void:
 			var spawned_npc: Node = npc_resource.instantiate()
 			populous_container.add_child(spawned_npc)
 			spawned_npc.owner = populous_container.get_tree().edited_scene_root
+			
+			if isRandomAlbedo:
+				var mesh_child = spawned_npc.find_child("MeshInstance3D", true, false)
+				if mesh_child is MeshInstance3D:
+					var mat := StandardMaterial3D.new()
+					mat.albedo_color = Color(randf(), randf(), randf())
+					mesh_child.set_surface_override_material(0, mat)
+			
 			npc_meta_resource.set_metadata(spawned_npc)
 			
 			# Calculate position for the spawn
@@ -60,7 +65,8 @@ func _get_params() -> Dictionary:
 		"populous_density": populous_density,
 		"spawn_padding": spawn_padding,
 		"rows": rows,
-		"columns": columns
+		"columns": columns,
+		"random_albedo": isRandomAlbedo
 	})
 	return base_params
 
@@ -74,3 +80,5 @@ func _set_params(params: Dictionary) -> void:
 		rows = params["rows"]
 	if params.has("columns"):
 		columns = params["columns"]
+	if params.has("random_albedo"):
+		isRandomAlbedo = params["random_albedo"]

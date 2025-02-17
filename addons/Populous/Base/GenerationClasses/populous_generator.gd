@@ -5,10 +5,6 @@ class_name PopulousGenerator extends Resource
 @export var meta_resource: PopulousMeta = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres")
 
 func _generate(populous_container: Node) -> void:
-	if populous_container == null:
-		print_debug("Could not find populous container")
-		return
-		
 	var npc_resource: PackedScene = resource
 	
 	if npc_resource == null:

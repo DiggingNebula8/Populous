@@ -48,7 +48,11 @@ func _on_selection_changed() -> void:
 		populous_container = null
 
 func _on_generate_populous_pressed() -> void:
-	populpus_resource.run_populous(populous_container)
+	if populous_container == null:
+		print_debug("Could not find populous container")
+		return
+	else:
+		populpus_resource.run_populous(populous_container)
 	
 func _update_ui():
 	if populpus_resource == null:
