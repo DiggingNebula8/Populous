@@ -33,14 +33,9 @@ func _generate(populous_container: Node) -> void:
 			populous_container.add_child(spawned_npc)
 			spawned_npc.owner = populous_container.get_tree().edited_scene_root
 			
-			if isRandomAlbedo:
-				var mesh_child = spawned_npc.find_child("MeshInstance3D", true, false)
-				if mesh_child is MeshInstance3D:
-					var mat := StandardMaterial3D.new()
-					mat.albedo_color = Color(randf(), randf(), randf())
-					mesh_child.set_surface_override_material(0, mat)
-			
 			npc_meta_resource.set_metadata(spawned_npc)
+			if isRandomAlbedo:
+				spawned_npc.set_meta("Albedo", Color(randf(), randf(), randf()))
 			
 			# Calculate position for the spawn
 			var position = Vector3(

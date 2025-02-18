@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://bbgxbgvfv1omx"]
+[gd_scene load_steps=7 format=3 uid="uid://bbgxbgvfv1omx"]
 
-[ext_resource type="PackedScene" uid="uid://vf1ghfcax5hb" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousNPC.tscn" id="1_e33k1"]
+[ext_resource type="PackedScene" uid="uid://5jb37c8ki5il" path="res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/RandomNPC.tscn" id="1_1bc4v"]
+[ext_resource type="Script" uid="uid://07p54640m7hs" path="res://addons/Populous/ExtendedExamples/RandomGeneration/Scripts/random_npc.gd" id="2_ousn3"]
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_yht1l"]
 
@@ -44,129 +45,46 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.122041, 0)
 size = Vector3(1000, 0.01, 1000)
 material = SubResource("StandardMaterial3D_e33k1")
 
-[node name="PopulousContainer0" type="Node3D" parent="."]
+[node name="PopulousContainer1" type="Node3D" parent="."]
 metadata/PopulousContainer = true
 
-[node name="Amelia-Vargas" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-metadata/FirstName = "Amelia"
-metadata/LastName = "Vargas"
+[node name="William-Castillo" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
+script = ExtResource("2_ousn3")
+metadata/FirstName = "William"
+metadata/LastName = "Castillo"
+metadata/Albedo = Color(0.653292, 0.390191, 0.815153, 1)
 
-[node name="Benjamin-Patel" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+[node name="Sakura-Roberts" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
-metadata/FirstName = "Benjamin"
-metadata/LastName = "Patel"
+script = ExtResource("2_ousn3")
+metadata/FirstName = "Sakura"
+metadata/LastName = "Roberts"
+metadata/Albedo = Color(0.314841, 0.809069, 0.865828, 1)
 
-[node name="Arjun-Nelson" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
-metadata/FirstName = "Arjun"
-metadata/LastName = "Nelson"
-
-[node name="Hiroshi-Bertrand" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
-metadata/FirstName = "Hiroshi"
-metadata/LastName = "Bertrand"
-
-[node name="Oliver-Navarro" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
-metadata/FirstName = "Oliver"
-metadata/LastName = "Navarro"
-
-[node name="Camille-Roberts" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+[node name="Amelia-Chevalier" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
-metadata/FirstName = "Camille"
-metadata/LastName = "Roberts"
+script = ExtResource("2_ousn3")
+metadata/FirstName = "Amelia"
+metadata/LastName = "Chevalier"
+metadata/Albedo = Color(0.303357, 0.614671, 0.146892, 1)
 
-[node name="Javier-Aggarwal" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+[node name="Hugo-Torres" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
-metadata/FirstName = "Javier"
-metadata/LastName = "Aggarwal"
+script = ExtResource("2_ousn3")
+metadata/FirstName = "Hugo"
+metadata/LastName = "Torres"
+metadata/Albedo = Color(0.278465, 0.309496, 0.722902, 1)
 
-[node name="Camille-Navarro" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 2)
-metadata/FirstName = "Camille"
-metadata/LastName = "Navarro"
-
-[node name="Pierre-Laurent" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 2)
-metadata/FirstName = "Pierre"
-metadata/LastName = "Laurent"
-
-[node name="Fernando-Kobayashi" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 2)
-metadata/FirstName = "Fernando"
-metadata/LastName = "Kobayashi"
-
-[node name="Takashi-Tanaka" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
+[node name="Amelia-Ramírez" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
-metadata/FirstName = "Takashi"
-metadata/LastName = "Tanaka"
-
-[node name="Pierre-Lefebvre" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 4)
-metadata/FirstName = "Pierre"
-metadata/LastName = "Lefebvre"
-
-[node name="Vikram-Matsumoto" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
-metadata/FirstName = "Vikram"
-metadata/LastName = "Matsumoto"
-
-[node name="Haruto-Thompson" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 4)
-metadata/FirstName = "Haruto"
-metadata/LastName = "Thompson"
-
-[node name="Louis-Bose" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 4)
-metadata/FirstName = "Louis"
-metadata/LastName = "Bose"
-
-[node name="Amelia-Mitchell" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("2_ousn3")
 metadata/FirstName = "Amelia"
-metadata/LastName = "Mitchell"
-
-[node name="Fernando-Ramírez" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 6)
-metadata/FirstName = "Fernando"
 metadata/LastName = "Ramírez"
+metadata/Albedo = Color(0.152021, 0.965499, 0.173574, 1)
 
-[node name="Charlotte-Suzuki" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 6)
-metadata/FirstName = "Charlotte"
-metadata/LastName = "Suzuki"
-
-[node name="Camille-Roberts2" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 6)
-metadata/FirstName = "Camille"
-metadata/LastName = "Roberts"
-
-[node name="Élodie-Dumont" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 6)
-metadata/FirstName = "Élodie"
-metadata/LastName = "Dumont"
-
-[node name="James-Suzuki" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
-metadata/FirstName = "James"
-metadata/LastName = "Suzuki"
-
-[node name="Nanami-Fujimoto" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 8)
-metadata/FirstName = "Nanami"
-metadata/LastName = "Fujimoto"
-
-[node name="Oliver-Sharma" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 8)
-metadata/FirstName = "Oliver"
-metadata/LastName = "Sharma"
-
-[node name="Aryan-Dumont" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 8)
-metadata/FirstName = "Aryan"
-metadata/LastName = "Dumont"
-
-[node name="Amelia-Shimizu" type="CharacterBody3D" parent="PopulousContainer0" instance=ExtResource("1_e33k1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
-metadata/FirstName = "Amelia"
-metadata/LastName = "Shimizu"
+[node name="Benjamin-Rousseau" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 4)
+script = ExtResource("2_ousn3")
+metadata/FirstName = "Benjamin"
+metadata/LastName = "Rousseau"
+metadata/Albedo = Color(0.841493, 0.267942, 0.404349, 1)

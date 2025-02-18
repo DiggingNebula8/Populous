@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://5jb37c8ki5il"]
+
+[ext_resource type="Script" uid="uid://07p54640m7hs" path="res://addons/Populous/ExtendedExamples/RandomGeneration/Scripts/random_npc.gd" id="1_4r67k"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yb6fb"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_4r67k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4r67k"]
+resource_local_to_scene = true
+
+[node name="RandomNpc" type="CharacterBody3D"]
+script = ExtResource("1_4r67k")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_yb6fb")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+mesh = SubResource("CapsuleMesh_4r67k")
+surface_material_override/0 = SubResource("StandardMaterial3D_4r67k")
