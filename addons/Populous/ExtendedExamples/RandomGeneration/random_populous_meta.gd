@@ -9,6 +9,8 @@ const last_name_key: StringName = "LastName"
 var first_name: String
 var last_name: String
 
+@export var isRandomAlbedo: bool = true
+
 func generate_first_name() -> String:
 	var names = names_list.data.FirstNames
 	return names[randi() % names.size()]
@@ -23,3 +25,17 @@ func set_metadata(npc: Node) -> void:
 	npc.name = first_name + "-" + last_name
 	npc.set_meta(first_name_key, first_name)
 	npc.set_meta(last_name_key, last_name)
+	if isRandomAlbedo:
+		npc.set_meta("Albedo", Color(randf(), randf(), randf()))
+
+
+func _get_params() -> Dictionary:
+	var meta_params = {
+		"random_albedo": isRandomAlbedo
+	}
+	return meta_params
+
+func _set_params(params: Dictionary) -> void:
+	super._set_params(params)  # Calls parent setter in case it has additional logic
+	if params.has("random_albedo"):
+		isRandomAlbedo = params["random_albedo"]

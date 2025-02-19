@@ -6,4 +6,5 @@
 [resource]
 script = ExtResource("1_a5tht")
 names_list = ExtResource("2_yv3gb")
+isRandomAlbedo = true
 metadata/_custom_type_script = ExtResource("1_a5tht")

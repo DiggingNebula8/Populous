@@ -5,7 +5,6 @@ class_name RandomPopulousGenerator extends PopulousGenerator
 @export var spawn_padding: Vector3 = Vector3(2, 0, 2)
 @export var rows: int = 3
 @export var columns: int = 2
-@export var isRandomAlbedo: bool = true
 
 func _generate(populous_container: Node) -> void:
 	var npc_resource: PackedScene = resource
@@ -34,8 +33,6 @@ func _generate(populous_container: Node) -> void:
 			spawned_npc.owner = populous_container.get_tree().edited_scene_root
 			
 			npc_meta_resource.set_metadata(spawned_npc)
-			if isRandomAlbedo:
-				spawned_npc.set_meta("Albedo", Color(randf(), randf(), randf()))
 			
 			# Calculate position for the spawn
 			var position = Vector3(
@@ -55,15 +52,13 @@ func _generate(populous_container: Node) -> void:
 			print("Spawned NPC at position:", position)
 
 func _get_params() -> Dictionary:
-	var base_params = super._get_params()  # Ensures we include parent class params if needed
-	base_params.merge({
+	var generator_params = {
 		"populous_density": populous_density,
 		"spawn_padding": spawn_padding,
 		"rows": rows,
 		"columns": columns,
-		"random_albedo": isRandomAlbedo
-	})
-	return base_params
+	}
+	return generator_params
 
 func _set_params(params: Dictionary) -> void:
 	super._set_params(params)  # Calls parent setter in case it has additional logic
@@ -75,5 +70,3 @@ func _set_params(params: Dictionary) -> void:
 		rows = params["rows"]
 	if params.has("columns"):
 		columns = params["columns"]
-	if params.has("random_albedo"):
-		isRandomAlbedo = params["random_albedo"]

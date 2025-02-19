@@ -10,7 +10,6 @@ populous_density = 6
 spawn_padding = Vector3(2, 0, 2)
 rows = 3
 columns = 2
-isRandomAlbedo = true
 resource = ExtResource("3_qtpwc")
 meta_resource = ExtResource("1_qtpwc")
 metadata/_custom_type_script = ExtResource("2_a2mwl")
