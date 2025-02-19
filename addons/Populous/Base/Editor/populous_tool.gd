@@ -60,7 +60,7 @@ func _update_ui():
 		return
 
 	%GeneratePopulous.visible = true
-	var populous_generator_params = populpus_resource.get_generator_params()
+	var populous_generator_params = populpus_resource.get_params()
 	
 	if populous_generator_params.is_empty():
 		generator_settings_label.visible = false
@@ -169,13 +169,13 @@ func _make_ui(params: Dictionary):
 
 func _on_value_changed(new_value, key):
 	if populpus_resource:
-		var updated_params = populpus_resource.get_generator_params()
+		var updated_params = populpus_resource.get_params()
 		updated_params[key] = new_value
-		populpus_resource.set_generator_params(updated_params)
+		populpus_resource.set_params(updated_params)
 
 func _on_vector3_changed(new_value, key, axis):
 	if populpus_resource:
-		var updated_params = populpus_resource.get_generator_params()
+		var updated_params = populpus_resource.get_params()
 		var vector3_value = updated_params[key] as Vector3
 
 		if axis == 0:
@@ -186,4 +186,4 @@ func _on_vector3_changed(new_value, key, axis):
 			vector3_value.z = new_value
 
 		updated_params[key] = vector3_value
-		populpus_resource.set_generator_params(updated_params)
+		populpus_resource.set_params(updated_params)

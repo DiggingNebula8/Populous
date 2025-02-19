@@ -30,12 +30,11 @@ func set_metadata(npc: Node) -> void:
 
 
 func _get_params() -> Dictionary:
-	var meta_params = {
+	var meta_params: Dictionary = {
 		"random_albedo": isRandomAlbedo
 	}
 	return meta_params
 
 func _set_params(params: Dictionary) -> void:
-	super._set_params(params)  # Calls parent setter in case it has additional logic
 	if params.has("random_albedo"):
 		isRandomAlbedo = params["random_albedo"]
