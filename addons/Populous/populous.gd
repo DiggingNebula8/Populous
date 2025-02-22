@@ -46,7 +46,7 @@ func _on_populous_window_closed():
 func _toggle_json_tres_window():
 		json_tres_window = PopulousConstant.Scenes.json_tres_tool.instantiate() as Window
 		json_tres_window.title = "JSON Tres Tool"
-		json_tres_window.size = Vector2i(500, 400)
+		json_tres_window.size = Vector2i(720, 480)
 		json_tres_window.position = (Vector2i(get_editor_interface().get_base_control().size) - json_tres_window.size) / 2
 		json_tres_window.always_on_top = true
 		get_editor_interface().get_base_control().add_child(json_tres_window)

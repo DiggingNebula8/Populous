@@ -1,19 +1,55 @@
-[gd_scene load_steps=2 format=3 uid="uid://bgf1cwntlnbjb"]
+[gd_scene load_steps=3 format=3 uid="uid://bgf1cwntlnbjb"]
 
 [ext_resource type="Script" uid="uid://dxdmabvwtpf0c" path="res://addons/Populous/Tools/JSON_TRES/json_tres.gd" id="1_sgjq3"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_e63q7"]
+blend_mode = 1
+
 [node name="Window" type="Window"]
 position = Vector2i(0, 36)
+size = Vector2i(720, 480)
 
-[node name="JSON to TRES" type="VBoxContainer" parent="."]
+[node name="Panel" type="Panel" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_sgjq3")
 
-[node name="Label" type="Label" parent="JSON to TRES"]
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="Panel" type="Panel" parent="Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="Panel" type="Panel" parent="Panel/MarginContainer/MarginContainer"]
+material = SubResource("CanvasItemMaterial_e63q7")
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.42, 0.884, 1, 1)
@@ -23,56 +59,80 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="JSONContainer" type="HBoxContainer" parent="JSON to TRES"]
+[node name="MarginContainer2" type="MarginContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
 
-[node name="Label" type="Label" parent="JSON to TRES/JSONContainer"]
+[node name="JSON to TRES" type="VBoxContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2"]
 layout_mode = 2
-text = "JSON File"
+script = ExtResource("1_sgjq3")
 
-[node name="JSONLineEdit" type="LineEdit" parent="JSON to TRES/JSONContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="JSONContainer" type="HBoxContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer/JSONContainer"]
+layout_mode = 2
+text = "JSON File:"
+
+[node name="JSONLineEdit" type="LineEdit" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer/JSONContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "Path to your json"
 
-[node name="BrowseJSON" type="Button" parent="JSON to TRES/JSONContainer"]
+[node name="BrowseJSON" type="Button" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer/JSONContainer"]
 layout_mode = 2
 text = "Browse"
 
-[node name="HSeparator2" type="HSeparator" parent="JSON to TRES"]
-custom_minimum_size = Vector2(0, 5)
+[node name="MarginContainer2" type="MarginContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES"]
 layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="TRESContainer" type="HBoxContainer" parent="JSON to TRES"]
+[node name="TRESContainer" type="HBoxContainer" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer2"]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 20
 
-[node name="Label" type="Label" parent="JSON to TRES/TRESContainer"]
+[node name="Label" type="Label" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer2/TRESContainer"]
 layout_mode = 2
 text = "Godot Resource:"
 
-[node name="TRESLineEdit" type="LineEdit" parent="JSON to TRES/TRESContainer"]
+[node name="TRESLineEdit" type="LineEdit" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer2/TRESContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "Path to save the tres"
 
-[node name="BrowseTres" type="Button" parent="JSON to TRES/TRESContainer"]
+[node name="BrowseTres" type="Button" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer2/TRESContainer"]
 layout_mode = 2
 text = "Browse"
 
-[node name="FileDialog" type="FileDialog" parent="JSON to TRES"]
+[node name="FileDialog" type="FileDialog" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES"]
 unique_name_in_owner = true
 
-[node name="HSeparator" type="HSeparator" parent="JSON to TRES"]
+[node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
+theme_override_constants/separation = 20
 
-[node name="CreateResource" type="Button" parent="JSON to TRES"]
+[node name="CreateResource" type="Button" parent="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES"]
 layout_mode = 2
 text = "Create Resource"
 
-[connection signal="pressed" from="JSON to TRES/JSONContainer/BrowseJSON" to="JSON to TRES" method="_on_browse_json_pressed"]
-[connection signal="pressed" from="JSON to TRES/TRESContainer/BrowseTres" to="JSON to TRES" method="_on_browse_tres_pressed"]
-[connection signal="file_selected" from="JSON to TRES/FileDialog" to="JSON to TRES" method="_on_file_dialog_file_selected"]
-[connection signal="pressed" from="JSON to TRES/CreateResource" to="JSON to TRES" method="_on_create_resource_pressed"]
+[connection signal="pressed" from="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer/JSONContainer/BrowseJSON" to="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES" method="_on_browse_json_pressed"]
+[connection signal="pressed" from="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/MarginContainer2/TRESContainer/BrowseTres" to="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES" method="_on_browse_tres_pressed"]
+[connection signal="file_selected" from="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/FileDialog" to="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES" method="_on_file_dialog_file_selected"]
+[connection signal="pressed" from="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES/CreateResource" to="Panel/MarginContainer/MarginContainer/VBoxContainer/MarginContainer2/JSON to TRES" method="_on_create_resource_pressed"]
