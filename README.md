@@ -1,4 +1,52 @@
 # Populous
-A Godot addon to create NPCs with their Personal Data.
 
-Populous uses something called 'Populous Resources' to define how your NPCs will look and act. Each Populous Resource has two main parts: the generator and the meta. The generator decides how the NPCs will be created, and the meta gives them their unique details. To create your own custom NPCs, you'll extend the base Populous Generator and Populous Meta to create your own unique logic. We provide some extended examples, like the random generator and random meta, to get you started. Populous also comes with a tool that converts JSON data into resources, which makes it even easier to get started.
+A Godot addon to create NPCs with their personal data.
+
+## Overview
+
+Populous provides a powerful system for defining NPCs with unique appearances and behaviors. It introduces **Populous Resources**, which consist of two key components:
+
+- **Generator** – Determines how NPCs are created.
+- **Meta** – Defines the unique details of each NPC.
+
+To create custom NPCs, extend the base **Populous Generator** and **Populous Meta** classes with your own logic. To help you get started, Populous includes example extensions, such as a random generator and random meta.
+
+Additionally, Populous features a **JSON-to-Resource converter**, enabling easy conversion of JSON data into usable resources.
+
+## Features
+
+- Modular NPC creation system
+- Extendable generators and meta definitions
+- Built-in random NPC generator
+- JSON-to-Resource conversion tool
+- Seamless integration with Godot
+
+## Installation
+
+1. Download or clone the repository into your Godot project's `addons` folder.
+2. Enable the **Populous** plugin from the **Project Settings > Plugins** menu.
+
+## Usage
+
+1. Create your own **Populous Generator** by extending the base class.
+2. Define your NPC's unique attributes using **Populous Meta**.
+3. Optionally, use the provided **JSON-to-Resource converter** to load NPC data from JSON files.
+
+## Demo & Tutorial
+
+Watch the demo video:  
+[![Populous](https://img.youtube.com/vi/xrsUYKP8YIY/0.jpg)](https://youtu.be/xrsUYKP8YIY)
+
+TODO: Step by step tutorial.
+
+## Contributing
+
+Contributions are welcome! Feel free to submit issues, feature requests, or pull requests.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+⭐ If you find this addon useful, consider giving it a star on GitHub!
