@@ -1,0 +1,23 @@
+# License for Included Assets from Capsule City People
+
+This repository includes a small selection of assets from the **Capsule City People** asset pack, created by **Sabbir (@AssetHunts)**, for use as an extended example within this open-source project.
+
+## License and Permissions
+- These assets are used with **explicit permission** from the original creator.
+- The full Capsule City People asset pack can be purchased at: [https://assethunts.itch.io/capsulecitypeople](https://assethunts.itch.io/capsulecitypeople).
+- These assets are **not freely redistributable** outside the context of this repository.
+
+## Usage Conditions
+- You may use these assets **only within the scope of this project** and its examples.
+- If you require additional assets or modifications, please support the original creator by purchasing the full asset pack.
+- Any derivative works or modifications based on these assets must **not** be redistributed separately from this project.
+
+## Attribution
+The Capsule City People assets are created by **Sabbir (@AssetHunts)**. Please credit the creator if you showcase or extend this project.
+
+For any inquiries related to asset usage, please contact **AssetHunts** via their Itch.io page.
+
+---
+
+**This license does not apply to the rest of the code and original assets in this repository.** See [LICENSE](LICENSE) for details on the open-source project itself.
+
