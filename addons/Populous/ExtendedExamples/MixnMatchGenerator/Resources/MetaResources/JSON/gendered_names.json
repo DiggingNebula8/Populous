@@ -1,0 +1,18 @@
+{
+	"FemaleFirstNames": [
+		"Emily", "Charlotte", "Amelia", "Isabella", "Camille", "Élodie", "Sophie", "Marie", "Clara", "Yuki",
+		"Akiko", "Sakura", "Nanami", "Priya", "Ananya", "Neha", "Meera", "Sofia", "Lucia", "Elena", "Carmen"
+	],
+	"MaleFirstNames": [
+		"James", "Oliver", "William", "Benjamin", "Henry", "Alexander", "Louis", "Mathieu", "Pierre", "Antoine",
+		"Hugo", "Hiroshi", "Taro", "Kenji", "Takashi", "Ryota", "Arjun", "Vikram", "Rohan", "Kiran", "Rahul",
+		"Aryan", "Carlos", "Diego", "Javier", "Andrés", "Fernando", "Manuel"
+	],
+	"LastNames": [
+		"Anderson", "Thompson", "Harrison", "Walker", "Roberts", "Mitchell", "Carter", "Nelson", "Parker", "Evans",
+		"Lefebvre", "Moreau", "Dubois", "Laurent", "Bertrand", "Renard", "Chevalier", "Bouchard", "Dumont", "Rousseau",
+		"Takahashi", "Yamamoto", "Kobayashi", "Matsumoto", "Fujimoto", "Suzuki", "Tanaka", "Inoue", "Shimizu", "Kawasaki",
+		"Sharma", "Patel", "Reddy", "Choudhary", "Bose", "Iyer", "Gupta", "Aggarwal", "Deshmukh", "Menon",
+		"Fernández", "Ramírez", "Torres", "González", "Martínez", "Ortega", "Navarro", "Vargas", "Castillo", "Morales"
+	]
+}
