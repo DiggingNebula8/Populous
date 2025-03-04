@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="MixMatchPopulousMeta" load_steps=2 format=3 uid="uid://ckyn85y0klaf8"]
+
+[ext_resource type="Script" uid="uid://t4y5sbmekngd" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/mix_match_populous_meta.gd" id="1_ubwwi"]
+
+[resource]
+script = ExtResource("1_ubwwi")
+metadata/_custom_type_script = "uid://t4y5sbmekngd"
