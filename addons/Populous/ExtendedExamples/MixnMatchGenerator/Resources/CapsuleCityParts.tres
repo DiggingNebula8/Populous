@@ -1,74 +1,55 @@
-[gd_resource type="Resource" script_class="CapsuleCityParts" load_steps=39 format=3 uid="uid://bisf0kul08xx4"]
+[gd_resource type="Resource" script_class="CapsuleCityParts" load_steps=40 format=3 uid="uid://bisf0kul08xx4"]
 
 [ext_resource type="Script" uid="uid://br3k8lili5156" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/capsule_city_parts.gd" id="1_8ctpb"]
-[ext_resource type="PackedScene" uid="uid://dujw52u48logm" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/Arm_Sleeve_LAA_01.glb" id="1_6245q"]
-[ext_resource type="PackedScene" uid="uid://dbcy3e4bbx6ve" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/Arm_Sleeve_LAA_02.glb" id="2_j3lar"]
-[ext_resource type="PackedScene" uid="uid://dlvjqm5g4rl2a" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/Arm_Sleeve_LAB_01.glb" id="3_ifrsb"]
-[ext_resource type="PackedScene" uid="uid://ci2ae7pmk43sf" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/Arm_Sleeve_LAB_02.glb" id="4_72jdy"]
-[ext_resource type="PackedScene" uid="uid://dk7qot7gsh5d8" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm_Skin_01.glb" id="5_bompi"]
-[ext_resource type="PackedScene" uid="uid://bf4myeuy3qk3d" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm_Skin_02.glb" id="6_4dumx"]
-[ext_resource type="PackedScene" uid="uid://3mfx3ciw3en5" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Neck_03.glb" id="7_irusv"]
-[ext_resource type="PackedScene" uid="uid://cwp5m2y5xwvws" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Waist_01.glb" id="8_1ky0g"]
-[ext_resource type="PackedScene" uid="uid://cxa1fwh3lbe35" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Basic_Female_01.glb" id="9_5rma6"]
-[ext_resource type="PackedScene" uid="uid://dea0v2teidpnr" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Basic_Male_01.glb" id="10_dib1h"]
-[ext_resource type="PackedScene" uid="uid://ubhp12kx7dew" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_01.glb" id="11_wuqmo"]
-[ext_resource type="PackedScene" uid="uid://dpt2vvygkvodd" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_02.glb" id="12_no8t4"]
-[ext_resource type="PackedScene" uid="uid://ddol8nrjpofid" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_03.glb" id="13_0ru28"]
-[ext_resource type="PackedScene" uid="uid://br5jigxuunp6p" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_04.glb" id="14_o4kqe"]
-[ext_resource type="PackedScene" uid="uid://coytoytw1o8lr" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_05.glb" id="15_w36ag"]
-[ext_resource type="PackedScene" uid="uid://dmx6bphnj8p5b" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head/Head_Skin_02.glb" id="16_st5w8"]
-[ext_resource type="PackedScene" uid="uid://bemn0lfbs05je" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head/Head_Skin_03.glb" id="17_muiam"]
-[ext_resource type="PackedScene" uid="uid://2huy1x4g4l7v" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Cap_01A.glb" id="18_ie8ap"]
-[ext_resource type="PackedScene" uid="uid://tjelxayyi5yp" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Hat_Farmer_01.glb" id="19_wopa7"]
-[ext_resource type="PackedScene" uid="uid://cyrthibt8uoge" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Sunglass_01.glb" id="20_6q6tn"]
-[ext_resource type="PackedScene" uid="uid://c3s8h4qagsi4q" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AB_03.glb" id="21_7ngkc"]
-[ext_resource type="PackedScene" uid="uid://btuiqq7o42gs3" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AC_01.glb" id="22_tfm4e"]
-[ext_resource type="PackedScene" uid="uid://dnet1nac35y2n" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AD_01.glb" id="23_cw126"]
-[ext_resource type="PackedScene" uid="uid://cjlt0o8dhqs2i" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_01.glb" id="24_1kvjc"]
-[ext_resource type="PackedScene" uid="uid://b3s64mkoxbmq2" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_02.glb" id="25_kg448"]
-[ext_resource type="PackedScene" uid="uid://begebu6mlms23" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_03.glb" id="26_5dq3v"]
-[ext_resource type="PackedScene" uid="uid://c558u8jqwqxwg" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Lipstick_01.glb" id="27_fav20"]
-[ext_resource type="PackedScene" uid="uid://cwitr8otlr7qr" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Mustache_01.glb" id="28_kqbsn"]
-[ext_resource type="PackedScene" uid="uid://ymp3ga7cxm6w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Smile_01.glb" id="29_l2lam"]
-[ext_resource type="PackedScene" uid="uid://dft066pno3ybv" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_04.glb" id="31_i0jkb"]
-[ext_resource type="PackedScene" uid="uid://be7r0clsqrupx" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_05.glb" id="32_rdghy"]
-[ext_resource type="PackedScene" uid="uid://b6dretngv0bvx" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_06.glb" id="33_4mjws"]
-[ext_resource type="PackedScene" uid="uid://bgpomnsfve26y" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_16.glb" id="34_c7k5d"]
-[ext_resource type="PackedScene" uid="uid://c5yiidssf8knb" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_AH_01.glb" id="35_pyfr1"]
-[ext_resource type="PackedScene" uid="uid://dtalcnt61juum" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_01.glb" id="36_o1q7c"]
-[ext_resource type="PackedScene" uid="uid://dlr23xsl1rjng" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_BW_01.glb" id="37_3sg22"]
-[ext_resource type="PackedScene" uid="uid://dejecsl5luihb" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_BW_04.glb" id="38_l783y"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="1_njhmx"]
+[ext_resource type="Resource" uid="uid://dlyy4to1wciji" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/ArmSleeve01.tres" id="2_j3lar"]
+[ext_resource type="Resource" uid="uid://doh7gvxrj81um" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/ArmSleeve02.tres" id="3_ifrsb"]
+[ext_resource type="Resource" uid="uid://k6aoxt4c8jn8" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/ArmSleeve03.tres" id="4_72jdy"]
+[ext_resource type="Resource" uid="uid://dalwdxwwb37ow" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm Sleeve/ArmSleeve04.tres" id="5_bompi"]
+[ext_resource type="Resource" uid="uid://di0rhx0xjht2w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm01.tres" id="6_4dumx"]
+[ext_resource type="Resource" uid="uid://tewfs7yvp8ok" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm02.tres" id="7_irusv"]
+[ext_resource type="Resource" uid="uid://cpl1k5ce54s4r" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Neck_03.tres" id="8_1ky0g"]
+[ext_resource type="Resource" uid="uid://mx0fpmojq6j3" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Waist_01.tres" id="9_5rma6"]
+[ext_resource type="Resource" uid="uid://bq5e3tp5lobl7" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Basic_Male_01.tres" id="10_dib1h"]
+[ext_resource type="Resource" uid="uid://eho8ryk62egq" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Basic_Female_01.tres" id="11_wuqmo"]
+[ext_resource type="Resource" uid="uid://duxn14ll2sinj" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_01.tres" id="12_no8t4"]
+[ext_resource type="Resource" uid="uid://kvilvjobya0b" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_02.tres" id="13_0ru28"]
+[ext_resource type="Resource" uid="uid://n018isskqs2x" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_03.tres" id="14_o4kqe"]
+[ext_resource type="Resource" uid="uid://dtspg2103o06d" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_04.tres" id="15_w36ag"]
+[ext_resource type="Resource" uid="uid://cm46jgh8rrdk4" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_05.tres" id="16_st5w8"]
+[ext_resource type="Resource" uid="uid://b7psvobghe601" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head/Head_Skin_02.tres" id="17_muiam"]
+[ext_resource type="Resource" uid="uid://b8spu4ehhffm6" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head/Head_Skin_03.tres" id="18_ie8ap"]
+[ext_resource type="Resource" uid="uid://b85hnux62eakf" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Cap_01A.tres" id="19_wopa7"]
+[ext_resource type="Resource" uid="uid://bhj3avyrhktsb" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Hat_Farmer_01.tres" id="20_6q6tn"]
+[ext_resource type="Resource" uid="uid://ciclmkv55khlt" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Sunglass_01.tres" id="21_7ngkc"]
+[ext_resource type="Resource" uid="uid://dciloocatr7rk" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AB_03.tres" id="22_tfm4e"]
+[ext_resource type="Resource" uid="uid://14gpso56mken" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AC_01.tres" id="23_cw126"]
+[ext_resource type="Resource" uid="uid://d1udopfbrnm8e" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AD_01.tres" id="24_1kvjc"]
+[ext_resource type="Resource" uid="uid://dfhubonradrw0" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_01.tres" id="25_kg448"]
+[ext_resource type="Resource" uid="uid://qss16mcjf4ma" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_02.tres" id="26_5dq3v"]
+[ext_resource type="Resource" uid="uid://dxa7csbyj040k" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_03.tres" id="27_fav20"]
+[ext_resource type="Resource" uid="uid://bp6yrodgrxjmm" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Lipstick_01.tres" id="28_kqbsn"]
+[ext_resource type="Resource" uid="uid://7vs3l0gabek8" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Mustache_01.tres" id="29_l2lam"]
+[ext_resource type="Resource" uid="uid://dkvepk57e2obj" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Smile_01.tres" id="30_i0jkb"]
+[ext_resource type="Resource" uid="uid://c68530353yq4v" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_04.tres" id="32_rdghy"]
+[ext_resource type="Resource" uid="uid://3e71ee3mgbsq" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_05.tres" id="33_4mjws"]
+[ext_resource type="Resource" uid="uid://5b30s1hqfy4g" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_06.tres" id="34_c7k5d"]
+[ext_resource type="Resource" uid="uid://bb255fturkapp" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_16.tres" id="35_pyfr1"]
+[ext_resource type="Resource" uid="uid://hymmlljrr7ao" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_AH_01.tres" id="36_o1q7c"]
+[ext_resource type="Resource" uid="uid://bsp586ti2agu3" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_01.tres" id="37_3sg22"]
+[ext_resource type="Resource" uid="uid://br81i0s7joye6" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_BW_01.tres" id="38_l783y"]
+[ext_resource type="Resource" uid="uid://2n2asx71eusl" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_BW_04.tres" id="39_g1cuc"]
 
 [resource]
 script = ExtResource("1_8ctpb")
-hair_female = Array[PackedScene]([ExtResource("11_wuqmo"), ExtResource("15_w36ag")])
-hair_male = Array[PackedScene]([ExtResource("13_0ru28")])
-hair_neutral = Array[PackedScene]([ExtResource("12_no8t4"), ExtResource("14_o4kqe")])
-head_female = Array[PackedScene]([])
-head_male = Array[PackedScene]([])
-head_neutral = Array[PackedScene]([ExtResource("16_st5w8"), ExtResource("17_muiam")])
-head_prop_female = Array[PackedScene]([])
-head_prop_male = Array[PackedScene]([])
-head_prop_neutral = Array[PackedScene]([ExtResource("18_ie8ap"), ExtResource("19_wopa7"), ExtResource("20_6q6tn")])
-eyes_female = Array[PackedScene]([ExtResource("9_5rma6")])
-eyes_male = Array[PackedScene]([ExtResource("10_dib1h")])
-eyes_neutral = Array[PackedScene]([])
-mouth_female = Array[PackedScene]([ExtResource("27_fav20")])
-mouth_male = Array[PackedScene]([ExtResource("28_kqbsn")])
-mouth_neutral = Array[PackedScene]([ExtResource("29_l2lam")])
-torso_female = Array[PackedScene]([])
-torso_male = Array[PackedScene]([])
-torso_neutral = Array[PackedScene]([ExtResource("31_i0jkb"), ExtResource("32_rdghy"), ExtResource("33_4mjws"), ExtResource("34_c7k5d"), ExtResource("35_pyfr1"), ExtResource("36_o1q7c"), ExtResource("37_3sg22"), ExtResource("38_l783y")])
-arms_female = Array[PackedScene]([])
-arms_male = Array[PackedScene]([])
-arms_neutral = Array[PackedScene]([ExtResource("5_bompi"), ExtResource("6_4dumx")])
-arm_sleeve_female = Array[PackedScene]([])
-arm_sleeve_male = Array[PackedScene]([])
-arm_sleeve_neutral = Array[PackedScene]([ExtResource("1_6245q"), ExtResource("2_j3lar"), ExtResource("3_ifrsb"), ExtResource("4_72jdy")])
-body_prop_female = Array[PackedScene]([ExtResource("7_irusv")])
-body_prop_male = Array[PackedScene]([])
-body_prop_neutral = Array[PackedScene]([ExtResource("8_1ky0g")])
-legs_female = Array[PackedScene]([])
-legs_male = Array[PackedScene]([])
-legs_neutral = Array[PackedScene]([ExtResource("21_7ngkc"), ExtResource("22_tfm4e"), ExtResource("23_cw126"), ExtResource("24_1kvjc"), ExtResource("25_kg448"), ExtResource("26_5dq3v")])
+hair = Array[ExtResource("1_njhmx")]([ExtResource("12_no8t4"), ExtResource("13_0ru28"), ExtResource("14_o4kqe"), ExtResource("15_w36ag"), ExtResource("16_st5w8")])
+head = Array[ExtResource("1_njhmx")]([ExtResource("17_muiam"), ExtResource("18_ie8ap")])
+head_prop = Array[ExtResource("1_njhmx")]([ExtResource("19_wopa7"), ExtResource("20_6q6tn"), ExtResource("21_7ngkc")])
+eyes = Array[ExtResource("1_njhmx")]([ExtResource("10_dib1h"), ExtResource("11_wuqmo")])
+mouth = Array[ExtResource("1_njhmx")]([ExtResource("28_kqbsn"), ExtResource("29_l2lam"), ExtResource("30_i0jkb")])
+torso = Array[ExtResource("1_njhmx")]([ExtResource("32_rdghy"), ExtResource("33_4mjws"), ExtResource("34_c7k5d"), ExtResource("35_pyfr1"), ExtResource("36_o1q7c"), ExtResource("37_3sg22"), ExtResource("38_l783y"), ExtResource("39_g1cuc")])
+arms = Array[ExtResource("1_njhmx")]([ExtResource("6_4dumx"), ExtResource("7_irusv")])
+arm_sleeve = Array[ExtResource("1_njhmx")]([ExtResource("2_j3lar"), ExtResource("3_ifrsb"), ExtResource("4_72jdy"), ExtResource("5_bompi")])
+body_prop = Array[ExtResource("1_njhmx")]([ExtResource("8_1ky0g"), ExtResource("9_5rma6")])
+legs = Array[ExtResource("1_njhmx")]([ExtResource("22_tfm4e"), ExtResource("23_cw126"), ExtResource("24_1kvjc"), ExtResource("25_kg448"), ExtResource("26_5dq3v"), ExtResource("27_fav20")])
 metadata/_custom_type_script = "uid://br3k8lili5156"
