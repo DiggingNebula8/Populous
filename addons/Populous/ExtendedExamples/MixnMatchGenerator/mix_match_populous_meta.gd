@@ -82,6 +82,18 @@ func apply_modular_pieces(npc: Node, gender: Gender) -> void:
 		if parts.is_empty():
 			print_debug("[INFO] No parts found for:", part_name)
 			continue
+			
+		# Check if all available parts in this category are marked as skippable.
+		var all_skippable = true
+		for p in parts:
+			if not p.is_skippable:
+				all_skippable = false
+				break
+
+		# If all parts are skippable, then with a 50% chance, skip this entire category.
+		if all_skippable and randf() < 0.5:
+			print_debug("[INFO] Skipping optional part category:", part_name)
+			continue
 
 		# Apply weight-based random selection
 		parts.sort_custom(func(a, b): return a.weight > b.weight)  # Higher weight = higher chance
