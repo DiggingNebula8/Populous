@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgdtdmwrjp62o"]
+
+[ext_resource type="Script" uid="uid://b2of78n3ecxhh" path="res://addons/Populous/Tools/Batch_Resources/batch_resources.gd" id="1_t7ksk"]
+
+[node name="BatchResources" type="Window"]
+title = "Batch Resource Creator"
+script = ExtResource("1_t7ksk")

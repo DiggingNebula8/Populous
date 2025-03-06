@@ -9,6 +9,9 @@ var is_populous_window_open: bool = false
 var json_tres_window: Window
 var is_json_tres_window_open: bool = false
 
+var batch_resource_window: Window
+var is_batch_resource_window_open: bool = false
+
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
 	add_tool_submenu_item(populous_constants.Strings.populous, _create_populous_menu())
@@ -18,6 +21,7 @@ func _create_populous_menu():
 	menu.add_item(populous_constants.Strings.populous, 0)
 	menu.add_item(populous_constants.Strings.create_container, 1)
 	menu.add_item(populous_constants.Strings.json_tres, 2)
+	menu.add_item(populous_constants.Strings.batch_tres, 3)
 	menu.id_pressed.connect(_on_populous_menu_selected)
 	return menu
 
@@ -26,6 +30,7 @@ func _on_populous_menu_selected(id: int):
 		0: _toggle_populous_window()
 		1: _create_container()
 		2: _toggle_json_tres_window()
+		3: _toggle_batch_resource_window()
 
 func _toggle_populous_window():
 	if is_populous_window_open == false:
@@ -83,6 +88,23 @@ func _create_container():
 	container.set_meta(populous_constants.Strings.populous_container, true)
 
 	print("Container created successfully: " + container.name)
+	
+
+func _toggle_batch_resource_window():
+	if not is_batch_resource_window_open:
+		batch_resource_window = PopulousConstant.Scenes.batch_tres_tool.instantiate() as Window
+		batch_resource_window.title = "Batch Resource Creator"
+		batch_resource_window.size = Vector2i(720, 480)
+		batch_resource_window.position = (Vector2i(get_editor_interface().get_base_control().size) - batch_resource_window.size) / 2
+		batch_resource_window.always_on_top = true
+		get_editor_interface().get_base_control().add_child(batch_resource_window)
+		batch_resource_window.show()
+		is_batch_resource_window_open = true
+		batch_resource_window.close_requested.connect(_on_batch_resource_window_closed)
+
+func _on_batch_resource_window_closed():
+	is_batch_resource_window_open = false
+	batch_resource_window.queue_free()
 
 func _exit_tree():
 	if is_populous_window_open:
