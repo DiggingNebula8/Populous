@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_mghi4")
 mesh = ExtResource("1_ehx48")
-gender = 2
+gender = 0
 is_skippable = false
 weight = 1.0
 color_variants = Array[Color]([])

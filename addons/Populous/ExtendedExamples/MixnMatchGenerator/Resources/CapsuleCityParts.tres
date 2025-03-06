@@ -42,9 +42,9 @@
 
 [resource]
 script = ExtResource("1_8ctpb")
-hair = Array[ExtResource("1_njhmx")]([ExtResource("12_no8t4"), ExtResource("13_0ru28"), ExtResource("14_o4kqe"), ExtResource("15_w36ag"), ExtResource("16_st5w8")])
+hair = Array[ExtResource("1_njhmx")]([ExtResource("12_no8t4"), ExtResource("13_0ru28"), ExtResource("14_o4kqe"), ExtResource("15_w36ag"), ExtResource("16_st5w8"), ExtResource("19_wopa7"), ExtResource("20_6q6tn")])
 head = Array[ExtResource("1_njhmx")]([ExtResource("17_muiam"), ExtResource("18_ie8ap")])
-head_prop = Array[ExtResource("1_njhmx")]([ExtResource("19_wopa7"), ExtResource("20_6q6tn"), ExtResource("21_7ngkc")])
+head_prop = Array[ExtResource("1_njhmx")]([ExtResource("21_7ngkc")])
 eyes = Array[ExtResource("1_njhmx")]([ExtResource("10_dib1h"), ExtResource("11_wuqmo")])
 mouth = Array[ExtResource("1_njhmx")]([ExtResource("28_kqbsn"), ExtResource("29_l2lam"), ExtResource("30_i0jkb")])
 torso = Array[ExtResource("1_njhmx")]([ExtResource("32_rdghy"), ExtResource("33_4mjws"), ExtResource("34_c7k5d"), ExtResource("35_pyfr1"), ExtResource("36_o1q7c"), ExtResource("37_3sg22"), ExtResource("38_l783y"), ExtResource("39_g1cuc")])
