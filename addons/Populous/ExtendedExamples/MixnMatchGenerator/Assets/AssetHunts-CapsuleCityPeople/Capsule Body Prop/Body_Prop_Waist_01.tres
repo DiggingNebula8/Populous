@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Part" load_steps=3 format=3 uid="uid://mx0fpmojq6j3"]
+
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="1_4clg6"]
+[ext_resource type="PackedScene" uid="uid://cwp5m2y5xwvws" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Waist_01.glb" id="1_lekrt"]
+
+[resource]
+script = ExtResource("1_4clg6")
+mesh = ExtResource("1_lekrt")
+gender = 2
+is_skippable = false
+weight = 1.0
+color_variants = Array[Color]([])
+scale_variants = Array[Vector3]([])
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

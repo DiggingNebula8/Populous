@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Part" load_steps=3 format=3 uid="uid://tewfs7yvp8ok"]
+
+[ext_resource type="PackedScene" uid="uid://bf4myeuy3qk3d" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm_Skin_02.glb" id="1_slejq"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="2_od0m1"]
+
+[resource]
+script = ExtResource("2_od0m1")
+mesh = ExtResource("1_slejq")
+gender = 2
+is_skippable = false
+weight = 1.0
+color_variants = Array[Color]([])
+scale_variants = Array[Vector3]([])
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

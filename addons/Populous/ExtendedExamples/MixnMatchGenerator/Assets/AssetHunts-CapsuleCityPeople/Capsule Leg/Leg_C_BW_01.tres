@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Part" load_steps=3 format=3 uid="uid://dfhubonradrw0"]
+
+[ext_resource type="PackedScene" uid="uid://cjlt0o8dhqs2i" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_C_BW_01.glb" id="1_rk8tt"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="2_qoh3f"]
+
+[resource]
+script = ExtResource("2_qoh3f")
+mesh = ExtResource("1_rk8tt")
+gender = 2
+is_skippable = false
+weight = 1.0
+color_variants = Array[Color]([])
+scale_variants = Array[Vector3]([])
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

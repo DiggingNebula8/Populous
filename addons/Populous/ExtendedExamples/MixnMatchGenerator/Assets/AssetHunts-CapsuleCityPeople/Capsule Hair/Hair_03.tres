@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Part" load_steps=3 format=3 uid="uid://n018isskqs2x"]
+
+[ext_resource type="PackedScene" uid="uid://ddol8nrjpofid" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_03.glb" id="1_ehx48"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="2_mghi4"]
+
+[resource]
+script = ExtResource("2_mghi4")
+mesh = ExtResource("1_ehx48")
+gender = 2
+is_skippable = false
+weight = 1.0
+color_variants = Array[Color]([])
+scale_variants = Array[Vector3]([])
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Part" load_steps=3 format=3 uid="uid://7vs3l0gabek8"]
+
+[ext_resource type="PackedScene" uid="uid://cwitr8otlr7qr" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Mustache_01.glb" id="1_yuhtt"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/MixnMatchGenerator/Scripts/part.gd" id="2_ajaa0"]
+
+[resource]
+script = ExtResource("2_ajaa0")
+mesh = ExtResource("1_yuhtt")
+gender = 2
+is_skippable = false
+weight = 1.0
+color_variants = Array[Color]([])
+scale_variants = Array[Vector3]([])
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"
