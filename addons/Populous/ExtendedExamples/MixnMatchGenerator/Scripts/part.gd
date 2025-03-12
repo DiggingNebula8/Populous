@@ -2,11 +2,11 @@
 class_name Part extends Resource
 
 enum Gender { MALE, FEMALE, NEUTRAL }
-enum SkinType { DEFAULT, LIGHT, MEDIUM, DARK }
+enum SkinType { LIGHT, MEDIUM, DARK }
 
 @export var mesh: PackedScene  # The actual mesh scene
 @export var gender: Gender = Gender.NEUTRAL  # Determines who can use this part
-@export var skin_type: SkinType = SkinType.DEFAULT  # Determines skin compatibility
+@export var skin_type: SkinType = SkinType.MEDIUM  # Determines skin compatibility
 @export var is_skippable: bool = false  # If true, the part might be skipped randomly
 @export var weight: float = 1.0  # Probability weight for random selection (higher = more common)
 @export var override_material: Material  # If set, overrides the default material
