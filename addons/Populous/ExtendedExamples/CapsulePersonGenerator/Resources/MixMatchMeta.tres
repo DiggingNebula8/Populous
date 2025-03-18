@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MixMatchPopulousMeta" load_steps=3 format=3 uid="uid://ckyn85y0klaf8"]
+
+[ext_resource type="Resource" uid="uid://dwa0y4jiu3es5" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/MetaResources/GenderedNames.tres" id="1_mo7ff"]
+[ext_resource type="Script" uid="uid://t4y5sbmekngd" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/capsule_person_populous_meta.gd" id="1_ubwwi"]
+
+[resource]
+script = ExtResource("1_ubwwi")
+names_list = ExtResource("1_mo7ff")
+metadata/_custom_type_script = "uid://t4y5sbmekngd"
