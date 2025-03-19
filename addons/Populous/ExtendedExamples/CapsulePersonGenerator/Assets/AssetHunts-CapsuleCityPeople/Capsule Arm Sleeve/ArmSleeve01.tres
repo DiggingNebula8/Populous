@@ -7,7 +7,7 @@
 script = ExtResource("2_hwe0u")
 mesh = ExtResource("1_tq2fu")
 gender = 2
-skin_type = 1
+skin_type = 0
 is_skippable = false
 weight = 1.0
 color_variants = Array[Color]([])

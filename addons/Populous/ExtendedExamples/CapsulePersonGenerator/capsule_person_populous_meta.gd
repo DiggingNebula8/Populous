@@ -7,6 +7,7 @@ var material: ORMMaterial3D = preload("res://addons/Populous/ExtendedExamples/Ca
 @export var names_list: JSONResource = preload("res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres")
 
 enum Gender { MALE, FEMALE, NEUTRAL }
+enum SkinType { DEFAULT, LIGHT, MEDIUM, DARK }
 
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
@@ -39,13 +40,15 @@ func generate_last_name() -> String:
 func set_metadata(npc: Node) -> void:
 	# Randomly choose a gender for naming (only male or female used for names)
 	var gender = [Gender.MALE, Gender.FEMALE].pick_random()
+	var skin_type = SkinType.values().pick_random()
 	first_name = generate_first_name(gender)
 	last_name = generate_last_name()
 	
 	npc.name = first_name + "-" + last_name
 	npc.set_meta(first_name_key, first_name)
 	npc.set_meta(last_name_key, last_name)
-	apply_modular_pieces(npc, gender)
+	npc.set_meta("SkinType", skin_type)
+	apply_modular_pieces(npc, gender, skin_type)
 
 func _get_params() -> Dictionary:
 	return {}  # Extend in child classes if needed
@@ -57,7 +60,7 @@ func _set_params(params: Dictionary) -> void:
 # APPLY MODULAR PARTS
 #----------------------------------------------------------------------------
 
-func apply_modular_pieces(npc: Node, gender: Gender) -> void:
+func apply_modular_pieces(npc: Node, gender: Gender, skin_type: SkinType) -> void:
 	if modular_pieces == null:
 		print_debug("[ERROR] No modular pieces assigned to CapsuleCityParts!")
 		return
@@ -75,23 +78,23 @@ func apply_modular_pieces(npc: Node, gender: Gender) -> void:
 
 	# Process each category.
 	for part_name in part_names:
-		# Retrieve the array of Part objects from the CapsuleCityParts resource.
+		# Retrieve the array of CapsulePart objects from the CapsuleCityParts resource.
 		var parts: Array[CapsulePart] = modular_pieces.get(part_name)
 		if parts == null or parts.is_empty():
 			print_debug("[INFO] No parts defined for:", part_name)
 			continue
 
-		# Filter parts: only include those that are neutral or match the selected gender.
-		parts = parts.filter(func(p): return p.gender == Gender.NEUTRAL or p.gender == gender)
+		# Filter parts based on gender and skin type.
+		parts = parts.filter(func(part): return (part.gender == Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == SkinType.DEFAULT))
 
 		if parts.is_empty():
-			print_debug("[INFO] No valid parts found for:", part_name)
+			print_debug("[WARNING] No valid parts found for:", part_name, "with skin type:", skin_type)
 			continue
 
 		# Check if all available parts in this category are marked as skippable.
 		var all_skippable = true
-		for p in parts:
-			if not p.is_skippable:
+		for part in parts:
+			if not part.is_skippable:
 				all_skippable = false
 				break
 
@@ -124,7 +127,7 @@ func apply_modular_pieces(npc: Node, gender: Gender) -> void:
 # HELPER FUNCTIONS
 #----------------------------------------------------------------------------
 
-# Returns a Part using weighted random selection.
+# Returns a CapsulePart using weighted random selection.
 func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:
 	var total_weight = 0.0
 	for part in parts:
@@ -141,7 +144,6 @@ func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:
 # Recursively applies material overrides to all MeshInstance3D nodes.
 func _apply_material(node: Node, part: CapsulePart) -> void:
 	if node is MeshInstance3D:
-		# Use the part's override material if provided, else the default material.
 		var mat = part.override_material if part.override_material else material
 		for i in range(node.get_surface_override_material_count()):
 			node.set_surface_override_material(i, mat)
@@ -151,13 +153,11 @@ func _apply_material(node: Node, part: CapsulePart) -> void:
 # Applies customization options (color and scale) based on part properties.
 func _apply_customization(node: Node, part: CapsulePart) -> void:
 	if node is Node3D:
-		# Apply a random color variant if available.
 		if not part.color_variants.is_empty():
 			var color = part.color_variants.pick_random()
 			if node is MeshInstance3D:
 				var mat = node.get_surface_override_material(0)
 				if mat is ShaderMaterial:
 					mat.set_shader_parameter("albedo", color)
-		# Apply a random scale variant if available.
-		if not part.scale_variants.is_empty():
-			node.scale = part.scale_variants.pick_random()
+			if not part.scale_variants.is_empty():
+				node.scale = part.scale_variants.pick_random()
