@@ -37,6 +37,7 @@ Additionally, Populous features a **JSON-to-Resource converter**, enabling easy 
 
 Watch the demo video:  
 [![Populous](https://img.youtube.com/vi/xrsUYKP8YIY/0.jpg)](https://youtu.be/xrsUYKP8YIY)
+[![Populous | Extended Example | Capsule City People](https://img.youtube.com/vi/vZIFlIO_mmU/0.jpg)](https://youtu.be/vZIFlIO_mmU)
 
 TODO: Step by step tutorial.
 
