@@ -10,7 +10,5 @@ gender = 2
 skin_type = 0
 is_skippable = false
 weight = 1.0
-color_variants = Array[Color]([])
-scale_variants = Array[Vector3]([])
 tags = Array[String]([])
 metadata/_custom_type_script = "uid://duakhp620e11w"
