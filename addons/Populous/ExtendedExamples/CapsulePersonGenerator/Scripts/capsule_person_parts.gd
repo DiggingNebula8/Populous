@@ -1,5 +1,5 @@
 @tool
-class_name CapsuleCityParts extends Resource
+class_name CapsulePersonParts extends Resource
 
 # Define different part categories as arrays of Part resources
 @export_group("Hair")

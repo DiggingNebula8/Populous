@@ -2,7 +2,7 @@
 class_name CapsuleCityPerson
 extends CharacterBody3D
 
-var modular_pieces: CapsuleCityParts = preload("res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonParts.tres")
+var modular_pieces: CapsulePersonParts = preload("res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonParts.tres")
 
 var meta_label: Label3D
 
