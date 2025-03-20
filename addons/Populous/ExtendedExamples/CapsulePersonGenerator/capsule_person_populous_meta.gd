@@ -47,7 +47,6 @@ func set_metadata(npc: Node) -> void:
 	npc.name = first_name + "-" + last_name
 	npc.set_meta(first_name_key, first_name)
 	npc.set_meta(last_name_key, last_name)
-	npc.set_meta("SkinType", skin_type)
 	apply_modular_pieces(npc, gender, skin_type)
 
 func _get_params() -> Dictionary:
