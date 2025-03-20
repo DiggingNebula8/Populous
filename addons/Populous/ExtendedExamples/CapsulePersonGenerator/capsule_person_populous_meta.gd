@@ -6,9 +6,6 @@ var material: ORMMaterial3D = preload("res://addons/Populous/ExtendedExamples/Ca
 
 @export var names_list: JSONResource = preload("res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres")
 
-enum Gender { MALE, FEMALE, NEUTRAL }
-enum SkinType { DEFAULT, LIGHT, MEDIUM, DARK }
-
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
 
@@ -19,11 +16,11 @@ var last_name: String
 # NAME GENERATION
 #----------------------------------------------------------------------------
 
-func generate_first_name(gender: Gender) -> String:
+func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 	var names = []
-	if gender == Gender.FEMALE:
+	if gender == CapsulePersonConstants.Gender.FEMALE:
 		names = names_list.data.FemaleFirstNames
-	elif gender == Gender.MALE:
+	elif gender == CapsulePersonConstants.Gender.MALE:
 		names = names_list.data.MaleFirstNames
 	else:
 		names = names_list.data.NeutralFirstNames
@@ -39,8 +36,8 @@ func generate_last_name() -> String:
 
 func set_metadata(npc: Node) -> void:
 	# Randomly choose a gender for naming (only male or female used for names)
-	var gender = [Gender.MALE, Gender.FEMALE].pick_random()
-	var skin_type = SkinType.values().pick_random()
+	var gender = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE].pick_random()
+	var skin_type = CapsulePersonConstants.SkinType.values().pick_random()
 	first_name = generate_first_name(gender)
 	last_name = generate_last_name()
 	
@@ -59,7 +56,7 @@ func _set_params(params: Dictionary) -> void:
 # APPLY MODULAR PARTS
 #----------------------------------------------------------------------------
 
-func apply_modular_pieces(npc: Node, gender: Gender, skin_type: SkinType) -> void:
+func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin_type: CapsulePersonConstants.SkinType) -> void:
 	if modular_pieces == null:
 		print_debug("[ERROR] No modular pieces assigned to CapsuleCityParts!")
 		return
@@ -84,7 +81,7 @@ func apply_modular_pieces(npc: Node, gender: Gender, skin_type: SkinType) -> voi
 			continue
 
 		# Filter parts based on gender and skin type.
-		parts = parts.filter(func(part): return (part.gender == Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == SkinType.DEFAULT))
+		parts = parts.filter(func(part): return (part.gender == CapsulePersonConstants.Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == CapsulePersonConstants.SkinType.DEFAULT))
 
 		if parts.is_empty():
 			print_debug("[WARNING] No valid parts found for:", part_name, "with skin type:", skin_type)
@@ -110,7 +107,7 @@ func apply_modular_pieces(npc: Node, gender: Gender, skin_type: SkinType) -> voi
 		if selected_part == null or selected_part.mesh == null:
 			print_debug("[WARNING] Skipping null mesh for:", part_name)
 			continue
-
+			
 		# Instantiate the selected part.
 		var instance: Node3D = selected_part.mesh.instantiate()
 		if instance != null:
