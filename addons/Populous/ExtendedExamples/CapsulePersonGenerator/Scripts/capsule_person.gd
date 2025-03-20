@@ -1,5 +1,5 @@
 @tool
-class_name CapsuleCityPerson
+class_name CapsulePerson
 extends CharacterBody3D
 
 var modular_pieces: CapsulePersonParts = preload("res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonParts.tres")
