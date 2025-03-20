@@ -60,14 +60,6 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 	if modular_pieces == null:
 		print_debug("[ERROR] No modular pieces assigned to CapsuleCityParts!")
 		return
-
-	# Ensure a container exists on the NPC for the spawned parts.
-	var mesh_container = npc.find_child("mesh_container", true, false)
-	if mesh_container == null:
-		mesh_container = Node3D.new()
-		mesh_container.name = "mesh_container"
-		npc.add_child(mesh_container)
-		mesh_container.owner = npc.get_tree().edited_scene_root
 	
 	# Define the list of body parts to process.
 	var part_names = ["hair", "head", "head_prop", "eyes", "mouth", "torso", "arms", "arm_sleeve", "body_prop", "legs"]
@@ -108,16 +100,8 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 			print_debug("[WARNING] Skipping null mesh for:", part_name)
 			continue
 			
-		# Instantiate the selected part.
-		var instance: Node3D = selected_part.mesh.instantiate()
-		if instance != null:
-			instance.name = part_name
-			mesh_container.add_child(instance)
-			instance.owner = mesh_container.get_tree().edited_scene_root
-
-			# Apply material overrides and customization (color, scale).
-			_apply_material(instance, selected_part)
-			_apply_customization(instance, selected_part)
+		print_debug(part_name, " and ", selected_part.mesh)
+		npc.set_meta(part_name,selected_part.mesh)
 
 #----------------------------------------------------------------------------
 # HELPER FUNCTIONS
@@ -136,24 +120,3 @@ func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:
 		if rand_value <= cumulative:
 			return part
 	return parts.front() if not parts.is_empty() else null
-
-# Recursively applies material overrides to all MeshInstance3D nodes.
-func _apply_material(node: Node, part: CapsulePart) -> void:
-	if node is MeshInstance3D:
-		var mat = part.override_material if part.override_material else material
-		for i in range(node.get_surface_override_material_count()):
-			node.set_surface_override_material(i, mat)
-	for child in node.get_children():
-		_apply_material(child, part)
-
-# Applies customization options (color and scale) based on part properties.
-func _apply_customization(node: Node, part: CapsulePart) -> void:
-	if node is Node3D:
-		if not part.color_variants.is_empty():
-			var color = part.color_variants.pick_random()
-			if node is MeshInstance3D:
-				var mat = node.get_surface_override_material(0)
-				if mat is ShaderMaterial:
-					mat.set_shader_parameter("albedo", color)
-			if not part.scale_variants.is_empty():
-				node.scale = part.scale_variants.pick_random()
