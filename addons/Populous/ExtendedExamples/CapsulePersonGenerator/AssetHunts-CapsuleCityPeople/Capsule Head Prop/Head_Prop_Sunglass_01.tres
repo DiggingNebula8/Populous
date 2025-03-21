@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://dqud1euwhr75y"]
+
+[ext_resource type="PackedScene" uid="uid://cvyla2il05jbo" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Head Prop/Head_Prop_Sunglass_01.fbx" id="1_xrvc5"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_8gkcy"]
+
+[resource]
+script = ExtResource("2_8gkcy")
+mesh = ExtResource("1_xrvc5")
+gender = 2
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

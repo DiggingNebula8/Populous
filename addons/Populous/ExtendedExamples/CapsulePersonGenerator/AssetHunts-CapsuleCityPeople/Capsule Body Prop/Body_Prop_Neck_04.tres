@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://drh32qct2y164"]
+
+[ext_resource type="PackedScene" uid="uid://b3nms2f1bvr6t" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Neck_04.fbx" id="1_rcjj5"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_uuwvd"]
+
+[resource]
+script = ExtResource("2_uuwvd")
+mesh = ExtResource("1_rcjj5")
+gender = 2
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

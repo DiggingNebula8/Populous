@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://dki6lghlf0ghq"]
+
+[ext_resource type="PackedScene" uid="uid://5a30nywtoa8f" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Crossed_01.fbx" id="1_ierqo"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_f7qee"]
+
+[resource]
+script = ExtResource("2_f7qee")
+mesh = ExtResource("1_ierqo")
+gender = 2
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://dpvlceu10mxb3"]
+
+[ext_resource type="PackedScene" uid="uid://cs3q8iy5ef118" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Lipstick_01.fbx" id="1_oaarg"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_8m0qd"]
+
+[resource]
+script = ExtResource("2_8m0qd")
+mesh = ExtResource("1_oaarg")
+gender = 1
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

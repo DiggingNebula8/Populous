@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://balqagxl7j3l7"]
+
+[ext_resource type="PackedScene" uid="uid://d0qk0o1kpeu83" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_C_BW_10.fbx" id="1_8f6oj"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_sf05q"]
+
+[resource]
+script = ExtResource("2_sf05q")
+mesh = ExtResource("1_8f6oj")
+gender = 2
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"

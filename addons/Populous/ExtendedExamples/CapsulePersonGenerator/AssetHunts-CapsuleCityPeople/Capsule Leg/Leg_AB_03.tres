@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CapsulePart" load_steps=3 format=3 uid="uid://cd0iffp5rkokf"]
+
+[ext_resource type="PackedScene" uid="uid://qtm6b5oeg6hy" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AB_03.fbx" id="1_rqfbx"]
+[ext_resource type="Script" uid="uid://duakhp620e11w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_part.gd" id="2_ty3pj"]
+
+[resource]
+script = ExtResource("2_ty3pj")
+mesh = ExtResource("1_rqfbx")
+gender = 2
+skin_type = 0
+is_skippable = false
+weight = 1.0
+tags = Array[String]([])
+metadata/_custom_type_script = "uid://duakhp620e11w"
