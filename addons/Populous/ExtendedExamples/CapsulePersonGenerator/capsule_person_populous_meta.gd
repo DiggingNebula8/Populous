@@ -1,5 +1,5 @@
 @tool
-class_name MixMatchPopulousMeta extends PopulousMeta
+class_name CapsulePersonPopulousMeta extends PopulousMeta
 
 @export var modular_pieces: CapsulePersonParts 
 @export var material: ORMMaterial3D

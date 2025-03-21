@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MixMatchPopulousGenerator" load_steps=4 format=3 uid="uid://cp2y7xhiw3emt"]
+[gd_resource type="Resource" script_class="CapsulePersonPopulousGenerator" load_steps=4 format=3 uid="uid://cp2y7xhiw3emt"]
 
 [ext_resource type="Resource" uid="uid://dmvsx3s6q2mbr" path="res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres" id="1_n16c0"]
 [ext_resource type="PackedScene" uid="uid://6g3gmcoreyve" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/CapsulePerson.tscn" id="2_n8nyi"]

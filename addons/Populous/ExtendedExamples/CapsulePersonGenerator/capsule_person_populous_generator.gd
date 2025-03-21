@@ -1,5 +1,5 @@
 @tool
-class_name MixMatchPopulousGenerator extends PopulousGenerator
+class_name CapsulePersonPopulousGenerator extends PopulousGenerator
 
 
 func _generate(populous_container: Node) -> void:
