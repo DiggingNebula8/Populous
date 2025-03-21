@@ -1,9 +1,13 @@
-[gd_resource type="Resource" script_class="CapsulePersonPopulousMeta" load_steps=3 format=3 uid="uid://ckyn85y0klaf8"]
+[gd_resource type="Resource" script_class="CapsulePersonPopulousMeta" load_steps=5 format=3 uid="uid://ckyn85y0klaf8"]
 
 [ext_resource type="Resource" uid="uid://dwa0y4jiu3es5" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/MetaResources/GenderedNames.tres" id="1_mo7ff"]
+[ext_resource type="Material" uid="uid://bijr1qj6ckcwr" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/AssetHunts-CapsuleCityPeople/M_CapsulePerson.tres" id="1_tj453"]
 [ext_resource type="Script" uid="uid://t4y5sbmekngd" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/capsule_person_populous_meta.gd" id="1_ubwwi"]
+[ext_resource type="Resource" uid="uid://c58xtmew7enp3" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonParts.tres" id="2_1f2qb"]
 
 [resource]
 script = ExtResource("1_ubwwi")
+modular_pieces = ExtResource("2_1f2qb")
+material = ExtResource("1_tj453")
 names_list = ExtResource("1_mo7ff")
 metadata/_custom_type_script = "uid://t4y5sbmekngd"
