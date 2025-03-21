@@ -1,16 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bbgxbgvfv1omx"]
-
-[ext_resource type="PackedScene" uid="uid://6g3gmcoreyve" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/CapsulePerson.tscn" id="1_1bc4v"]
-[ext_resource type="Script" uid="uid://crs0usoxyqk0n" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/capsule_person.gd" id="2_1bc4v"]
-[ext_resource type="PackedScene" uid="uid://coytoytw1o8lr" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Hair/Hair_05.glb" id="3_dsdgy"]
-[ext_resource type="PackedScene" uid="uid://bf4myeuy3qk3d" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm_Skin_02.glb" id="4_5bis2"]
-[ext_resource type="PackedScene" uid="uid://cxa1fwh3lbe35" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Eye/Eyes_Basic_Female_01.glb" id="6_2ofki"]
-[ext_resource type="PackedScene" uid="uid://ymp3ga7cxm6w" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Mouth/Mouth_Smile_01.glb" id="7_swfyf"]
-[ext_resource type="PackedScene" uid="uid://be7r0clsqrupx" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Torso/Torso_05.glb" id="7_tbapv"]
-[ext_resource type="PackedScene" uid="uid://dk7qot7gsh5d8" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Arm/Arm_Skin_01.glb" id="8_iuxwf"]
-[ext_resource type="PackedScene" uid="uid://bemn0lfbs05je" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Head/Head_Skin_03.glb" id="9_e02lf"]
-[ext_resource type="PackedScene" uid="uid://3mfx3ciw3en5" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Body Prop/Body_Prop_Neck_03.glb" id="10_wyhhj"]
-[ext_resource type="PackedScene" uid="uid://dnet1nac35y2n" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/Capsule Leg/Leg_AD_01.glb" id="11_haph2"]
+[gd_scene load_steps=5 format=3 uid="uid://bbgxbgvfv1omx"]
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_yht1l"]
 
@@ -53,13 +41,3 @@ visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.122041, 0)
 size = Vector3(1000, 0.01, 1000)
 material = SubResource("StandardMaterial3D_e33k1")
-
-[node name="PopulousContainer1" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08436, 0)
-metadata/PopulousContainer = true
-
-[node name="Clara-Bose" type="CharacterBody3D" parent="PopulousContainer1" instance=ExtResource("1_1bc4v")]
-script = ExtResource("2_1bc4v")
-metadata/FirstName = "Clara"
-metadata/LastName = "Bose"
-metadata/Parts = [ExtResource("3_dsdgy"), ExtResource("9_e02lf"), ExtResource("6_2ofki"), ExtResource("7_swfyf"), ExtResource("7_tbapv"), ExtResource("8_iuxwf"), ExtResource("4_5bis2"), ExtResource("10_wyhhj"), ExtResource("11_haph2")]

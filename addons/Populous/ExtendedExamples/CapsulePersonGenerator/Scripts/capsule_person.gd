@@ -5,7 +5,7 @@ extends CharacterBody3D
 var meta_label: Label3D
 var mesh_container: Node3D
 var bIsInstantiated: bool = false
-var material: ORMMaterial3D = preload("res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/CapsuleCity.tres")
+@export var material: ORMMaterial3D
 
 func _ready() -> void:
 	meta_label = %MetaLabel
@@ -34,7 +34,7 @@ func _instantiate_person() -> void:
 			for part in parts:
 				if part is PackedScene:
 					var instance: Node3D = part.instantiate()
-					_apply_material_to_children(instance)  # Apply material recursively
+					#_apply_material_to_children(instance)  # Apply material recursively
 					mesh_container.add_child(instance)
 				else:
 					print_debug("[ERROR] Part is not a PackedScene:", part)
