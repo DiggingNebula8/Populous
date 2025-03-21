@@ -2,7 +2,7 @@
 class_name MixMatchPopulousMeta extends PopulousMeta
 
 @export var modular_pieces: CapsulePersonParts 
-var material: ORMMaterial3D = preload("res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Assets/AssetHunts-CapsuleCityPeople/CapsuleCity.tres")
+@export var material: ORMMaterial3D
 
 @export var names_list: JSONResource = preload("res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres")
 
