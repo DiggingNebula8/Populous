@@ -9,6 +9,8 @@ var material: ORMMaterial3D = preload("res://addons/Populous/ExtendedExamples/Ca
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
 
+var final_parts: Array
+
 var first_name: String
 var last_name: String
 
@@ -63,7 +65,8 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 	
 	# Define the list of body parts to process.
 	var part_names = ["hair", "head", "head_prop", "eyes", "mouth", "torso", "arms", "arm_sleeve", "body_prop", "legs"]
-
+	final_parts.clear()
+	var index = 0
 	# Process each category.
 	for part_name in part_names:
 		# Retrieve the array of CapsulePart objects from the CapsuleCityParts resource.
@@ -99,10 +102,10 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		if selected_part == null or selected_part.mesh == null:
 			print_debug("[WARNING] Skipping null mesh for:", part_name)
 			continue
-			
 		print_debug(part_name, " and ", selected_part.mesh)
-		npc.set_meta(part_name,selected_part.mesh)
-
+		final_parts.insert(index, selected_part.mesh)
+		index += 1
+	npc.set_meta("Parts",final_parts)
 #----------------------------------------------------------------------------
 # HELPER FUNCTIONS
 #----------------------------------------------------------------------------
