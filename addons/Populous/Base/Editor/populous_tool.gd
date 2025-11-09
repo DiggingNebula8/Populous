@@ -10,7 +10,7 @@ var menu_disabled_label: Label
 
 var is_container_selected: bool = false
 var populous_container: Node = null
-var populpus_resource: PopulousResource
+var populous_resource: PopulousResource
 
 var generator_settings_label: Label
 var generator_scroll_container: ScrollContainer
@@ -33,8 +33,8 @@ func _process(delta: float) -> void:
 	menu_disabled_label.visible = not is_container_selected
 	
 	var new_resource = %PopulousResourcePicker.edited_resource
-	if new_resource != populpus_resource:
-		populpus_resource = new_resource
+	if new_resource != populous_resource:
+		populous_resource = new_resource
 		_update_ui()  # Call function to update UI only when resource changes
 	
 func _on_selection_changed() -> void:
@@ -49,18 +49,26 @@ func _on_selection_changed() -> void:
 
 func _on_generate_populous_pressed() -> void:
 	if populous_container == null:
-		print_debug("Could not find populous container")
+		push_error("Populous: Cannot generate - no container selected. Please select a PopulousContainer node.")
 		return
-	else:
-		populpus_resource.run_populous(populous_container)
+	
+	if populous_resource == null:
+		push_error("Populous: Cannot generate - no resource selected. Please select a PopulousResource.")
+		return
+	
+	populous_resource.run_populous(populous_container)
 	
 func _update_ui():
-	if populpus_resource == null:
+	if populous_resource == null:
 		%GeneratePopulous.visible = false
 		return
 
 	%GeneratePopulous.visible = true
-	var populous_generator_params = populpus_resource.get_params()
+	var populous_generator_params = populous_resource.get_params()
+	
+	if populous_generator_params == null:
+		push_warning("Populous: Generator params returned null")
+		populous_generator_params = {}
 	
 	if populous_generator_params.is_empty():
 		generator_settings_label.visible = false
@@ -168,22 +176,41 @@ func _make_ui(params: Dictionary):
 		dynamic_ui_container.add_child(margin_container)
 
 func _on_value_changed(new_value, key):
-	if populpus_resource:
-		var updated_params = populpus_resource.get_params()
-		updated_params[key] = new_value
-		populpus_resource.set_params(updated_params)
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		push_warning("Populous: Failed to get params for update")
+		return
+	
+	updated_params[key] = new_value
+	populous_resource.set_params(updated_params)
 
 func _on_vector3_changed(new_value, key, axis):
-	if populpus_resource:
-		var updated_params = populpus_resource.get_params()
-		var vector3_value = updated_params[key] as Vector3
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		push_warning("Populous: Failed to get params for Vector3 update")
+		return
+	
+	if not updated_params.has(key):
+		push_warning("Populous: Parameter key '%s' not found in params" % key)
+		return
+	
+	var vector3_value = updated_params[key] as Vector3
+	if vector3_value == null:
+		push_warning("Populous: Parameter '%s' is not a Vector3" % key)
+		return
 
-		if axis == 0:
-			vector3_value.x = new_value
-		elif axis == 1:
-			vector3_value.y = new_value
-		elif axis == 2:
-			vector3_value.z = new_value
+	if axis == 0:
+		vector3_value.x = new_value
+	elif axis == 1:
+		vector3_value.y = new_value
+	elif axis == 2:
+		vector3_value.z = new_value
 
-		updated_params[key] = vector3_value
-		populpus_resource.set_params(updated_params)
+	updated_params[key] = vector3_value
+	populous_resource.set_params(updated_params)

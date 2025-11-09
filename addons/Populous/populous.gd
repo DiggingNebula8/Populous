@@ -34,7 +34,20 @@ func _on_populous_menu_selected(id: int):
 
 func _toggle_populous_window():
 	if is_populous_window_open == false:
-		populous_window = PopulousConstant.Scenes.populous_tool.instantiate() as Window
+		if populous_constants == null:
+			push_error("Populous: Failed to load constants resource")
+			return
+		
+		var scene = populous_constants.Scenes.populous_tool
+		if scene == null:
+			push_error("Populous: Failed to load populous_tool scene")
+			return
+		
+		populous_window = scene.instantiate() as Window
+		if populous_window == null:
+			push_error("Populous: Failed to instantiate populous_tool window")
+			return
+		
 		populous_window.title = "Populous Tool"
 		populous_window.size = Vector2i(720, 720)
 		populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
@@ -49,15 +62,31 @@ func _on_populous_window_closed():
 	populous_window.queue_free()
 
 func _toggle_json_tres_window():
-		json_tres_window = PopulousConstant.Scenes.json_tres_tool.instantiate() as Window
-		json_tres_window.title = "JSON Tres Tool"
-		json_tres_window.size = Vector2i(720, 480)
-		json_tres_window.position = (Vector2i(get_editor_interface().get_base_control().size) - json_tres_window.size) / 2
-		json_tres_window.always_on_top = true
-		get_editor_interface().get_base_control().add_child(json_tres_window)
-		json_tres_window.show()
-		is_json_tres_window_open = true
-		json_tres_window.close_requested.connect(_on_json_tres_window_closed)
+	if is_json_tres_window_open:
+		return
+	
+	if populous_constants == null:
+		push_error("Populous: Failed to load constants resource")
+		return
+	
+	var scene = populous_constants.Scenes.json_tres_tool
+	if scene == null:
+		push_error("Populous: Failed to load json_tres_tool scene")
+		return
+	
+	json_tres_window = scene.instantiate() as Window
+	if json_tres_window == null:
+		push_error("Populous: Failed to instantiate json_tres_tool window")
+		return
+	
+	json_tres_window.title = "JSON Tres Tool"
+	json_tres_window.size = Vector2i(720, 480)
+	json_tres_window.position = (Vector2i(get_editor_interface().get_base_control().size) - json_tres_window.size) / 2
+	json_tres_window.always_on_top = true
+	get_editor_interface().get_base_control().add_child(json_tres_window)
+	json_tres_window.show()
+	is_json_tres_window_open = true
+	json_tres_window.close_requested.connect(_on_json_tres_window_closed)
 
 func _on_json_tres_window_closed():
 	is_json_tres_window_open = false
@@ -67,7 +96,11 @@ func _create_container():
 	# Get the root node of the current scene
 	var scene_root = get_tree().edited_scene_root
 	if scene_root == null:
-		print("No active scene found.")
+		push_error("Populous: No active scene found. Please open a scene before creating a container.")
+		return
+	
+	if populous_constants == null:
+		push_error("Populous: Failed to load constants resource")
 		return
 
 	# Count existing PopulousContainers
@@ -78,6 +111,10 @@ func _create_container():
 
 	# Create a new Node3D instance
 	var container = Node3D.new()
+	if container == null:
+		push_error("Populous: Failed to create container node")
+		return
+	
 	container.name = populous_constants.Strings.populous_container + str(count)
 
 	# Add it as a child of the active scene root
@@ -87,12 +124,25 @@ func _create_container():
 	container.owner = scene_root
 	container.set_meta(populous_constants.Strings.populous_container, true)
 
-	print("Container created successfully: " + container.name)
+	print("Populous: Container created successfully: " + container.name)
 	
 
 func _toggle_batch_resource_window():
 	if not is_batch_resource_window_open:
-		batch_resource_window = PopulousConstant.Scenes.batch_tres_tool.instantiate() as Window
+		if populous_constants == null:
+			push_error("Populous: Failed to load constants resource")
+			return
+		
+		var scene = populous_constants.Scenes.batch_tres_tool
+		if scene == null:
+			push_error("Populous: Failed to load batch_tres_tool scene")
+			return
+		
+		batch_resource_window = scene.instantiate() as Window
+		if batch_resource_window == null:
+			push_error("Populous: Failed to instantiate batch_tres_tool window")
+			return
+		
 		batch_resource_window.title = "Batch Resource Creator"
 		batch_resource_window.size = Vector2i(720, 480)
 		batch_resource_window.position = (Vector2i(get_editor_interface().get_base_control().size) - batch_resource_window.size) / 2

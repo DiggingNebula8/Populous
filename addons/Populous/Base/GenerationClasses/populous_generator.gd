@@ -5,29 +5,40 @@ class_name PopulousGenerator extends Resource
 @export var meta_resource: PopulousMeta = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres")
 
 func _generate(populous_container: Node) -> void:
+	if populous_container == null:
+		push_error("Populous: Cannot generate NPCs - container is null")
+		return
+	
 	var npc_resource: PackedScene = resource
 	
 	if npc_resource == null:
-		print_debug("Missing NPC Resource")
+		push_error("Populous: Cannot generate NPCs - NPC resource (PackedScene) is not set")
 		return
 		
 	var npc_meta_resource = meta_resource
 	
 	if npc_meta_resource == null:
-		print_debug("Missing NPC Meta Resource")
+		push_error("Populous: Cannot generate NPCs - Meta resource is not set")
 		return
-	else:
-		pass
 		
+	# Clean previous NPCs
 	for child in populous_container.get_children():
-		child.queue_free() #clean previous
+		child.queue_free()
 		
 	var spawned_npc: Node = npc_resource.instantiate()
+	if spawned_npc == null:
+		push_error("Populous: Failed to instantiate NPC from resource")
+		return
+	
 	populous_container.add_child(spawned_npc)
-	spawned_npc.owner = populous_container.get_tree().edited_scene_root
+	
+	var scene_root = populous_container.get_tree().edited_scene_root
+	if scene_root != null:
+		spawned_npc.owner = scene_root
+	
 	npc_meta_resource.set_metadata(spawned_npc)
 	
-	print_debug("Spawned NPC")
+	print_debug("Populous: Successfully spawned NPC")
 
 func _get_params() -> Dictionary:
 	return {}  # Can be extended in child classes
