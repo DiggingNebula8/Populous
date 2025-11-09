@@ -34,6 +34,9 @@ func _on_populous_menu_selected(id: int):
 
 func _toggle_populous_window():
 	if is_populous_window_open:
+		if populous_window != null:
+			populous_window.queue_free()
+		is_populous_window_open = false
 		return
 	
 	if populous_constants == null:
@@ -65,6 +68,9 @@ func _on_populous_window_closed():
 
 func _toggle_json_tres_window():
 	if is_json_tres_window_open:
+		if json_tres_window != null:
+			json_tres_window.queue_free()
+		is_json_tres_window_open = false
 		return
 	
 	if populous_constants == null:
@@ -171,3 +177,4 @@ func _exit_tree():
 	if is_batch_resource_window_open:
 		batch_resource_window.queue_free()
 	remove_tool_menu_item(populous_constants.Strings.populous)
+s)
