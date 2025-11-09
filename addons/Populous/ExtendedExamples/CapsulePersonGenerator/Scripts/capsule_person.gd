@@ -37,7 +37,7 @@ func _instantiate_person() -> void:
 					#_apply_material_to_children(instance)  # Apply material recursively
 					mesh_container.add_child(instance)
 				else:
-					print_debug("[ERROR] Part is not a PackedScene:", part)
+					PopulousLogger.error("Part is not a PackedScene: " + str(part))
 
 			bIsInstantiated = true
 

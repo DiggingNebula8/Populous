@@ -46,7 +46,7 @@ func _open_file_dialog():
 
 func _on_files_selected(files: PackedStringArray):
 	selected_fbx_files = files  # ✅ Direct assignment, since PackedStringArray is already compatible
-	print("Selected .fbx files: ", selected_fbx_files)
+	PopulousLogger.debug("Selected .fbx files: " + str(selected_fbx_files))
 
 func _on_blueprint_selected(resource: Resource):
 	blueprint_resource = resource
@@ -87,12 +87,12 @@ func _on_generate_pressed():
 		var save_result = ResourceSaver.save(new_resource, resource_path)
 		if save_result == OK:
 			success_count += 1
-			print_debug("Populous: Resource saved: " + resource_path)
+			PopulousLogger.debug("Resource saved: " + resource_path)
 		else:
-			push_error("Populous: Failed to save resource to: " + resource_path + " (Error code: " + str(save_result) + ")")
+			PopulousLogger.error("Failed to save resource to: " + resource_path + " (Error code: " + str(save_result) + ")")
 			fail_count += 1
 	
 	if success_count > 0:
-		print("Populous: Successfully created " + str(success_count) + " resource(s)")
+		PopulousLogger.info("Successfully created " + str(success_count) + " resource(s)")
 	if fail_count > 0:
-		push_error("Populous: Failed to create " + str(fail_count) + " resource(s)")
+		PopulousLogger.error("Failed to create " + str(fail_count) + " resource(s)")

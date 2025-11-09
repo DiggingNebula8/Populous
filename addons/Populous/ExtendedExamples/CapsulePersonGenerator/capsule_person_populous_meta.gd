@@ -60,7 +60,7 @@ func _set_params(params: Dictionary) -> void:
 
 func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin_type: CapsulePersonConstants.SkinType) -> void:
 	if modular_pieces == null:
-		print_debug("[ERROR] No modular pieces assigned to CapsuleCityParts!")
+		PopulousLogger.error("No modular pieces assigned to CapsuleCityParts!")
 		return
 	
 	# Define the list of body parts to process.
@@ -72,14 +72,14 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		# Retrieve the array of CapsulePart objects from the CapsuleCityParts resource.
 		var parts: Array[CapsulePart] = modular_pieces.get(part_name)
 		if parts == null or parts.is_empty():
-			print_debug("[INFO] No parts defined for:", part_name)
+			PopulousLogger.debug("No parts defined for: " + part_name)
 			continue
 
 		# Filter parts based on gender and skin type.
 		parts = parts.filter(func(part): return (part.gender == CapsulePersonConstants.Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == CapsulePersonConstants.SkinType.DEFAULT))
 
 		if parts.is_empty():
-			print_debug("[WARNING] No valid parts found for:", part_name, "with skin type:", skin_type)
+			PopulousLogger.warning("No valid parts found for: " + part_name + " with skin type: " + str(skin_type))
 			continue
 
 		# Check if all available parts in this category are marked as skippable.
@@ -91,7 +91,7 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 
 		# If all parts are skippable, then with a 50% chance, skip this entire category.
 		if all_skippable and randf() < 0.5:
-			print_debug("[INFO] Skipping optional part category:", part_name)
+			PopulousLogger.debug("Skipping optional part category: " + part_name)
 			continue
 
 		# Sort parts by weight (higher weight means more likely to be chosen).
@@ -100,9 +100,9 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		# Use weighted random selection to pick a part.
 		var selected_part: CapsulePart = weighted_random_pick(parts)
 		if selected_part == null or selected_part.mesh == null:
-			print_debug("[WARNING] Skipping null mesh for:", part_name)
+			PopulousLogger.warning("Skipping null mesh for: " + part_name)
 			continue
-		print_debug(part_name, " and ", selected_part.mesh)
+		PopulousLogger.debug(part_name + " and " + str(selected_part.mesh))
 		final_parts.insert(index, selected_part.mesh)
 		index += 1
 	npc.set_meta("Parts",final_parts)
@@ -121,5 +121,8 @@ func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:
 	for part in parts:
 		cumulative += part.weight
 		if rand_value <= cumulative:
+			return part
+	return parts.front() if not parts.is_empty() else null
+<= cumulative:
 			return part
 	return parts.front() if not parts.is_empty() else null

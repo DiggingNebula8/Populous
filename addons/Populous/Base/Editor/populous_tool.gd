@@ -4,6 +4,7 @@ extends VBoxContainer
 class_name PopulousTool
 
 const PopulousConstants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 var populous_menu: VBoxContainer
 var menu_disabled_label: Label
@@ -37,6 +38,10 @@ func _process(delta: float) -> void:
 		populous_resource = new_resource
 		_update_ui()  # Call function to update UI only when resource changes
 	
+## Callback when editor selection changes.
+## Updates the selected container if a PopulousContainer is selected.
+##
+## @return: void
 func _on_selection_changed() -> void:
 	# Get the selected nodes
 	var selected_nodes = EditorInterface.get_selection().get_selected_nodes()
@@ -47,6 +52,10 @@ func _on_selection_changed() -> void:
 		is_container_selected = false
 		populous_container = null
 
+## Callback when the Generate button is pressed.
+## Validates that a container and resource are selected, then generates NPCs.
+##
+## @return: void
 func _on_generate_populous_pressed() -> void:
 	if populous_container == null:
 		push_error("Populous: Cannot generate - no container selected. Please select a PopulousContainer node.")
@@ -58,7 +67,11 @@ func _on_generate_populous_pressed() -> void:
 	
 	populous_resource.run_populous(populous_container)
 	
-func _update_ui():
+## Updates the UI based on the current PopulousResource.
+## Shows/hides the generate button and parameter controls dynamically.
+##
+## @return: void
+func _update_ui() -> void:
 	if populous_resource == null:
 		%GeneratePopulous.visible = false
 		return
@@ -84,7 +97,14 @@ func _update_ui():
 		# Generate new UI elements inside the referenced VBoxContainer
 		_make_ui(populous_generator_params)
 
-func _make_ui(params: Dictionary):
+## Dynamically creates UI controls for generator parameters.
+## 
+## Creates appropriate input controls (SpinBox, CheckBox, LineEdit, etc.) based on parameter types.
+## Supports: int, float, bool, Vector3, and string types.
+## 
+## @param params: Dictionary with parameter names as keys and values as values.
+## @return: void
+func _make_ui(params: Dictionary) -> void:
 	for key in params.keys():
 		var value = params[key]
 
@@ -102,11 +122,13 @@ func _make_ui(params: Dictionary):
 		var input_field = null  # Placeholder for UI element
 
 		# Create input fields based on the type of value
+		# Each type gets an appropriate UI control with proper validation
 		match typeof(value):
 			TYPE_INT:
+				# Integer values use SpinBox with min/max constraints
 				var spinbox = SpinBox.new()
-				spinbox.min_value = 0
-				spinbox.max_value = 100  # Adjust limits if needed
+				spinbox.min_value = PopulousConstants.UI.spinbox_int_min
+				spinbox.max_value = PopulousConstants.UI.spinbox_int_max
 				spinbox.value = value
 				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
 				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -114,10 +136,11 @@ func _make_ui(params: Dictionary):
 				input_field = spinbox
 
 			TYPE_FLOAT:
+				# Float values use SpinBox with step precision
 				var spinbox = SpinBox.new()
-				spinbox.min_value = -1000.0
-				spinbox.max_value = 1000.0
-				spinbox.step = 0.1
+				spinbox.min_value = PopulousConstants.UI.spinbox_float_min
+				spinbox.max_value = PopulousConstants.UI.spinbox_float_max
+				spinbox.step = PopulousConstants.UI.spinbox_float_step
 				spinbox.value = value
 				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
 				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -125,6 +148,7 @@ func _make_ui(params: Dictionary):
 				input_field = spinbox
 
 			TYPE_BOOL:
+				# Boolean values use CheckBox
 				var checkbox = CheckBox.new()
 				checkbox.button_pressed = value
 				checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -132,6 +156,7 @@ func _make_ui(params: Dictionary):
 				input_field = checkbox
 
 			TYPE_VECTOR3:
+				# Vector3 values use three SpinBoxes (one per axis)
 				var hbox = HBoxContainer.new()
 				hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 				hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -154,6 +179,7 @@ func _make_ui(params: Dictionary):
 				input_field = hbox
 
 			_:
+				# Default fallback: any other type uses LineEdit as string
 				var line_edit = LineEdit.new()
 				line_edit.text = str(value)
 				line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -167,10 +193,10 @@ func _make_ui(params: Dictionary):
 		
 		var margin_container: MarginContainer = MarginContainer.new()
 		margin_container.add_child(row_container)
-		margin_container.add_theme_constant_override("margin_left", 10)
-		margin_container.add_theme_constant_override("margin_top", 5)
-		margin_container.add_theme_constant_override("margin_right", 10)
-		margin_container.add_theme_constant_override("margin_bottom", 5)
+		margin_container.add_theme_constant_override("margin_left", PopulousConstants.UI.margin_left)
+		margin_container.add_theme_constant_override("margin_top", PopulousConstants.UI.margin_top)
+		margin_container.add_theme_constant_override("margin_right", PopulousConstants.UI.margin_right)
+		margin_container.add_theme_constant_override("margin_bottom", PopulousConstants.UI.margin_bottom)
 
 		# Add row container to dynamic UI container
 		dynamic_ui_container.add_child(margin_container)

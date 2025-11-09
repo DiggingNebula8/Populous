@@ -2,6 +2,7 @@
 extends EditorPlugin
 
 const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 var populous_window: Window
 var is_populous_window_open: bool = false
@@ -130,7 +131,7 @@ func _create_container():
 	container.owner = scene_root
 	container.set_meta(populous_constants.Strings.populous_container, true)
 
-	print("Populous: Container created successfully: " + container.name)
+	PopulousLogger.info("Container created successfully: " + container.name)
 	
 
 func _toggle_batch_resource_window():
@@ -139,7 +140,7 @@ func _toggle_batch_resource_window():
 		batch_resource_window,
 		populous_constants.Scenes.batch_tres_tool,
 		"Batch Resource Creator",
-		Vector2i(720, 480),
+		populous_constants.UI.batch_resource_window_size,
 		_on_batch_resource_window_closed
 	)
 	is_batch_resource_window_open = result.is_open

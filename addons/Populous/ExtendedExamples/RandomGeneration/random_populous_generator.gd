@@ -58,7 +58,7 @@ func _generate(populous_container: Node) -> void:
 				push_warning("Populous: Spawned NPC is not a Node3D and cannot be positioned: " + str(spawned_npc))
 
 			count += 1
-			print_debug("Populous: Spawned NPC at position: " + str(position))
+			PopulousLogger.debug("Spawned NPC at position: " + str(position))
 
 func _get_params() -> Dictionary:
 	var generator_params: Dictionary = {

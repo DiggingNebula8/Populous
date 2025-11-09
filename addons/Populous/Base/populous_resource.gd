@@ -1,8 +1,18 @@
 @tool
-class_name  PopulousResource extends Resource
+class_name PopulousResource extends Resource
+
+## Main resource class for Populous addon.
+## Contains a generator that defines how NPCs are created and spawned.
+## Use this resource in the Populous Tool to generate NPCs in your scene.
 
 @export var generator: PopulousGenerator = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousGenerator.tres")
 
+## Generates NPCs in the specified container using the configured generator.
+## 
+## @param populous_container: The Node3D container where NPCs will be spawned.
+## Must be a PopulousContainer node (has the populous_container meta).
+##
+## @return: void
 func run_populous(populous_container: Node) -> void:
 	if populous_container == null:
 		push_error("Populous: Cannot generate NPCs - container is null")

@@ -38,7 +38,7 @@ func _generate(populous_container: Node) -> void:
 	
 	npc_meta_resource.set_metadata(spawned_npc)
 	
-	print_debug("Populous: Successfully spawned NPC")
+	PopulousLogger.debug("Successfully spawned NPC")
 
 func _get_params() -> Dictionary:
 	return {}  # Can be extended in child classes

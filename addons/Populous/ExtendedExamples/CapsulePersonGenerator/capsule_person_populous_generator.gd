@@ -1,6 +1,7 @@
 @tool
 class_name CapsulePersonPopulousGenerator extends PopulousGenerator
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:
@@ -33,7 +34,7 @@ func _generate(populous_container: Node) -> void:
 		spawned_npc.owner = scene_root
 	npc_meta_resource.set_metadata(spawned_npc)
 	
-	print_debug("Populous: Successfully spawned NPC")
+	PopulousLogger.debug("Successfully spawned NPC")
 
 func _get_params() -> Dictionary:
 	return {}  # Can be extended in child classes
