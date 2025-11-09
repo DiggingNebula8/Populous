@@ -25,7 +25,7 @@ Additionally, Populous features a **JSON-to-Resource converter**, enabling easy 
 
 ## Installation
 
-1. Download the latest release and sopy it into your Godot project's `addons` folder.
+1. Download the latest release and copy it into your Godot project's `addons` folder.
 2. If you want to use this as a submodule, use Symbolic Link to create a link from this repo's addons/Populous to your project's addons/Populous
 3. Enable the **Populous** plugin from the **Project Settings > Plugins** menu.
 
