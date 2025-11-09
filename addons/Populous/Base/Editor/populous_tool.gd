@@ -107,99 +107,135 @@ func _update_ui() -> void:
 func _make_ui(params: Dictionary) -> void:
 	for key in params.keys():
 		var value = params[key]
-
-		# Create a row container for better alignment
-		var row_container = HBoxContainer.new()
-		row_container.alignment = BoxContainer.ALIGNMENT_CENTER  # Center align horizontally
-		row_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-
-		var label = Label.new()
-		label.text = key
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL  # Makes label take space equally
-
-		var input_field = null  # Placeholder for UI element
+		var input_field: Control = null
 
 		# Create input fields based on the type of value
-		# Each type gets an appropriate UI control with proper validation
 		match typeof(value):
 			TYPE_INT:
-				# Integer values use SpinBox with min/max constraints
-				var spinbox = SpinBox.new()
-				spinbox.min_value = PopulousConstants.UI.spinbox_int_min
-				spinbox.max_value = PopulousConstants.UI.spinbox_int_max
-				spinbox.value = value
-				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
-				input_field = spinbox
-
+				input_field = _create_int_control(value, key)
 			TYPE_FLOAT:
-				# Float values use SpinBox with step precision
-				var spinbox = SpinBox.new()
-				spinbox.min_value = PopulousConstants.UI.spinbox_float_min
-				spinbox.max_value = PopulousConstants.UI.spinbox_float_max
-				spinbox.step = PopulousConstants.UI.spinbox_float_step
-				spinbox.value = value
-				spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-				spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-				spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
-				input_field = spinbox
-
+				input_field = _create_float_control(value, key)
 			TYPE_BOOL:
-				# Boolean values use CheckBox
-				var checkbox = CheckBox.new()
-				checkbox.button_pressed = value
-				checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-				checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
-				input_field = checkbox
-
+				input_field = _create_bool_control(value, key)
 			TYPE_VECTOR3:
-				# Vector3 values use three SpinBoxes (one per axis)
-				var hbox = HBoxContainer.new()
-				hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-				hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-
-				var x_spin = SpinBox.new()
-				x_spin.value = value.x
-				x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
-				hbox.add_child(x_spin)
-
-				var y_spin = SpinBox.new()
-				y_spin.value = value.y
-				y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
-				hbox.add_child(y_spin)
-
-				var z_spin = SpinBox.new()
-				z_spin.value = value.z
-				z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
-				hbox.add_child(z_spin)
-
-				input_field = hbox
-
+				input_field = _create_vector3_control(value, key)
 			_:
-				# Default fallback: any other type uses LineEdit as string
-				var line_edit = LineEdit.new()
-				line_edit.text = str(value)
-				line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
-				line_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-				line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
-				input_field = line_edit
+				input_field = _create_string_control(value, key)
 
-		# Add label and input field to row container
-		row_container.add_child(label)
-		row_container.add_child(input_field)
-		
-		var margin_container: MarginContainer = MarginContainer.new()
-		margin_container.add_child(row_container)
-		margin_container.add_theme_constant_override("margin_left", PopulousConstants.UI.margin_left)
-		margin_container.add_theme_constant_override("margin_top", PopulousConstants.UI.margin_top)
-		margin_container.add_theme_constant_override("margin_right", PopulousConstants.UI.margin_right)
-		margin_container.add_theme_constant_override("margin_bottom", PopulousConstants.UI.margin_bottom)
-
-		# Add row container to dynamic UI container
+		# Create and add the row container with label and input field
+		var margin_container = _create_row_container(key, input_field)
 		dynamic_ui_container.add_child(margin_container)
+
+## Creates a SpinBox control for integer values.
+##
+## @param value: The integer value to display.
+## @param key: The parameter key name.
+## @return: Configured SpinBox control.
+func _create_int_control(value: int, key: String) -> SpinBox:
+	var spinbox = SpinBox.new()
+	spinbox.min_value = PopulousConstants.UI.spinbox_int_min
+	spinbox.max_value = PopulousConstants.UI.spinbox_int_max
+	spinbox.value = value
+	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
+	return spinbox
+
+## Creates a SpinBox control for float values.
+##
+## @param value: The float value to display.
+## @param key: The parameter key name.
+## @return: Configured SpinBox control.
+func _create_float_control(value: float, key: String) -> SpinBox:
+	var spinbox = SpinBox.new()
+	spinbox.min_value = PopulousConstants.UI.spinbox_float_min
+	spinbox.max_value = PopulousConstants.UI.spinbox_float_max
+	spinbox.step = PopulousConstants.UI.spinbox_float_step
+	spinbox.value = value
+	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
+	return spinbox
+
+## Creates a CheckBox control for boolean values.
+##
+## @param value: The boolean value to display.
+## @param key: The parameter key name.
+## @return: Configured CheckBox control.
+func _create_bool_control(value: bool, key: String) -> CheckBox:
+	var checkbox = CheckBox.new()
+	checkbox.button_pressed = value
+	checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
+	return checkbox
+
+## Creates an HBoxContainer with three SpinBoxes for Vector3 values.
+##
+## @param value: The Vector3 value to display.
+## @param key: The parameter key name.
+## @return: Configured HBoxContainer with three SpinBox controls.
+func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+	var x_spin = SpinBox.new()
+	x_spin.value = value.x
+	x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
+	hbox.add_child(x_spin)
+
+	var y_spin = SpinBox.new()
+	y_spin.value = value.y
+	y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
+	hbox.add_child(y_spin)
+
+	var z_spin = SpinBox.new()
+	z_spin.value = value.z
+	z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
+	hbox.add_child(z_spin)
+
+	return hbox
+
+## Creates a LineEdit control for string/other values.
+##
+## @param value: The value to display as a string.
+## @param key: The parameter key name.
+## @return: Configured LineEdit control.
+func _create_string_control(value, key: String) -> LineEdit:
+	var line_edit = LineEdit.new()
+	line_edit.text = str(value)
+	line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	line_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
+	return line_edit
+
+## Creates a row container with label and input field, wrapped in a MarginContainer.
+##
+## @param label_text: The text for the label.
+## @param input_field: The input control to add.
+## @return: Configured MarginContainer with the row container inside.
+func _create_row_container(label_text: String, input_field: Control) -> MarginContainer:
+	var row_container = HBoxContainer.new()
+	row_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	row_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+	var label = Label.new()
+	label.text = label_text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	row_container.add_child(label)
+	row_container.add_child(input_field)
+
+	var margin_container = MarginContainer.new()
+	margin_container.add_child(row_container)
+	margin_container.add_theme_constant_override("margin_left", PopulousConstants.UI.margin_left)
+	margin_container.add_theme_constant_override("margin_top", PopulousConstants.UI.margin_top)
+	margin_container.add_theme_constant_override("margin_right", PopulousConstants.UI.margin_right)
+	margin_container.add_theme_constant_override("margin_bottom", PopulousConstants.UI.margin_bottom)
+
+	return margin_container
 
 func _on_value_changed(new_value, key):
 	if populous_resource == null:
