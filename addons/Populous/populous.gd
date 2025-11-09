@@ -33,29 +33,31 @@ func _on_populous_menu_selected(id: int):
 		3: _toggle_batch_resource_window()
 
 func _toggle_populous_window():
-	if is_populous_window_open == false:
-		if populous_constants == null:
-			push_error("Populous: Failed to load constants resource")
-			return
-		
-		var scene = populous_constants.Scenes.populous_tool
-		if scene == null:
-			push_error("Populous: Failed to load populous_tool scene")
-			return
-		
-		populous_window = scene.instantiate() as Window
-		if populous_window == null:
-			push_error("Populous: Failed to instantiate populous_tool window")
-			return
-		
-		populous_window.title = "Populous Tool"
-		populous_window.size = Vector2i(720, 720)
-		populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
-		populous_window.always_on_top = true
-		get_editor_interface().get_base_control().add_child(populous_window)
-		populous_window.show()
-		is_populous_window_open = true
-		populous_window.close_requested.connect(_on_populous_window_closed)
+	if is_populous_window_open:
+		return
+	
+	if populous_constants == null:
+		push_error("Populous: Failed to load constants resource")
+		return
+	
+	var scene = populous_constants.Scenes.populous_tool
+	if scene == null:
+		push_error("Populous: Failed to load populous_tool scene")
+		return
+	
+	populous_window = scene.instantiate() as Window
+	if populous_window == null:
+		push_error("Populous: Failed to instantiate populous_tool window")
+		return
+	
+	populous_window.title = "Populous Tool"
+	populous_window.size = Vector2i(720, 720)
+	populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
+	populous_window.always_on_top = true
+	get_editor_interface().get_base_control().add_child(populous_window)
+	populous_window.show()
+	is_populous_window_open = true
+	populous_window.close_requested.connect(_on_populous_window_closed)
 
 func _on_populous_window_closed():
 	is_populous_window_open = false
