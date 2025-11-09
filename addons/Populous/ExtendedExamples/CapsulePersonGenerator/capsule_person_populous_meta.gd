@@ -123,6 +123,3 @@ func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:
 		if rand_value <= cumulative:
 			return part
 	return parts.front() if not parts.is_empty() else null
-<= cumulative:
-			return part
-	return parts.front() if not parts.is_empty() else null
