@@ -1,5 +1,7 @@
 # Populous
-
+---
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/DiggingNebula8/Populous?utm_source=oss&utm_medium=github&utm_campaign=DiggingNebula8%2FPopulous&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+---
 A Godot addon to create NPCs with their personal data.
 
 ## Overview
