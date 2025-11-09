@@ -37,9 +37,11 @@ func _generate(populous_container: Node) -> void:
 				return
 			
 			populous_container.add_child(spawned_npc)
-			var scene_root = populous_container.get_tree().edited_scene_root
-			if scene_root != null:
-				spawned_npc.owner = scene_root
+			var tree = populous_container.get_tree()
+			if tree != null:
+				var scene_root = tree.edited_scene_root
+				if scene_root != null:
+					spawned_npc.owner = scene_root
 			
 			npc_meta_resource.set_metadata(spawned_npc)
 			

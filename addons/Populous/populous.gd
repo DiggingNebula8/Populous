@@ -105,7 +105,11 @@ func _on_json_tres_window_closed():
 
 func _create_container():
 	# Get the root node of the current scene
-	var scene_root = get_tree().edited_scene_root
+	var tree = get_tree()
+	if tree == null:
+		push_error("Populous: Node is not in a SceneTree. Cannot create container.")
+		return
+	var scene_root = tree.edited_scene_root
 	if scene_root == null:
 		push_error("Populous: No active scene found. Please open a scene before creating a container.")
 		return
