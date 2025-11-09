@@ -1,6 +1,8 @@
 @tool
 extends VBoxContainer
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 var PATH_TO_JSON: String = ""
 var TRES_SAVE_PATH: String = ""
 
@@ -39,7 +41,7 @@ func _on_file_dialog_file_selected(path: String) -> void:
 func _on_create_resource_pressed() -> void:
 	var json_text = _load_json(PATH_TO_JSON)
 	if not json_text:
-		push_error("Populous: Failed to load JSON file.")
+		PopulousLogger.error("Failed to load JSON file.")
 		return
 
 	var resource = json_to_resource(json_text)
@@ -53,12 +55,12 @@ func _on_create_resource_pressed() -> void:
 ## @return: String containing JSON text, or empty string on error.
 func _load_json(path: String) -> String:
 	if path.is_empty():
-		push_error("Populous: JSON file path is empty")
+		PopulousLogger.error("JSON file path is empty")
 		return ""
 	
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file:
-		push_error("Populous: Error opening JSON file: " + path)
+		PopulousLogger.error("Error opening JSON file: " + path)
 		return ""
 	
 	var text = file.get_as_text()
@@ -67,18 +69,18 @@ func _load_json(path: String) -> String:
 
 func json_to_resource(json_text: String) -> JSONResource:
 	if json_text.is_empty():
-		push_error("Populous: JSON text is empty")
+		PopulousLogger.error("JSON text is empty")
 		return null
 	
 	var json = JSON.new()
 	var err = json.parse(json_text)
 	if err != OK:
-		push_error("Populous: JSON parsing error (code " + str(err) + "): " + json.get_error_message())
+		PopulousLogger.error("JSON parsing error (code " + str(err) + "): " + json.get_error_message())
 		return null
 
 	var resource = JSONResource.new()
 	if resource == null:
-		push_error("Populous: Failed to create JSONResource instance")
+		PopulousLogger.error("Failed to create JSONResource instance")
 		return null
 	
 	resource.data = _convert_to_godot_types(json.get_data())
@@ -111,15 +113,15 @@ func _convert_to_godot_types(value):
 ## @return: void
 func save_resource(resource: JSONResource, path: String) -> void:
 	if resource == null:
-		push_error("Populous: Cannot save null resource")
+		PopulousLogger.error("Cannot save null resource")
 		return
 	
 	if path.is_empty():
-		push_error("Populous: Save path is empty")
+		PopulousLogger.error("Save path is empty")
 		return
 	
 	var save_result = ResourceSaver.save(resource, path)
 	if save_result == OK:
 		PopulousLogger.info("Successfully saved: " + path)
 	else:
-		push_error("Populous: Failed to save resource to: " + path + " (Error code: " + str(save_result) + ")")
+		PopulousLogger.error("Failed to save resource to: " + path + " (Error code: " + str(save_result) + ")")

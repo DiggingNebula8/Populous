@@ -2,6 +2,8 @@
 class_name CapsulePerson
 extends CharacterBody3D
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 var meta_label: Label3D
 var mesh_container: Node3D
 var bIsInstantiated: bool = false

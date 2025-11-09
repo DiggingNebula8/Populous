@@ -58,11 +58,11 @@ func _on_selection_changed() -> void:
 ## @return: void
 func _on_generate_populous_pressed() -> void:
 	if populous_container == null:
-		push_error("Populous: Cannot generate - no container selected. Please select a PopulousContainer node.")
+		PopulousLogger.error("Cannot generate - no container selected. Please select a PopulousContainer node.")
 		return
 	
 	if populous_resource == null:
-		push_error("Populous: Cannot generate - no resource selected. Please select a PopulousResource.")
+		PopulousLogger.error("Cannot generate - no resource selected. Please select a PopulousResource.")
 		return
 	
 	populous_resource.run_populous(populous_container)
@@ -80,7 +80,7 @@ func _update_ui() -> void:
 	var populous_generator_params = populous_resource.get_params()
 	
 	if populous_generator_params == null:
-		push_warning("Populous: Generator params returned null")
+		PopulousLogger.warning("Generator params returned null")
 		populous_generator_params = {}
 	
 	if populous_generator_params.is_empty():
@@ -207,7 +207,7 @@ func _on_value_changed(new_value, key):
 	
 	var updated_params = populous_resource.get_params()
 	if updated_params == null:
-		push_warning("Populous: Failed to get params for update")
+		PopulousLogger.warning("Failed to get params for update")
 		return
 	
 	updated_params[key] = new_value
@@ -219,16 +219,16 @@ func _on_vector3_changed(new_value, key, axis):
 	
 	var updated_params = populous_resource.get_params()
 	if updated_params == null:
-		push_warning("Populous: Failed to get params for Vector3 update")
+		PopulousLogger.warning("Failed to get params for Vector3 update")
 		return
 	
 	if not updated_params.has(key):
-		push_warning("Populous: Parameter key '%s' not found in params" % key)
+		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
 		return
 	
 	var vector3_value = updated_params[key] as Vector3
 	if vector3_value == null:
-		push_warning("Populous: Parameter '%s' is not a Vector3" % key)
+		PopulousLogger.warning("Parameter '%s' is not a Vector3" % key)
 		return
 
 	if axis == 0:

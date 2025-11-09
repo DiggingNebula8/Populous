@@ -1,6 +1,8 @@
 @tool
 class_name CapsulePersonPopulousMeta extends PopulousMeta
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 @export var modular_pieces: CapsulePersonParts 
 @export var material: ORMMaterial3D
 

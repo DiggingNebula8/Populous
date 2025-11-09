@@ -49,16 +49,16 @@ func _toggle_window(
 		return {is_open = false, window = null}
 	
 	if populous_constants == null:
-		push_error("Populous: Failed to load constants resource")
+		PopulousLogger.error("Failed to load constants resource")
 		return {is_open = false, window = null}
 	
 	if scene == null:
-		push_error("Populous: Failed to load scene")
+		PopulousLogger.error("Failed to load scene")
 		return {is_open = false, window = null}
 	
 	var new_window = scene.instantiate() as Window
 	if new_window == null:
-		push_error("Populous: Failed to instantiate window")
+		PopulousLogger.error("Failed to instantiate window")
 		return {is_open = false, window = null}
 	
 	new_window.title = title
@@ -107,15 +107,15 @@ func _create_container():
 	# Get the root node of the current scene
 	var tree = get_tree()
 	if tree == null:
-		push_error("Populous: Node is not in a SceneTree. Cannot create container.")
+		PopulousLogger.error("Node is not in a SceneTree. Cannot create container.")
 		return
 	var scene_root = tree.edited_scene_root
 	if scene_root == null:
-		push_error("Populous: No active scene found. Please open a scene before creating a container.")
+		PopulousLogger.error("No active scene found. Please open a scene before creating a container.")
 		return
 	
 	if populous_constants == null:
-		push_error("Populous: Failed to load constants resource")
+		PopulousLogger.error("Failed to load constants resource")
 		return
 
 	# Count existing PopulousContainers

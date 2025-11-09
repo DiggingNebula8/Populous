@@ -1,6 +1,8 @@
 @tool
 extends Window
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 @export var blueprint_resource: Resource
 
 var file_dialog: FileDialog
@@ -53,11 +55,11 @@ func _on_blueprint_selected(resource: Resource):
 
 func _on_generate_pressed():
 	if not blueprint_resource:
-		push_error("Populous: Please select a blueprint resource.")
+		PopulousLogger.error("Please select a blueprint resource.")
 		return
 
 	if selected_fbx_files.is_empty():
-		push_error("Populous: Please select at least one .fbx file.")
+		PopulousLogger.error("Please select at least one .fbx file.")
 		return
 
 	var success_count = 0
@@ -67,13 +69,13 @@ func _on_generate_pressed():
 		var resource_path = fbx_path.get_basename() + ".tres"  # ✅ Save beside the .fbx file
 		
 		if blueprint_resource == null:
-			push_error("Populous: Blueprint resource is null, cannot duplicate")
+			PopulousLogger.error("Blueprint resource is null, cannot duplicate")
 			fail_count += 1
 			continue
 		
 		var new_resource = blueprint_resource.duplicate()
 		if new_resource == null:
-			push_error("Populous: Failed to duplicate blueprint resource for: " + fbx_path)
+			PopulousLogger.error("Failed to duplicate blueprint resource for: " + fbx_path)
 			fail_count += 1
 			continue
 		
@@ -82,7 +84,7 @@ func _on_generate_pressed():
 		if mesh_resource:
 			new_resource.set("mesh", mesh_resource)  # ✅ Assign mesh to resource
 		else:
-			push_warning("Populous: Could not load mesh from: " + fbx_path)
+			PopulousLogger.warning("Could not load mesh from: " + fbx_path)
 		
 		var save_result = ResourceSaver.save(new_resource, resource_path)
 		if save_result == OK:

@@ -5,19 +5,19 @@ const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger
 
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:
-		push_error("Populous: Cannot generate NPCs - container is null")
+		PopulousLogger.error("Cannot generate NPCs - container is null")
 		return
 	
 	var npc_resource: PackedScene = resource
 	
 	if npc_resource == null:
-		push_error("Populous: Cannot generate NPCs - NPC resource (PackedScene) is not set")
+		PopulousLogger.error("Cannot generate NPCs - NPC resource (PackedScene) is not set")
 		return
 		
 	var npc_meta_resource = meta_resource
 	
 	if npc_meta_resource == null:
-		push_error("Populous: Cannot generate NPCs - Meta resource is not set")
+		PopulousLogger.error("Cannot generate NPCs - Meta resource is not set")
 		return
 		
 	for child in populous_container.get_children():
@@ -25,7 +25,7 @@ func _generate(populous_container: Node) -> void:
 		
 	var spawned_npc: Node = npc_resource.instantiate()
 	if spawned_npc == null:
-		push_error("Populous: Failed to instantiate NPC from resource")
+		PopulousLogger.error("Failed to instantiate NPC from resource")
 		return
 	
 	populous_container.add_child(spawned_npc)
