@@ -1,5 +1,5 @@
 @tool
-class_name PopulousConstant
+class_name PopulousConstants
 
 class Scenes:
 	const populous_tool: PackedScene = preload("res://addons/Populous/Base/Editor/Scenes/PopulousTool.tscn")

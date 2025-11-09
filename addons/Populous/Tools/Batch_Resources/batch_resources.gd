@@ -53,23 +53,46 @@ func _on_blueprint_selected(resource: Resource):
 
 func _on_generate_pressed():
 	if not blueprint_resource:
-		print("Error: Please select a blueprint resource.")
+		push_error("Populous: Please select a blueprint resource.")
 		return
 
 	if selected_fbx_files.is_empty():
-		print("Error: Please select at least one .fbx file.")
+		push_error("Populous: Please select at least one .fbx file.")
 		return
 
+	var success_count = 0
+	var fail_count = 0
+	
 	for fbx_path in selected_fbx_files:
 		var resource_path = fbx_path.get_basename() + ".tres"  # ✅ Save beside the .fbx file
+		
+		if blueprint_resource == null:
+			push_error("Populous: Blueprint resource is null, cannot duplicate")
+			fail_count += 1
+			continue
+		
 		var new_resource = blueprint_resource.duplicate()
+		if new_resource == null:
+			push_error("Populous: Failed to duplicate blueprint resource for: " + fbx_path)
+			fail_count += 1
+			continue
 		
 		# Load the mesh from the .fbx file
 		var mesh_resource = load(fbx_path)
 		if mesh_resource:
 			new_resource.set("mesh", mesh_resource)  # ✅ Assign mesh to resource
 		else:
-			print("Warning: Could not load mesh from ", fbx_path)
+			push_warning("Populous: Could not load mesh from: " + fbx_path)
 		
-		ResourceSaver.save(new_resource, resource_path)
-		print("Resource saved: " + resource_path)
+		var save_result = ResourceSaver.save(new_resource, resource_path)
+		if save_result == OK:
+			success_count += 1
+			print_debug("Populous: Resource saved: " + resource_path)
+		else:
+			push_error("Populous: Failed to save resource to: " + resource_path + " (Error code: " + str(save_result) + ")")
+			fail_count += 1
+	
+	if success_count > 0:
+		print("Populous: Successfully created " + str(success_count) + " resource(s)")
+	if fail_count > 0:
+		push_error("Populous: Failed to create " + str(fail_count) + " resource(s)")

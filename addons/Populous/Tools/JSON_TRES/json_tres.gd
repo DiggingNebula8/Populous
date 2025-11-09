@@ -48,20 +48,35 @@ func _on_create_resource_pressed() -> void:
 		print(" JSON successfully converted to .tres and saved at: ", TRES_SAVE_PATH)
 
 func _load_json(path: String) -> String:
+	if path.is_empty():
+		push_error("Populous: JSON file path is empty")
+		return ""
+	
 	var file = FileAccess.open(path, FileAccess.READ)
 	if not file:
-		printerr("Error opening JSON file: ", path)
+		push_error("Populous: Error opening JSON file: " + path)
 		return ""
-	return file.get_as_text()
+	
+	var text = file.get_as_text()
+	file.close()
+	return text
 
 func json_to_resource(json_text: String) -> JSONResource:
+	if json_text.is_empty():
+		push_error("Populous: JSON text is empty")
+		return null
+	
 	var json = JSON.new()
 	var err = json.parse(json_text)
 	if err != OK:
-		printerr("JSON Parsing Error: ", err)
+		push_error("Populous: JSON parsing error (code " + str(err) + "): " + json.get_error_message())
 		return null
 
 	var resource = JSONResource.new()
+	if resource == null:
+		push_error("Populous: Failed to create JSONResource instance")
+		return null
+	
 	resource.data = _convert_to_godot_types(json.get_data())
 	return resource
 
@@ -80,7 +95,16 @@ func _convert_to_godot_types(value):
 		return value
 
 func save_resource(resource: JSONResource, path: String):
-	if ResourceSaver.save(resource, path) == OK:
-		print("Successfully saved: ", path)
+	if resource == null:
+		push_error("Populous: Cannot save null resource")
+		return
+	
+	if path.is_empty():
+		push_error("Populous: Save path is empty")
+		return
+	
+	var save_result = ResourceSaver.save(resource, path)
+	if save_result == OK:
+		print("Populous: Successfully saved: " + path)
 	else:
-		printerr("Failed to save: ", path)
+		push_error("Populous: Failed to save resource to: " + path + " (Error code: " + str(save_result) + ")")
