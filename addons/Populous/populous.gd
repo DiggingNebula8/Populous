@@ -130,29 +130,34 @@ func _create_container():
 	
 
 func _toggle_batch_resource_window():
-	if not is_batch_resource_window_open:
-		if populous_constants == null:
-			push_error("Populous: Failed to load constants resource")
-			return
-		
-		var scene = populous_constants.Scenes.batch_tres_tool
-		if scene == null:
-			push_error("Populous: Failed to load batch_tres_tool scene")
-			return
-		
-		batch_resource_window = scene.instantiate() as Window
-		if batch_resource_window == null:
-			push_error("Populous: Failed to instantiate batch_tres_tool window")
-			return
-		
-		batch_resource_window.title = "Batch Resource Creator"
-		batch_resource_window.size = Vector2i(720, 480)
-		batch_resource_window.position = (Vector2i(get_editor_interface().get_base_control().size) - batch_resource_window.size) / 2
-		batch_resource_window.always_on_top = true
-		get_editor_interface().get_base_control().add_child(batch_resource_window)
-		batch_resource_window.show()
-		is_batch_resource_window_open = true
-		batch_resource_window.close_requested.connect(_on_batch_resource_window_closed)
+	if is_batch_resource_window_open:
+		if batch_resource_window != null:
+			batch_resource_window.queue_free()
+		is_batch_resource_window_open = false
+		return
+	
+	if populous_constants == null:
+		push_error("Populous: Failed to load constants resource")
+		return
+	
+	var scene = populous_constants.Scenes.batch_tres_tool
+	if scene == null:
+		push_error("Populous: Failed to load batch_tres_tool scene")
+		return
+	
+	batch_resource_window = scene.instantiate() as Window
+	if batch_resource_window == null:
+		push_error("Populous: Failed to instantiate batch_tres_tool window")
+		return
+	
+	batch_resource_window.title = "Batch Resource Creator"
+	batch_resource_window.size = Vector2i(720, 480)
+	batch_resource_window.position = (Vector2i(get_editor_interface().get_base_control().size) - batch_resource_window.size) / 2
+	batch_resource_window.always_on_top = true
+	get_editor_interface().get_base_control().add_child(batch_resource_window)
+	batch_resource_window.show()
+	is_batch_resource_window_open = true
+	batch_resource_window.close_requested.connect(_on_batch_resource_window_closed)
 
 func _on_batch_resource_window_closed():
 	is_batch_resource_window_open = false
