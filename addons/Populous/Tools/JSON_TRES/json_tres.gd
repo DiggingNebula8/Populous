@@ -120,6 +120,6 @@ func save_resource(resource: JSONResource, path: String) -> void:
 	
 	var save_result = ResourceSaver.save(resource, path)
 	if save_result == OK:
-		push_info("Populous: Successfully saved: " + path)
+		PopulousLogger.info("Successfully saved: " + path)
 	else:
 		push_error("Populous: Failed to save resource to: " + path + " (Error code: " + str(save_result) + ")")
