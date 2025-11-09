@@ -1,6 +1,7 @@
 @tool
 extends VBoxContainer
 
+const PopulousConstants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 var PATH_TO_JSON: String = ""

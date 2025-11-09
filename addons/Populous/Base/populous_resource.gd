@@ -1,6 +1,8 @@
 @tool
 class_name PopulousResource extends Resource
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 ## Main resource class for Populous addon.
 ## Contains a generator that defines how NPCs are created and spawned.
 ## Use this resource in the Populous Tool to generate NPCs in your scene.
