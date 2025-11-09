@@ -180,16 +180,25 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
 	var x_spin = SpinBox.new()
+	x_spin.min_value = PopulousConstants.UI.spinbox_float_min
+	x_spin.max_value = PopulousConstants.UI.spinbox_float_max
+	x_spin.step = PopulousConstants.UI.spinbox_float_step
 	x_spin.value = value.x
 	x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
 	hbox.add_child(x_spin)
 
 	var y_spin = SpinBox.new()
+	y_spin.min_value = PopulousConstants.UI.spinbox_float_min
+	y_spin.max_value = PopulousConstants.UI.spinbox_float_max
+	y_spin.step = PopulousConstants.UI.spinbox_float_step
 	y_spin.value = value.y
 	y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
 	hbox.add_child(y_spin)
 
 	var z_spin = SpinBox.new()
+	z_spin.min_value = PopulousConstants.UI.spinbox_float_min
+	z_spin.max_value = PopulousConstants.UI.spinbox_float_max
+	z_spin.step = PopulousConstants.UI.spinbox_float_step
 	z_spin.value = value.z
 	z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
 	hbox.add_child(z_spin)
