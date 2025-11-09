@@ -168,4 +168,6 @@ func _exit_tree():
 		populous_window.queue_free()
 	if is_json_tres_window_open:
 		json_tres_window.queue_free()
+	if is_batch_resource_window_open:
+		batch_resource_window.queue_free()
 	remove_tool_menu_item(populous_constants.Strings.populous)
