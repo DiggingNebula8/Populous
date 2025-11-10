@@ -12,11 +12,19 @@ var last_name: String
 @export var isRandomAlbedo: bool = true
 
 func generate_first_name() -> String:
+	if names_list == null or names_list.data == null:
+		return "Unknown"
 	var names = names_list.data.FirstNames
+	if names == null or names.is_empty():
+		return "Unknown"
 	return names[randi() % names.size()]
 
 func generate_last_name() -> String:
+	if names_list == null or names_list.data == null:
+		return "Doe"
 	var names = names_list.data.LastNames
+	if names == null or names.is_empty():
+		return "Doe"
 	return names[randi() % names.size()]
 
 func set_metadata(npc: Node) -> void:

@@ -12,17 +12,26 @@ var bIsInstantiated: bool = false
 func _ready() -> void:
 	meta_label = %MetaLabel
 	mesh_container = %mesh_container
-	if has_meta("FirstName") and has_meta("LastName"):
+	
+	if meta_label == null:
+		PopulousLogger.warning("MetaLabel node not found in CapsulePerson scene")
+	if mesh_container == null:
+		PopulousLogger.warning("mesh_container node not found in CapsulePerson scene")
+	
+	if meta_label != null and has_meta("FirstName") and has_meta("LastName"):
 		meta_label.text = get_meta("FirstName") + " " + get_meta("LastName")
 	_instantiate_person()
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
-		if has_meta("FirstName") and has_meta("LastName"):
+		if meta_label != null and has_meta("FirstName") and has_meta("LastName"):
 			meta_label.text = get_meta("FirstName") + " " + get_meta("LastName")
 		_instantiate_person()
 
 func _instantiate_person() -> void:
+	if mesh_container == null:
+		return
+	
 	if has_meta("Parts"):
 		var parts: Array = get_meta("Parts")
 		if not bIsInstantiated:
@@ -30,14 +39,19 @@ func _instantiate_person() -> void:
 			for child in mesh_container.get_children():
 				child.queue_free()
 			
-			await get_tree().process_frame  # Ensure cleanup before adding new meshes
+			var tree = get_tree()
+			if tree != null:
+				await tree.process_frame  # Ensure cleanup before adding new meshes
 
 			# Instantiate every part and add it to the mesh container
 			for part in parts:
 				if part is PackedScene:
 					var instance: Node3D = part.instantiate()
-					#_apply_material_to_children(instance)  # Apply material recursively
-					mesh_container.add_child(instance)
+					if instance != null:
+						#_apply_material_to_children(instance)  # Apply material recursively
+						mesh_container.add_child(instance)
+					else:
+						PopulousLogger.error("Failed to instantiate part: " + str(part))
 				else:
 					PopulousLogger.error("Part is not a PackedScene: " + str(part))
 

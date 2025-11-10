@@ -21,6 +21,8 @@ var last_name: String
 #----------------------------------------------------------------------------
 
 func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
+	if names_list == null or names_list.data == null:
+		return "Unknown"
 	var names = []
 	if gender == CapsulePersonConstants.Gender.FEMALE:
 		names = names_list.data.FemaleFirstNames
@@ -28,11 +30,17 @@ func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 		names = names_list.data.MaleFirstNames
 	else:
 		names = names_list.data.NeutralFirstNames
-	return names[randi() % names.size()] if names else "Unknown"
+	if names == null or names.is_empty():
+		return "Unknown"
+	return names[randi() % names.size()]
 
 func generate_last_name() -> String:
+	if names_list == null or names_list.data == null:
+		return "Doe"
 	var names = names_list.data.LastNames
-	return names[randi() % names.size()] if names else "Doe"
+	if names == null or names.is_empty():
+		return "Doe"
+	return names[randi() % names.size()]
 
 #----------------------------------------------------------------------------
 # SET METADATA & APPLY MODULAR PARTS
