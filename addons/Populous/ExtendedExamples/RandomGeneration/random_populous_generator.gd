@@ -109,9 +109,8 @@ func _set_params(params: Dictionary) -> void:
 	
 	if params.has("populous_density"):
 		var density_value = params["populous_density"]
-		if (typeof(density_value) == TYPE_INT or typeof(density_value) == TYPE_FLOAT) and density_value >= 0:
+		if (typeof(density_value) == TYPE_INT) and density_value >= 0:
 			populous_density = int(density_value)
-			params["populous_density"] = populous_density
 		else:
 			PopulousLogger.error("Invalid populous_density value. Must be a non-negative integer.")
 	
