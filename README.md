@@ -137,17 +137,6 @@ Abstract base class for NPC metadata/attributes. Override:
 - `_get_params() -> Dictionary`: Returns meta parameters for UI
 - `_set_params(params: Dictionary)`: Updates meta parameters
 
-### Dynamic UI System
-
-The Populous Tool automatically generates UI controls based on parameter types:
-- `int` → `SpinBox`
-- `float` → `SpinBox` (with step)
-- `bool` → `CheckBox`
-- `Vector3` → Three `SpinBox` controls
-- `string` → `LineEdit`
-
-Parameters are bound in real-time, so changes are immediately reflected in the generator/meta.
-
 ## Examples
 
 ### Random Generation Example
