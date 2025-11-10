@@ -103,7 +103,9 @@ func _toggle_populous_window():
 ## @return: void
 func _on_populous_window_closed() -> void:
 	is_populous_window_open = false
-	populous_window.queue_free()
+	if populous_window != null and is_instance_valid(populous_window):
+		populous_window.queue_free()
+	populous_window = null
 
 ## Toggles the JSON Tres Tool window open/closed.
 ##
@@ -176,17 +178,22 @@ func _toggle_batch_resource_window():
 ## @return: void
 func _on_batch_resource_window_closed() -> void:
 	is_batch_resource_window_open = false
-	batch_resource_window.queue_free()
+	if batch_resource_window != null and is_instance_valid(batch_resource_window):
+		batch_resource_window.queue_free()
+	batch_resource_window = null
 
 ## Called when the plugin is disabled in the editor.
 ## Cleans up all open windows and removes the menu item.
 ##
 ## @return: void
 func _exit_tree() -> void:
-	if is_populous_window_open:
+	if is_populous_window_open and populous_window != null and is_instance_valid(populous_window):
 		populous_window.queue_free()
-	if is_json_tres_window_open:
+		populous_window = null
+	if is_json_tres_window_open and json_tres_window != null and is_instance_valid(json_tres_window):
 		json_tres_window.queue_free()
-	if is_batch_resource_window_open:
+		json_tres_window = null
+	if is_batch_resource_window_open and batch_resource_window != null and is_instance_valid(batch_resource_window):
 		batch_resource_window.queue_free()
+		batch_resource_window = null
 	remove_tool_menu_item(populous_constants.Strings.populous)
