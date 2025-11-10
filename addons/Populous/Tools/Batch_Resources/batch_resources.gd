@@ -8,7 +8,13 @@ const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger
 var file_dialog: FileDialog
 var selected_fbx_files: PackedStringArray = []
 
-func _ready():
+## Initializes the batch resource creator UI.
+## 
+## Creates the UI layout with blueprint selector, file selector, and generate button.
+## Sets up the file dialog for multi-file selection.
+##
+## @return: void
+func _ready() -> void:
 	title = "Batch Resource Creator"
 	var main_vbox = VBoxContainer.new()
 	add_child(main_vbox)
@@ -43,17 +49,39 @@ func _ready():
 	file_dialog.files_selected.connect(_on_files_selected)
 	add_child(file_dialog)
 
-func _open_file_dialog():
+## Opens the file dialog for selecting FBX files.
+##
+## @return: void
+func _open_file_dialog() -> void:
 	file_dialog.popup_centered(Vector2i(800, 600))
 
-func _on_files_selected(files: PackedStringArray):
-	selected_fbx_files = files  # ✅ Direct assignment, since PackedStringArray is already compatible
+## Callback when FBX files are selected in the file dialog.
+##
+## @param files: Array of selected file paths.
+## @return: void
+func _on_files_selected(files: PackedStringArray) -> void:
+	selected_fbx_files = files  # Direct assignment, since PackedStringArray is already compatible
 	PopulousLogger.debug("Selected .fbx files: " + str(selected_fbx_files))
 
-func _on_blueprint_selected(resource: Resource):
+## Callback when a blueprint resource is selected.
+##
+## @param resource: The selected blueprint resource.
+## @return: void
+func _on_blueprint_selected(resource: Resource) -> void:
 	blueprint_resource = resource
 
-func _on_generate_pressed():
+## Generates resources for all selected FBX files.
+## 
+## For each FBX file:
+## 1. Duplicates the blueprint resource
+## 2. Loads the mesh from the FBX file
+## 3. Assigns the mesh to the resource
+## 4. Saves the resource as a .tres file next to the FBX file
+## 
+## Tracks success/failure counts and logs results.
+##
+## @return: void
+func _on_generate_pressed() -> void:
 	if not blueprint_resource:
 		PopulousLogger.error("Please select a blueprint resource.")
 		return

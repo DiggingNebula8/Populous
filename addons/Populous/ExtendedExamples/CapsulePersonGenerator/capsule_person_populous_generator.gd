@@ -38,8 +38,19 @@ func _generate(populous_container: Node) -> void:
 	
 	PopulousLogger.debug("Successfully spawned NPC")
 
+## Returns empty dictionary (no generator-specific parameters).
+## 
+## This generator doesn't expose any parameters - all customization is handled by the meta resource.
+## 
+## @return: Empty dictionary.
 func _get_params() -> Dictionary:
-	return {}  # Can be extended in child classes
+	return {}  # No generator-specific parameters
 
+## No-op parameter setter (no generator-specific parameters).
+## 
+## This generator doesn't have parameters to set - all customization is handled by the meta resource.
+## 
+## @param params: Dictionary containing parameter key-value pairs (unused).
+## @return: void
 func _set_params(params: Dictionary) -> void:
-	pass  # Child classes handle actual params
+	pass  # No generator-specific parameters

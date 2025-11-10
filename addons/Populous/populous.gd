@@ -26,14 +26,29 @@ func _create_populous_menu():
 	menu.id_pressed.connect(_on_populous_menu_selected)
 	return menu
 
-func _on_populous_menu_selected(id: int):
+## Handles menu item selection from the Populous submenu.
+##
+## @param id: The menu item ID that was selected.
+## @return: void
+func _on_populous_menu_selected(id: int) -> void:
 	match id:
 		0: _toggle_populous_window()
 		1: _create_container()
 		2: _toggle_json_tres_window()
 		3: _toggle_batch_resource_window()
 
-# Helper function to handle common window toggle logic
+## Helper function to handle common window toggle logic for all Populous tools.
+## 
+## Opens or closes a window based on its current state. If opening, instantiates
+## the scene, configures the window, and shows it. If closing, queues the window for deletion.
+## 
+## @param is_open: Whether the window is currently open.
+## @param window: The Window instance (may be null if closed).
+## @param scene: PackedScene to instantiate for the window.
+## @param title: Window title text.
+## @param size: Window size in pixels.
+## @param close_callback: Callable to connect to the window's close_requested signal.
+## @return: Dictionary with `is_open` (bool) and `window` (Window or null) keys.
 func _toggle_window(
 	is_open: bool,
 	window: Window,
@@ -83,11 +98,17 @@ func _toggle_populous_window():
 	is_populous_window_open = result.is_open
 	populous_window = result.window
 
-func _on_populous_window_closed():
+## Callback when the Populous Tool window is closed.
+##
+## @return: void
+func _on_populous_window_closed() -> void:
 	is_populous_window_open = false
 	populous_window.queue_free()
 
-func _toggle_json_tres_window():
+## Toggles the JSON Tres Tool window open/closed.
+##
+## @return: void
+func _toggle_json_tres_window() -> void:
 	var result = _toggle_window(
 		is_json_tres_window_open,
 		json_tres_window,
@@ -150,11 +171,18 @@ func _toggle_batch_resource_window():
 	is_batch_resource_window_open = result.is_open
 	batch_resource_window = result.window
 
-func _on_batch_resource_window_closed():
+## Callback when the Batch Resource Creator window is closed.
+##
+## @return: void
+func _on_batch_resource_window_closed() -> void:
 	is_batch_resource_window_open = false
 	batch_resource_window.queue_free()
 
-func _exit_tree():
+## Called when the plugin is disabled in the editor.
+## Cleans up all open windows and removes the menu item.
+##
+## @return: void
+func _exit_tree() -> void:
 	if is_populous_window_open:
 		populous_window.queue_free()
 	if is_json_tres_window_open:

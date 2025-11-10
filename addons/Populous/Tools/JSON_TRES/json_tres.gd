@@ -24,6 +24,9 @@ func _on_browse_json_pressed() -> void:
 	file_dialog.filters = ["*.json ; JSON Files"]
 	file_dialog.popup_centered_ratio(PopulousConstants.UI.file_dialog_centered_ratio)
 
+## Opens file dialog to select save location for .tres file.
+##
+## @return: void
 func _on_browse_tres_pressed() -> void:
 	current_target = tres_line_edit
 	file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
@@ -68,6 +71,13 @@ func _load_json(path: String) -> String:
 	file.close()
 	return text
 
+## Converts JSON text to a JSONResource instance.
+## 
+## Parses the JSON text and recursively converts JSON types to Godot-compatible types.
+## Uses `_convert_to_godot_types()` to handle nested structures.
+## 
+## @param json_text: The JSON text to parse and convert.
+## @return: JSONResource instance with converted data, or null on error.
 func json_to_resource(json_text: String) -> JSONResource:
 	if json_text.is_empty():
 		PopulousLogger.error("JSON text is empty")
@@ -84,27 +94,40 @@ func json_to_resource(json_text: String) -> JSONResource:
 		PopulousLogger.error("Failed to create JSONResource instance")
 		return null
 	
+	# Recursively convert JSON data to Godot-compatible types
 	resource.data = _convert_to_godot_types(json.get_data())
 	return resource
 
-func _convert_to_godot_types(value):
-	# Recursively convert JSON types to Godot-compatible types
+## Recursively converts JSON types to Godot-compatible types.
+## 
+## This is a recursive algorithm that handles nested structures:
+## - JSON dictionaries → Godot dictionaries (recursively converts values)
+## - JSON arrays → Godot arrays (recursively converts elements)
+## - Primitive types (int, float, string, bool) → pass through unchanged
+## 
+## The recursion ensures that deeply nested JSON structures are fully converted,
+## maintaining the same structure but with Godot-compatible types.
+## 
+## @param value: The value to convert (can be any JSON type).
+## @return: Converted value with Godot-compatible types.
+func _convert_to_godot_types(value: Variant) -> Variant:
+	# Handle dictionaries: recursively convert all key-value pairs
 	if typeof(value) == TYPE_DICTIONARY:
-		# JSON dictionaries become Godot dictionaries
 		var new_dict = {}
 		for key in value.keys():
-			# Recursively convert nested structures
+			# Recursively convert nested structures (supports nested dicts/arrays)
 			new_dict[key] = _convert_to_godot_types(value[key])
 		return new_dict
+	# Handle arrays: recursively convert all elements
 	elif typeof(value) == TYPE_ARRAY:
-		# JSON arrays become Godot arrays
 		var new_array = []
 		for item in value:
-			# Recursively convert array elements
+			# Recursively convert array elements (supports nested structures)
 			new_array.append(_convert_to_godot_types(item))
 		return new_array
 	else:
-		# Primitive types (int, float, string, bool) pass through unchanged
+		# Primitive types (int, float, string, bool, null) pass through unchanged
+		# These are already Godot-compatible
 		return value
 
 ## Saves a JSONResource to a .tres file.
