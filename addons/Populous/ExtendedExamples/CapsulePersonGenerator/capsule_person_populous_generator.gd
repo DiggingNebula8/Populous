@@ -44,7 +44,7 @@ func _generate(populous_container: Node) -> void:
 ## 
 ## @return: Empty dictionary.
 func _get_params() -> Dictionary:
-	return {}  # Can be extended in child classes
+	return {}  # No generator-specific parameters
 
 ## No-op parameter setter (no generator-specific parameters).
 ## 
@@ -53,4 +53,4 @@ func _get_params() -> Dictionary:
 ## @param params: Dictionary containing parameter key-value pairs (unused).
 ## @return: void
 func _set_params(params: Dictionary) -> void:
-	pass  # Child classes handle actual params
+	pass  # No generator-specific parameters
