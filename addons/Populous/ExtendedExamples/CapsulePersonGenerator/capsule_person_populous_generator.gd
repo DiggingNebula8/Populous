@@ -1,8 +1,6 @@
 @tool
 class_name CapsulePersonPopulousGenerator extends PopulousGenerator
 
-const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
-
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:
 		PopulousLogger.error("Cannot generate NPCs - container is null")

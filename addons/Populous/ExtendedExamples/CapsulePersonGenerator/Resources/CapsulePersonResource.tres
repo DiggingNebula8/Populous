@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="PopulousResource" load_steps=3 format=3 uid="uid://ce8s6mi7ywkao"]
 
-[ext_resource type="Resource" uid="uid://cp2y7xhiw3emt" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonGenerator.tres" id="1_x46jf"]
+[ext_resource type="Resource" uid="uid://cp2y7xhiw3emt" path="res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Resources/CapsulePersonGenerator.tres" id="1_yrwxw"]
 [ext_resource type="Script" uid="uid://d2yrbrsdobybu" path="res://addons/Populous/Base/populous_resource.gd" id="2_qq85m"]
 
 [resource]
 script = ExtResource("2_qq85m")
-generator = ExtResource("1_x46jf")
+generator = ExtResource("1_yrwxw")
 metadata/_custom_type_script = "uid://d2yrbrsdobybu"

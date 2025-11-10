@@ -9,7 +9,6 @@ class_name RandomPopulousGenerator extends PopulousGenerator
 ## - Custom spacing via Vector3 padding
 ## - Position calculation based on grid coordinates
 
-const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 @export var populous_density: int = 6  ## Maximum number of NPCs to spawn
 @export var spawn_padding: Vector3 = Vector3(2, 0, 2)  ## Spacing between NPCs (x, y, z)

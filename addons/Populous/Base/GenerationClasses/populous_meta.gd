@@ -1,6 +1,9 @@
 @tool
 class_name PopulousMeta extends Resource
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
+
 ## Base class for NPC metadata.
 ## Extend this class to create custom meta resources that apply unique data to NPCs.
 ## 

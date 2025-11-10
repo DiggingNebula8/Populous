@@ -1,0 +1,1 @@
+ERROR: res://addons/Populous/populous.gd:90 - Invalid type in function '_toggle_window' in base 'EditorPlugin (populous.gd)'. The Object-derived class of argument 2 (previously freed) is not a subclass of the expected argument class.
