@@ -109,8 +109,9 @@ func _set_params(params: Dictionary) -> void:
 	
 	if params.has("populous_density"):
 		var density_value = params["populous_density"]
-		if typeof(density_value) == TYPE_INT and density_value >= 0:
-			populous_density = density_value
+		if (typeof(density_value) == TYPE_INT or typeof(density_value) == TYPE_FLOAT) and density_value >= 0:
+			populous_density = int(density_value)
+			params["populous_density"] = populous_density
 		else:
 			PopulousLogger.error("Invalid populous_density value. Must be a non-negative integer.")
 	
@@ -123,15 +124,17 @@ func _set_params(params: Dictionary) -> void:
 	
 	if params.has("rows"):
 		var rows_value = params["rows"]
-		if typeof(rows_value) == TYPE_INT and rows_value >= 0:
-			rows = rows_value
+		if (typeof(rows_value) == TYPE_INT or typeof(rows_value) == TYPE_FLOAT) and rows_value >= 0:
+			rows = int(rows_value)
+			params["rows"] = rows
 		else:
 			PopulousLogger.error("Invalid rows value. Must be a non-negative integer.")
 	
 	if params.has("columns"):
 		var columns_value = params["columns"]
-		if typeof(columns_value) == TYPE_INT and columns_value >= 0:
-			columns = columns_value
+		if (typeof(columns_value) == TYPE_INT or typeof(columns_value) == TYPE_FLOAT) and columns_value >= 0:
+			columns = int(columns_value)
+			params["columns"] = columns
 		else:
 			PopulousLogger.error("Invalid columns value. Must be a non-negative integer.")
 	
