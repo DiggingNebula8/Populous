@@ -15,6 +15,24 @@ var final_parts: Array
 var first_name: String
 var last_name: String
 
+# Meta parameters with defaults
+var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
+var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
+var name_colors: Array[Color] = [Color.WHITE]
+var part_tags_filter: Array[String] = []
+var custom_properties: Dictionary = {}
+var material_override: Resource = null
+var position_offset: Vector3 = Vector3.ZERO
+var rotation_offset: Quaternion = Quaternion.IDENTITY
+var scale_multiplier: Vector3 = Vector3.ONE
+var color_tint: Color = Color.WHITE
+var spawn_area: Rect2 = Rect2()
+var spawn_bounds_3d: AABB = AABB()
+var preferred_part_tags: Array[String] = []
+var excluded_part_tags: Array[String] = []
+var metadata_tags: Array[String] = []
+var custom_metadata: Dictionary = {}
+
 #----------------------------------------------------------------------------
 # NAME GENERATION
 #----------------------------------------------------------------------------
@@ -46,22 +64,97 @@ func generate_last_name() -> String:
 #----------------------------------------------------------------------------
 
 func set_metadata(npc: Node) -> void:
-	# Randomly choose a gender for naming (only male or female used for names)
-	var gender = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE].pick_random()
-	var skin_type = CapsulePersonConstants.SkinType.values().pick_random()
+	# Determine gender based on preference
+	var gender: CapsulePersonConstants.Gender
+	if gender_preference >= 0 and gender_preference < 3:
+		gender = gender_preference as CapsulePersonConstants.Gender
+	else:
+		gender = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE].pick_random()
+	
+	# Determine skin type based on preference
+	var skin_type: CapsulePersonConstants.SkinType
+	if skin_type_preference >= 0 and skin_type_preference < 4:
+		skin_type = skin_type_preference as CapsulePersonConstants.SkinType
+	else:
+		skin_type = CapsulePersonConstants.SkinType.values().pick_random()
+	
+	# Generate names
 	first_name = generate_first_name(gender)
 	last_name = generate_last_name()
 	
+	# Set name with color if available
+	var name_color = name_colors[randi() % name_colors.size()] if not name_colors.is_empty() else Color.WHITE
 	npc.name = first_name + "-" + last_name
 	npc.set_meta(first_name_key, first_name)
 	npc.set_meta(last_name_key, last_name)
+	npc.set_meta("name_color", name_color)
+	
+	# Apply modular pieces (will use part_tags_filter and other meta params)
 	apply_modular_pieces(npc, gender, skin_type)
+	
+	# Apply meta parameters
+	_apply_meta_params(npc)
 
+## Returns dictionary of meta parameters for UI binding.
+## 
+## @return: Dictionary with parameter names as keys and current values as values.
 func _get_params() -> Dictionary:
-	return {}  # Extend in child classes if needed
+	return {
+		"gender_preference": gender_preference,
+		"skin_type_preference": skin_type_preference,
+		"name_colors": name_colors,
+		"part_tags_filter": part_tags_filter,
+		"custom_properties": custom_properties,
+		"material_override": material_override,
+		"position_offset": position_offset,
+		"rotation_offset": rotation_offset,
+		"scale_multiplier": scale_multiplier,
+		"color_tint": color_tint,
+		"spawn_area": spawn_area,
+		"spawn_bounds_3d": spawn_bounds_3d,
+		"preferred_part_tags": preferred_part_tags,
+		"excluded_part_tags": excluded_part_tags,
+		"metadata_tags": metadata_tags,
+		"custom_metadata": custom_metadata
+	}
 
+## Sets meta parameters from dictionary (typically from UI changes).
+## 
+## @param params: Dictionary containing parameter key-value pairs.
+## @return: void
 func _set_params(params: Dictionary) -> void:
-	pass  # Extend in child classes
+	if params.has("gender_preference"):
+		gender_preference = params["gender_preference"] as int
+	if params.has("skin_type_preference"):
+		skin_type_preference = params["skin_type_preference"] as int
+	if params.has("name_colors"):
+		name_colors = params["name_colors"] as Array
+	if params.has("part_tags_filter"):
+		part_tags_filter = params["part_tags_filter"] as Array
+	if params.has("custom_properties"):
+		custom_properties = params["custom_properties"] as Dictionary
+	if params.has("material_override"):
+		material_override = params["material_override"] as Resource
+	if params.has("position_offset"):
+		position_offset = params["position_offset"] as Vector3
+	if params.has("rotation_offset"):
+		rotation_offset = params["rotation_offset"] as Quaternion
+	if params.has("scale_multiplier"):
+		scale_multiplier = params["scale_multiplier"] as Vector3
+	if params.has("color_tint"):
+		color_tint = params["color_tint"] as Color
+	if params.has("spawn_area"):
+		spawn_area = params["spawn_area"] as Rect2
+	if params.has("spawn_bounds_3d"):
+		spawn_bounds_3d = params["spawn_bounds_3d"] as AABB
+	if params.has("preferred_part_tags"):
+		preferred_part_tags = params["preferred_part_tags"] as Array
+	if params.has("excluded_part_tags"):
+		excluded_part_tags = params["excluded_part_tags"] as Array
+	if params.has("metadata_tags"):
+		metadata_tags = params["metadata_tags"] as Array
+	if params.has("custom_metadata"):
+		custom_metadata = params["custom_metadata"] as Dictionary
 
 #----------------------------------------------------------------------------
 # APPLY MODULAR PARTS
@@ -86,6 +179,38 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 
 		# Filter parts based on gender and skin type.
 		parts = parts.filter(func(part): return (part.gender == CapsulePersonConstants.Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == CapsulePersonConstants.SkinType.DEFAULT))
+		
+		# Apply tag filtering if specified
+		if not preferred_part_tags.is_empty():
+			parts = parts.filter(func(part): 
+				if part.tags == null or part.tags.is_empty():
+					return false
+				for tag in preferred_part_tags:
+					if tag in part.tags:
+						return true
+				return false
+			)
+		
+		if not excluded_part_tags.is_empty():
+			parts = parts.filter(func(part):
+				if part.tags == null or part.tags.is_empty():
+					return true
+				for tag in excluded_part_tags:
+					if tag in part.tags:
+						return false
+				return true
+			)
+		
+		# Apply part_tags_filter if specified (legacy support)
+		if not part_tags_filter.is_empty():
+			parts = parts.filter(func(part):
+				if part.tags == null or part.tags.is_empty():
+					return false
+				for tag in part_tags_filter:
+					if tag in part.tags:
+						return true
+				return false
+			)
 
 		if parts.is_empty():
 			PopulousLogger.warning("No valid parts found for: " + part_name + " with skin type: " + str(skin_type))
@@ -114,7 +239,60 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		PopulousLogger.debug(part_name + " and " + str(selected_part.mesh))
 		final_parts.insert(index, selected_part.mesh)
 		index += 1
-	npc.set_meta("Parts",final_parts)
+	npc.set_meta("Parts", final_parts)
+
+## Applies meta parameters to the NPC.
+##
+## @param npc: The NPC node to apply parameters to.
+## @return: void
+func _apply_meta_params(npc: Node) -> void:
+	if not npc is Node3D:
+		return
+	
+	var npc_3d = npc as Node3D
+	
+	# Apply position offset
+	if position_offset != Vector3.ZERO:
+		npc_3d.position += position_offset
+	
+	# Apply rotation offset
+	if rotation_offset != Quaternion.IDENTITY:
+		var current_rotation = Quaternion.from_euler(npc_3d.rotation)
+		var final_rotation = current_rotation * rotation_offset
+		npc_3d.rotation = final_rotation.get_euler()
+	
+	# Apply scale multiplier
+	if scale_multiplier != Vector3.ONE:
+		npc_3d.scale *= scale_multiplier
+	
+	# Apply color tint (combine with spawn color if exists)
+	var final_color = color_tint
+	if npc.has_meta("spawn_color"):
+		var spawn_color = npc.get_meta("spawn_color") as Color
+		final_color = final_color * spawn_color
+	npc.set_meta("color_tint", final_color)
+	
+	# Apply material override if specified
+	if material_override != null:
+		npc.set_meta("material_override", material_override)
+	
+	# Apply custom properties
+	for key in custom_properties.keys():
+		npc.set_meta("custom_" + str(key), custom_properties[key])
+	
+	# Apply metadata tags
+	if not metadata_tags.is_empty():
+		npc.set_meta("metadata_tags", metadata_tags)
+	
+	# Apply custom metadata
+	for key in custom_metadata.keys():
+		npc.set_meta(str(key), custom_metadata[key])
+	
+	# Store spawn area and bounds if specified
+	if spawn_area.size.length() > 0:
+		npc.set_meta("spawn_area", spawn_area)
+	if spawn_bounds_3d.size.length() > 0:
+		npc.set_meta("spawn_bounds_3d", spawn_bounds_3d)
 #----------------------------------------------------------------------------
 # HELPER FUNCTIONS
 #----------------------------------------------------------------------------
