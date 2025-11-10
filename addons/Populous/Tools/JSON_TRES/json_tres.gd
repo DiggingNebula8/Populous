@@ -110,7 +110,7 @@ func json_to_resource(json_text: String) -> JSONResource:
 ## 
 ## @param value: The value to convert (can be any JSON type).
 ## @return: Converted value with Godot-compatible types.
-func _convert_to_godot_types(value) -> Variant:
+func _convert_to_godot_types(value: Variant) -> Variant:
 	# Handle dictionaries: recursively convert all key-value pairs
 	if typeof(value) == TYPE_DICTIONARY:
 		var new_dict = {}
