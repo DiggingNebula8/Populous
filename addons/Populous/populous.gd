@@ -2,6 +2,7 @@
 extends EditorPlugin
 
 const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 var populous_window: Window
 var is_populous_window_open: bool = false
@@ -48,16 +49,16 @@ func _toggle_window(
 		return {is_open = false, window = null}
 	
 	if populous_constants == null:
-		push_error("Populous: Failed to load constants resource")
+		PopulousLogger.error("Failed to load constants resource")
 		return {is_open = false, window = null}
 	
 	if scene == null:
-		push_error("Populous: Failed to load scene")
+		PopulousLogger.error("Failed to load scene")
 		return {is_open = false, window = null}
 	
 	var new_window = scene.instantiate() as Window
 	if new_window == null:
-		push_error("Populous: Failed to instantiate window")
+		PopulousLogger.error("Failed to instantiate window")
 		return {is_open = false, window = null}
 	
 	new_window.title = title
@@ -104,13 +105,17 @@ func _on_json_tres_window_closed():
 
 func _create_container():
 	# Get the root node of the current scene
-	var scene_root = get_tree().edited_scene_root
+	var tree = get_tree()
+	if tree == null:
+		PopulousLogger.error("Node is not in a SceneTree. Cannot create container.")
+		return
+	var scene_root = tree.edited_scene_root
 	if scene_root == null:
-		push_error("Populous: No active scene found. Please open a scene before creating a container.")
+		PopulousLogger.error("No active scene found. Please open a scene before creating a container.")
 		return
 	
 	if populous_constants == null:
-		push_error("Populous: Failed to load constants resource")
+		PopulousLogger.error("Failed to load constants resource")
 		return
 
 	# Count existing PopulousContainers
@@ -130,7 +135,7 @@ func _create_container():
 	container.owner = scene_root
 	container.set_meta(populous_constants.Strings.populous_container, true)
 
-	print("Populous: Container created successfully: " + container.name)
+	PopulousLogger.info("Container created successfully: " + container.name)
 	
 
 func _toggle_batch_resource_window():
@@ -139,7 +144,7 @@ func _toggle_batch_resource_window():
 		batch_resource_window,
 		populous_constants.Scenes.batch_tres_tool,
 		"Batch Resource Creator",
-		Vector2i(720, 480),
+		populous_constants.UI.batch_resource_window_size,
 		_on_batch_resource_window_closed
 	)
 	is_batch_resource_window_open = result.is_open

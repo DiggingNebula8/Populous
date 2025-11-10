@@ -1,31 +1,42 @@
 @tool
 class_name CapsulePersonPopulousGenerator extends PopulousGenerator
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
 func _generate(populous_container: Node) -> void:
+	if populous_container == null:
+		PopulousLogger.error("Cannot generate NPCs - container is null")
+		return
+	
 	var npc_resource: PackedScene = resource
 	
 	if npc_resource == null:
-		print_debug("Missing NPC Resource")
+		PopulousLogger.error("Cannot generate NPCs - NPC resource (PackedScene) is not set")
 		return
 		
 	var npc_meta_resource = meta_resource
 	
 	if npc_meta_resource == null:
-		print_debug("Missing NPC Meta Resource")
+		PopulousLogger.error("Cannot generate NPCs - Meta resource is not set")
 		return
-	else:
-		pass
 		
 	for child in populous_container.get_children():
 		child.queue_free() #clean previous
 		
 	var spawned_npc: Node = npc_resource.instantiate()
+	if spawned_npc == null:
+		PopulousLogger.error("Failed to instantiate NPC from resource")
+		return
+	
 	populous_container.add_child(spawned_npc)
-	spawned_npc.owner = populous_container.get_tree().edited_scene_root
+	var tree = populous_container.get_tree()
+	if tree != null:
+		var scene_root = tree.edited_scene_root
+		if scene_root != null:
+			spawned_npc.owner = scene_root
 	npc_meta_resource.set_metadata(spawned_npc)
 	
-	print_debug("Spawned NPC")
+	PopulousLogger.debug("Successfully spawned NPC")
 
 func _get_params() -> Dictionary:
 	return {}  # Can be extended in child classes

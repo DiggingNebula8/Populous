@@ -1,6 +1,8 @@
 @tool
 class_name CapsulePersonPopulousMeta extends PopulousMeta
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 @export var modular_pieces: CapsulePersonParts 
 @export var material: ORMMaterial3D
 
@@ -19,6 +21,8 @@ var last_name: String
 #----------------------------------------------------------------------------
 
 func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
+	if names_list == null or names_list.data == null:
+		return "Unknown"
 	var names = []
 	if gender == CapsulePersonConstants.Gender.FEMALE:
 		names = names_list.data.FemaleFirstNames
@@ -26,11 +30,17 @@ func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 		names = names_list.data.MaleFirstNames
 	else:
 		names = names_list.data.NeutralFirstNames
-	return names[randi() % names.size()] if names else "Unknown"
+	if names == null or names.is_empty():
+		return "Unknown"
+	return names[randi() % names.size()]
 
 func generate_last_name() -> String:
+	if names_list == null or names_list.data == null:
+		return "Doe"
 	var names = names_list.data.LastNames
-	return names[randi() % names.size()] if names else "Doe"
+	if names == null or names.is_empty():
+		return "Doe"
+	return names[randi() % names.size()]
 
 #----------------------------------------------------------------------------
 # SET METADATA & APPLY MODULAR PARTS
@@ -60,7 +70,7 @@ func _set_params(params: Dictionary) -> void:
 
 func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin_type: CapsulePersonConstants.SkinType) -> void:
 	if modular_pieces == null:
-		print_debug("[ERROR] No modular pieces assigned to CapsuleCityParts!")
+		PopulousLogger.error("No modular pieces assigned to CapsuleCityParts!")
 		return
 	
 	# Define the list of body parts to process.
@@ -72,14 +82,14 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		# Retrieve the array of CapsulePart objects from the CapsuleCityParts resource.
 		var parts: Array[CapsulePart] = modular_pieces.get(part_name)
 		if parts == null or parts.is_empty():
-			print_debug("[INFO] No parts defined for:", part_name)
+			PopulousLogger.debug("No parts defined for: " + part_name)
 			continue
 
 		# Filter parts based on gender and skin type.
 		parts = parts.filter(func(part): return (part.gender == CapsulePersonConstants.Gender.NEUTRAL or part.gender == gender) and (part.skin_type == skin_type or part.skin_type == CapsulePersonConstants.SkinType.DEFAULT))
 
 		if parts.is_empty():
-			print_debug("[WARNING] No valid parts found for:", part_name, "with skin type:", skin_type)
+			PopulousLogger.warning("No valid parts found for: " + part_name + " with skin type: " + str(skin_type))
 			continue
 
 		# Check if all available parts in this category are marked as skippable.
@@ -91,7 +101,7 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 
 		# If all parts are skippable, then with a 50% chance, skip this entire category.
 		if all_skippable and randf() < 0.5:
-			print_debug("[INFO] Skipping optional part category:", part_name)
+			PopulousLogger.debug("Skipping optional part category: " + part_name)
 			continue
 
 		# Sort parts by weight (higher weight means more likely to be chosen).
@@ -100,9 +110,9 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		# Use weighted random selection to pick a part.
 		var selected_part: CapsulePart = weighted_random_pick(parts)
 		if selected_part == null or selected_part.mesh == null:
-			print_debug("[WARNING] Skipping null mesh for:", part_name)
+			PopulousLogger.warning("Skipping null mesh for: " + part_name)
 			continue
-		print_debug(part_name, " and ", selected_part.mesh)
+		PopulousLogger.debug(part_name + " and " + str(selected_part.mesh))
 		final_parts.insert(index, selected_part.mesh)
 		index += 1
 	npc.set_meta("Parts",final_parts)

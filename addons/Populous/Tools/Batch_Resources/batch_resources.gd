@@ -1,6 +1,8 @@
 @tool
 extends Window
 
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
 @export var blueprint_resource: Resource
 
 var file_dialog: FileDialog
@@ -46,30 +48,53 @@ func _open_file_dialog():
 
 func _on_files_selected(files: PackedStringArray):
 	selected_fbx_files = files  # ✅ Direct assignment, since PackedStringArray is already compatible
-	print("Selected .fbx files: ", selected_fbx_files)
+	PopulousLogger.debug("Selected .fbx files: " + str(selected_fbx_files))
 
 func _on_blueprint_selected(resource: Resource):
 	blueprint_resource = resource
 
 func _on_generate_pressed():
 	if not blueprint_resource:
-		print("Error: Please select a blueprint resource.")
+		PopulousLogger.error("Please select a blueprint resource.")
 		return
 
 	if selected_fbx_files.is_empty():
-		print("Error: Please select at least one .fbx file.")
+		PopulousLogger.error("Please select at least one .fbx file.")
 		return
 
+	var success_count = 0
+	var fail_count = 0
+	
 	for fbx_path in selected_fbx_files:
 		var resource_path = fbx_path.get_basename() + ".tres"  # ✅ Save beside the .fbx file
+		
+		if blueprint_resource == null:
+			PopulousLogger.error("Blueprint resource is null, cannot duplicate")
+			fail_count += 1
+			continue
+		
 		var new_resource = blueprint_resource.duplicate()
+		if new_resource == null:
+			PopulousLogger.error("Failed to duplicate blueprint resource for: " + fbx_path)
+			fail_count += 1
+			continue
 		
 		# Load the mesh from the .fbx file
 		var mesh_resource = load(fbx_path)
 		if mesh_resource:
 			new_resource.set("mesh", mesh_resource)  # ✅ Assign mesh to resource
 		else:
-			print("Warning: Could not load mesh from ", fbx_path)
+			PopulousLogger.warning("Could not load mesh from: " + fbx_path)
 		
-		ResourceSaver.save(new_resource, resource_path)
-		print("Resource saved: " + resource_path)
+		var save_result = ResourceSaver.save(new_resource, resource_path)
+		if save_result == OK:
+			success_count += 1
+			PopulousLogger.debug("Resource saved: " + resource_path)
+		else:
+			PopulousLogger.error("Failed to save resource to: " + resource_path + " (Error code: " + str(save_result) + ")")
+			fail_count += 1
+	
+	if success_count > 0:
+		PopulousLogger.info("Successfully created " + str(success_count) + " resource(s)")
+	if fail_count > 0:
+		PopulousLogger.error("Failed to create " + str(fail_count) + " resource(s)")
