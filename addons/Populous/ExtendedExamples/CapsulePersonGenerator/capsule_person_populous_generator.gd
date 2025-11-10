@@ -100,10 +100,11 @@ func _apply_generator_params(npc: Node, index: int) -> void:
 	# Apply rotation
 	var final_rotation = spawn_rotation
 	if use_random_rotation:
+		# Only rotate sideways (Y-axis/yaw rotation)
 		final_rotation = Quaternion.from_euler(Vector3(
-			randf() * TAU,
-			randf() * TAU,
-			randf() * TAU
+			0.0,  # No pitch rotation
+			randf() * TAU,  # Full 360-degree sideways rotation
+			0.0   # No roll rotation
 		))
 	npc_3d.rotation = final_rotation.get_euler()
 	

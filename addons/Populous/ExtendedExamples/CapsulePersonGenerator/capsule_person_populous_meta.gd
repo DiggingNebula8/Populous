@@ -64,36 +64,54 @@ func generate_last_name() -> String:
 #----------------------------------------------------------------------------
 
 func set_metadata(npc: Node) -> void:
+	# Seed random for this NPC to ensure unique variation
+	# Use NPC's unique ID or current time + random offset for variation
+	var npc_seed = Time.get_ticks_msec() + randi() % 1000000
+	seed(npc_seed)
+	
 	# Determine gender based on preference
 	var gender: CapsulePersonConstants.Gender
 	if gender_preference >= 0 and gender_preference < 3:
 		gender = gender_preference as CapsulePersonConstants.Gender
 	else:
-		gender = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE].pick_random()
+		# Randomly pick from available genders
+		var available_genders = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE]
+		gender = available_genders[randi() % available_genders.size()]
 	
 	# Determine skin type based on preference
 	var skin_type: CapsulePersonConstants.SkinType
 	if skin_type_preference >= 0 and skin_type_preference < 4:
 		skin_type = skin_type_preference as CapsulePersonConstants.SkinType
 	else:
-		skin_type = CapsulePersonConstants.SkinType.values().pick_random()
+		# Randomly pick from available skin types
+		var available_skin_types = CapsulePersonConstants.SkinType.values()
+		skin_type = available_skin_types[randi() % available_skin_types.size()]
 	
-	# Generate names
+	# Generate names (these will be different due to random selection)
 	first_name = generate_first_name(gender)
 	last_name = generate_last_name()
 	
-	# Set name with color if available
-	var name_color = name_colors[randi() % name_colors.size()] if not name_colors.is_empty() else Color.WHITE
+	# Set name with color if available (randomly select from array)
+	var name_color = Color.WHITE
+	if not name_colors.is_empty():
+		name_color = name_colors[randi() % name_colors.size()]
+	
 	npc.name = first_name + "-" + last_name
 	npc.set_meta(first_name_key, first_name)
 	npc.set_meta(last_name_key, last_name)
 	npc.set_meta("name_color", name_color)
+	npc.set_meta("gender", gender)
+	npc.set_meta("skin_type", skin_type)
 	
 	# Apply modular pieces (will use part_tags_filter and other meta params)
+	# This will select different parts for each NPC due to randomization
 	apply_modular_pieces(npc, gender, skin_type)
 	
-	# Apply meta parameters
+	# Apply meta parameters (with some randomization for variation)
 	_apply_meta_params(npc)
+	
+	# Reset random seed to system default after this NPC
+	randomize()
 
 ## Returns dictionary of meta parameters for UI binding.
 ## 
@@ -165,10 +183,13 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 		PopulousLogger.error("No modular pieces assigned to CapsuleCityParts!")
 		return
 	
+	# Create a local array for this NPC's parts (not using class variable)
+	var npc_parts: Array = []
+	
 	# Define the list of body parts to process.
 	var part_names = ["hair", "head", "head_prop", "eyes", "mouth", "torso", "arms", "arm_sleeve", "body_prop", "legs"]
-	final_parts.clear()
 	var index = 0
+	
 	# Process each category.
 	for part_name in part_names:
 		# Retrieve the array of CapsulePart objects from the CapsuleCityParts resource.
@@ -224,22 +245,34 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 				break
 
 		# If all parts are skippable, then with a 50% chance, skip this entire category.
+		# Use different random value for each NPC to ensure variation
 		if all_skippable and randf() < 0.5:
 			PopulousLogger.debug("Skipping optional part category: " + part_name)
 			continue
+
+		# Shuffle parts before sorting to add more variation
+		# This ensures that even parts with the same weight get different selection order
+		parts.shuffle()
 
 		# Sort parts by weight (higher weight means more likely to be chosen).
 		parts.sort_custom(func(a, b): return a.weight > b.weight)
 
 		# Use weighted random selection to pick a part.
+		# This will produce different results for each NPC due to randomization
 		var selected_part: CapsulePart = weighted_random_pick(parts)
 		if selected_part == null or selected_part.mesh == null:
 			PopulousLogger.warning("Skipping null mesh for: " + part_name)
 			continue
-		PopulousLogger.debug(part_name + " and " + str(selected_part.mesh))
-		final_parts.insert(index, selected_part.mesh)
+		
+		PopulousLogger.debug("NPC: %s, Part: %s, Selected: %s" % [npc.name, part_name, str(selected_part.mesh)])
+		npc_parts.insert(index, selected_part.mesh)
 		index += 1
-	npc.set_meta("Parts", final_parts)
+	
+	# Store parts in NPC metadata
+	npc.set_meta("Parts", npc_parts)
+	
+	# Also update class variable for compatibility (but use local array)
+	final_parts = npc_parts.duplicate()
 
 ## Applies meta parameters to the NPC.
 ##
@@ -251,25 +284,51 @@ func _apply_meta_params(npc: Node) -> void:
 	
 	var npc_3d = npc as Node3D
 	
-	# Apply position offset
+	# Apply position offset (with slight random variation for each NPC if offset is set)
+	var final_position_offset = position_offset
 	if position_offset != Vector3.ZERO:
-		npc_3d.position += position_offset
+		# Add small random variation to offset for uniqueness
+		final_position_offset += Vector3(
+			randf_range(-0.1, 0.1),
+			randf_range(-0.1, 0.1),
+			randf_range(-0.1, 0.1)
+		) * 0.1  # Very small variation
+		npc_3d.position += final_position_offset
 	
-	# Apply rotation offset
+	# Apply rotation offset (with slight random variation)
+	var final_rotation_offset = rotation_offset
 	if rotation_offset != Quaternion.IDENTITY:
+		# Add small random rotation variation (sideways only - Y-axis)
+		var random_variation = Quaternion.from_euler(Vector3(
+			0.0,  # No pitch rotation
+			randf_range(-0.1, 0.1),  # Small sideways rotation variation
+			0.0   # No roll rotation
+		))
+		final_rotation_offset = final_rotation_offset * random_variation
 		var current_rotation = Quaternion.from_euler(npc_3d.rotation)
-		var final_rotation = current_rotation * rotation_offset
+		var final_rotation = current_rotation * final_rotation_offset
 		npc_3d.rotation = final_rotation.get_euler()
 	
-	# Apply scale multiplier
+	# Apply scale multiplier (with slight random variation)
+	var final_scale_multiplier = scale_multiplier
 	if scale_multiplier != Vector3.ONE:
-		npc_3d.scale *= scale_multiplier
+		# Add small random scale variation for uniqueness
+		var scale_variation = 1.0 + randf_range(-0.02, 0.02)  # ±2% variation
+		final_scale_multiplier = scale_multiplier * scale_variation
+		npc_3d.scale *= final_scale_multiplier
 	
-	# Apply color tint (combine with spawn color if exists)
+	# Apply color tint (combine with spawn color if exists, with slight variation)
 	var final_color = color_tint
 	if npc.has_meta("spawn_color"):
 		var spawn_color = npc.get_meta("spawn_color") as Color
 		final_color = final_color * spawn_color
+	
+	# Add slight random color variation for uniqueness (very subtle)
+	if final_color != Color.WHITE:
+		final_color.r = clamp(final_color.r + randf_range(-0.05, 0.05), 0.0, 1.0)
+		final_color.g = clamp(final_color.g + randf_range(-0.05, 0.05), 0.0, 1.0)
+		final_color.b = clamp(final_color.b + randf_range(-0.05, 0.05), 0.0, 1.0)
+	
 	npc.set_meta("color_tint", final_color)
 	
 	# Apply material override if specified
