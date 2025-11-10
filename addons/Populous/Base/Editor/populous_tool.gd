@@ -171,6 +171,10 @@ func _create_bool_control(value: bool, key: String) -> CheckBox:
 
 ## Creates an HBoxContainer with three SpinBoxes for Vector3 values.
 ##
+## Vector3 parameters require special handling: each component (x, y, z) gets its own SpinBox.
+## The axis parameter (0, 1, 2) is bound to the callback to identify which component changed.
+## This allows updating individual Vector3 components without reconstructing the entire vector.
+##
 ## @param value: The Vector3 value to display.
 ## @param key: The parameter key name.
 ## @return: Configured HBoxContainer with three SpinBox controls.
@@ -179,27 +183,33 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
+	# X component SpinBox
 	var x_spin = SpinBox.new()
 	x_spin.min_value = PopulousConstants.UI.spinbox_float_min
 	x_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	x_spin.step = PopulousConstants.UI.spinbox_float_step
 	x_spin.value = value.x
+	# Bind axis index 0 (x) to the callback
 	x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
 	hbox.add_child(x_spin)
 
+	# Y component SpinBox
 	var y_spin = SpinBox.new()
 	y_spin.min_value = PopulousConstants.UI.spinbox_float_min
 	y_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	y_spin.step = PopulousConstants.UI.spinbox_float_step
 	y_spin.value = value.y
+	# Bind axis index 1 (y) to the callback
 	y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
 	hbox.add_child(y_spin)
 
+	# Z component SpinBox
 	var z_spin = SpinBox.new()
 	z_spin.min_value = PopulousConstants.UI.spinbox_float_min
 	z_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	z_spin.step = PopulousConstants.UI.spinbox_float_step
 	z_spin.value = value.z
+	# Bind axis index 2 (z) to the callback
 	z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
 	hbox.add_child(z_spin)
 
@@ -246,7 +256,15 @@ func _create_row_container(label_text: String, input_field: Control) -> MarginCo
 
 	return margin_container
 
-func _on_value_changed(new_value, key):
+## Callback when a parameter value changes in the UI.
+## 
+## Updates the parameter in the resource and triggers parameter binding.
+## This enables real-time parameter updates as users modify UI controls.
+## 
+## @param new_value: The new value from the UI control.
+## @param key: The parameter key name.
+## @return: void
+func _on_value_changed(new_value, key: String) -> void:
 	if populous_resource == null:
 		return
 	
@@ -258,7 +276,16 @@ func _on_value_changed(new_value, key):
 	updated_params[key] = new_value
 	populous_resource.set_params(updated_params)
 
-func _on_vector3_changed(new_value, key, axis):
+## Callback when a Vector3 component value changes in the UI.
+## 
+## Updates a specific component (x, y, or z) of a Vector3 parameter.
+## Reconstructs the Vector3 with the updated component and updates the resource.
+## 
+## @param new_value: The new component value from the SpinBox.
+## @param key: The parameter key name (Vector3 parameter).
+## @param axis: The axis index (0=x, 1=y, 2=z).
+## @return: void
+func _on_vector3_changed(new_value: float, key: String, axis: int) -> void:
 	if populous_resource == null:
 		return
 	
