@@ -1,13 +1,29 @@
 @tool
 class_name RandomPopulousGenerator extends PopulousGenerator
 
+## Example generator that spawns NPCs in a grid pattern.
+## 
+## This generator demonstrates:
+## - Grid-based spawning (rows × columns)
+## - Configurable density (max NPCs to spawn)
+## - Custom spacing via Vector3 padding
+## - Position calculation based on grid coordinates
+
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
-@export var populous_density: int = 6
-@export var spawn_padding: Vector3 = Vector3(2, 0, 2)
-@export var rows: int = 3
-@export var columns: int = 2
+@export var populous_density: int = 6  ## Maximum number of NPCs to spawn
+@export var spawn_padding: Vector3 = Vector3(2, 0, 2)  ## Spacing between NPCs (x, y, z)
+@export var rows: int = 3  ## Number of rows in the grid
+@export var columns: int = 2  ## Number of columns in the grid
 
+## Generates NPCs in a grid pattern within the container.
+## 
+## Spawns NPCs row by row, column by column, respecting the density limit.
+## NPCs are positioned using grid coordinates multiplied by spawn_padding.
+## Stops spawning early if density limit is reached.
+## 
+## @param populous_container: The Node3D container where NPCs will be spawned.
+## @return: void
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:
 		PopulousLogger.error("Cannot generate NPCs - container is null")
@@ -74,6 +90,18 @@ func _get_params() -> Dictionary:
 	var populous_params = generator_params.merged(meta_resource._get_params())
 	return populous_params
 
+## Sets generator parameters with validation.
+## 
+## Validates parameter types and ranges before setting:
+## - populous_density: Must be non-negative integer
+## - spawn_padding: Must be Vector3
+## - rows: Must be non-negative integer
+## - columns: Must be non-negative integer
+## 
+## Also forwards parameters to meta resource for processing.
+## 
+## @param params: Dictionary containing parameter key-value pairs.
+## @return: void
 func _set_params(params: Dictionary) -> void:
 	if params == null:
 		PopulousLogger.error("Cannot set params - params dictionary is null")

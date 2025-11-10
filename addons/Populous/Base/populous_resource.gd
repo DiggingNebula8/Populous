@@ -26,12 +26,25 @@ func run_populous(populous_container: Node) -> void:
 	
 	generator._generate(populous_container)
 
+## Returns a dictionary of all generator parameters for UI binding.
+## 
+## Retrieves parameters from the generator's `_get_params()` method.
+## Returns an empty dictionary if the generator is not set.
+## 
+## @return: Dictionary with parameter names as keys and current values as values.
 func get_params() -> Dictionary:
 	if generator == null:
 		PopulousLogger.warning("Generator is null, returning empty params")
 		return {}
 	return generator._get_params()
 	
+## Sets generator parameters from a dictionary (typically from UI changes).
+## 
+## Updates parameters in the generator's `_set_params()` method.
+## Validates that both generator and params are not null before updating.
+## 
+## @param params: Dictionary containing parameter key-value pairs to set.
+## @return: void
 func set_params(params: Dictionary) -> void:
 	if generator == null:
 		PopulousLogger.error("Cannot set params - generator resource is not set")
