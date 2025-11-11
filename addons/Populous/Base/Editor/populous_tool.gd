@@ -906,7 +906,12 @@ func _on_array_add_item(array_key: String, items_container: VBoxContainer) -> vo
 	# Determine default value type from existing array or use empty string
 	var default_value = ""
 	if array_value.size() > 0:
-		default_value = array_value[0]
+		var first_item = array_value[0]
+		# Duplicate reference types to avoid shared references
+		if typeof(first_item) in [TYPE_OBJECT, TYPE_ARRAY, TYPE_DICTIONARY]:
+			default_value = first_item.duplicate()
+		else:
+			default_value = first_item
 	
 	array_value.append(default_value)
 	updated_params[array_key] = array_value
