@@ -1181,9 +1181,9 @@ func _on_plane_changed(new_value: float, key: String, component: int) -> void:
 		return
 	
 	match component:
-		0: plane_value.normal.x = new_value
-		1: plane_value.normal.y = new_value
-		2: plane_value.normal.z = new_value
+		0: plane_value.normal = Vector3(new_value, plane_value.normal.y, plane_value.normal.z)
+		1: plane_value.normal = Vector3(plane_value.normal.x, new_value, plane_value.normal.z)
+		2: plane_value.normal = Vector3(plane_value.normal.x, plane_value.normal.y, new_value)
 		3: plane_value.d = new_value
 	
 	updated_params[key] = plane_value
