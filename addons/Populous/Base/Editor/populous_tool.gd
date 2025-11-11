@@ -120,6 +120,18 @@ func _make_ui(params: Dictionary) -> void:
 				input_field = _create_bool_control(value, key)
 			TYPE_VECTOR3:
 				input_field = _create_vector3_control(value, key)
+			TYPE_NODE_PATH:
+				input_field = _create_node_path_control(value, key)
+			TYPE_RECT2:
+				input_field = _create_rect2_control(value, key)
+			TYPE_RECT2I:
+				input_field = _create_rect2i_control(value, key)
+			TYPE_AABB:
+				input_field = _create_aabb_control(value, key)
+			TYPE_PLANE:
+				input_field = _create_plane_control(value, key)
+			TYPE_QUATERNION:
+				input_field = _create_quaternion_control(value, key)
 			TYPE_COLOR:
 				input_field = _create_color_control(value, key)
 			TYPE_ARRAY:
@@ -132,18 +144,6 @@ func _make_ui(params: Dictionary) -> void:
 					input_field = _create_packed_scene_control(value, key)
 				elif value is Resource:
 					input_field = _create_resource_control(value, key)
-				elif value is NodePath:
-					input_field = _create_node_path_control(value, key)
-				elif value is Rect2:
-					input_field = _create_rect2_control(value, key)
-				elif value is Rect2i:
-					input_field = _create_rect2i_control(value, key)
-				elif value is AABB:
-					input_field = _create_aabb_control(value, key)
-				elif value is Plane:
-					input_field = _create_plane_control(value, key)
-				elif value is Quaternion:
-					input_field = _create_quaternion_control(value, key)
 				else:
 					input_field = _create_string_control(value, key)
 			_:
