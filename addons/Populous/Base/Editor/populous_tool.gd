@@ -164,7 +164,8 @@ func _create_int_control(value: int, key: String) -> SpinBox:
 	spinbox.max_value = PopulousConstants.UI.spinbox_int_max
 	spinbox.value = value
 	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spinbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spinbox.custom_minimum_size = Vector2(100, 0)
 	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
 	return spinbox
 
@@ -208,7 +209,8 @@ func _create_bool_control(value: bool, key: String) -> CheckBox:
 func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	var hbox = HBoxContainer.new()
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_theme_constant_override("separation", 4)
 
 	# X component SpinBox
 	var x_spin = SpinBox.new()
@@ -216,6 +218,8 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	x_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	x_spin.step = PopulousConstants.UI.spinbox_float_step
 	x_spin.value = value.x
+	x_spin.custom_minimum_size = Vector2(80, 0)
+	x_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Bind axis index 0 (x) to the callback
 	x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
 	hbox.add_child(x_spin)
@@ -226,6 +230,8 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	y_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	y_spin.step = PopulousConstants.UI.spinbox_float_step
 	y_spin.value = value.y
+	y_spin.custom_minimum_size = Vector2(80, 0)
+	y_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Bind axis index 1 (y) to the callback
 	y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
 	hbox.add_child(y_spin)
@@ -236,6 +242,8 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 	z_spin.max_value = PopulousConstants.UI.spinbox_float_max
 	z_spin.step = PopulousConstants.UI.spinbox_float_step
 	z_spin.value = value.z
+	z_spin.custom_minimum_size = Vector2(80, 0)
+	z_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Bind axis index 2 (z) to the callback
 	z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
 	hbox.add_child(z_spin)
@@ -250,8 +258,9 @@ func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
 func _create_string_control(value, key: String) -> LineEdit:
 	var line_edit = LineEdit.new()
 	line_edit.text = str(value)
-	line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	line_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	line_edit.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line_edit.custom_minimum_size = Vector2(100, 0)
 	line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
 	return line_edit
 
@@ -290,7 +299,8 @@ func _create_enum_control(value, key: String, enum_options: Array = []) -> Optio
 			if enum_options[i] == value:
 				option_button.selected = i
 	
-	option_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	option_button.custom_minimum_size = Vector2(100, 0)
 	option_button.connect("item_selected", Callable(self, "_on_enum_changed").bind(key, enum_options))
 	return option_button
 
@@ -680,7 +690,8 @@ func _create_plane_control(value: Plane, key: String) -> HBoxContainer:
 func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer:
 	var hbox = HBoxContainer.new()
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_theme_constant_override("separation", 4)
 	
 	# X, Y, Z, W SpinBoxes
 	var labels = ["X", "Y", "Z", "W"]
@@ -697,6 +708,8 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 		spin.max_value = PopulousConstants.UI.spinbox_float_max
 		spin.step = PopulousConstants.UI.spinbox_float_step
 		spin.value = values[i]
+		spin.custom_minimum_size = Vector2(70, 0)
+		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		spin.connect("value_changed", Callable(self, "_on_quaternion_changed").bind(key, i))
 		hbox.add_child(spin)
 	
@@ -710,13 +723,15 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 func _create_row_container(label_text: String, input_field: Control) -> MarginContainer:
 	var row_container = HBoxContainer.new()
 	row_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	row_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row_container.add_theme_constant_override("separation", 8)
 
 	var label = Label.new()
 	label.text = label_text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.custom_minimum_size = Vector2(150, 0)
 
 	row_container.add_child(label)
 	row_container.add_child(input_field)

@@ -130,7 +130,7 @@ vertical_alignment = 1
 [node name="GeneratorScrollContainer" type="ScrollContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 200)
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
 
 [node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/GeneratorScrollContainer"]
