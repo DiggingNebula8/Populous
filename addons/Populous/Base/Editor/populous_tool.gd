@@ -352,31 +352,44 @@ func _create_array_item_control(item_value, array_key: String, index: int) -> Co
 	
 	# Create appropriate control based on item type
 	var item_control: Control = null
+	var generic_key = array_key + "_" + str(index)
 	match typeof(item_value):
 		TYPE_INT:
-			item_control = _create_int_control(item_value, array_key + "_" + str(index))
+			item_control = _create_int_control(item_value, generic_key)
 			# Disconnect default handler and connect to array-specific handler
-			item_control.disconnect("value_changed", Callable(self, "_on_value_changed"))
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("value_changed", generic_callable):
+				item_control.disconnect("value_changed", generic_callable)
 			item_control.connect("value_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
 		TYPE_FLOAT:
-			item_control = _create_float_control(item_value, array_key + "_" + str(index))
-			item_control.disconnect("value_changed", Callable(self, "_on_value_changed"))
+			item_control = _create_float_control(item_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("value_changed", generic_callable):
+				item_control.disconnect("value_changed", generic_callable)
 			item_control.connect("value_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
 		TYPE_BOOL:
-			item_control = _create_bool_control(item_value, array_key + "_" + str(index))
-			item_control.disconnect("toggled", Callable(self, "_on_value_changed"))
+			item_control = _create_bool_control(item_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("toggled", generic_callable):
+				item_control.disconnect("toggled", generic_callable)
 			item_control.connect("toggled", Callable(self, "_on_array_item_changed").bind(array_key, index))
 		TYPE_STRING:
-			item_control = _create_string_control(item_value, array_key + "_" + str(index))
-			item_control.disconnect("text_changed", Callable(self, "_on_value_changed"))
+			item_control = _create_string_control(item_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("text_changed", generic_callable):
+				item_control.disconnect("text_changed", generic_callable)
 			item_control.connect("text_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
 		TYPE_COLOR:
-			item_control = _create_color_control(item_value, array_key + "_" + str(index))
-			item_control.disconnect("color_changed", Callable(self, "_on_value_changed"))
+			item_control = _create_color_control(item_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("color_changed", generic_callable):
+				item_control.disconnect("color_changed", generic_callable)
 			item_control.connect("color_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
 		_:
-			item_control = _create_string_control(item_value, array_key + "_" + str(index))
-			item_control.disconnect("text_changed", Callable(self, "_on_value_changed"))
+			item_control = _create_string_control(item_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if item_control.is_connected("text_changed", generic_callable):
+				item_control.disconnect("text_changed", generic_callable)
 			item_control.connect("text_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
 	
 	# Store array key and index in metadata for update handling
@@ -448,26 +461,43 @@ func _create_dictionary_pair_control(pair_key, pair_value, dict_key: String) -> 
 	
 	# Value editor (create appropriate control based on value type)
 	var value_control: Control = null
+	var generic_key = dict_key + "_key_" + str(pair_key)
 	match typeof(pair_value):
 		TYPE_INT:
-			value_control = _create_int_control(pair_value, dict_key + "_key_" + str(pair_key))
-			value_control.disconnect("value_changed", Callable(self, "_on_value_changed"))
+			value_control = _create_int_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("value_changed", generic_callable):
+				value_control.disconnect("value_changed", generic_callable)
 			value_control.connect("value_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
 		TYPE_FLOAT:
-			value_control = _create_float_control(pair_value, dict_key + "_key_" + str(pair_key))
-			value_control.disconnect("value_changed", Callable(self, "_on_value_changed"))
+			value_control = _create_float_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("value_changed", generic_callable):
+				value_control.disconnect("value_changed", generic_callable)
 			value_control.connect("value_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
 		TYPE_BOOL:
-			value_control = _create_bool_control(pair_value, dict_key + "_key_" + str(pair_key))
-			value_control.disconnect("toggled", Callable(self, "_on_value_changed"))
+			value_control = _create_bool_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("toggled", generic_callable):
+				value_control.disconnect("toggled", generic_callable)
 			value_control.connect("toggled", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
 		TYPE_STRING:
-			value_control = _create_string_control(pair_value, dict_key + "_key_" + str(pair_key))
-			value_control.disconnect("text_changed", Callable(self, "_on_value_changed"))
+			value_control = _create_string_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("text_changed", generic_callable):
+				value_control.disconnect("text_changed", generic_callable)
 			value_control.connect("text_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+		TYPE_COLOR:
+			value_control = _create_color_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("color_changed", generic_callable):
+				value_control.disconnect("color_changed", generic_callable)
+			value_control.connect("color_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
 		_:
-			value_control = _create_string_control(pair_value, dict_key + "_key_" + str(pair_key))
-			value_control.disconnect("text_changed", Callable(self, "_on_value_changed"))
+			value_control = _create_string_control(pair_value, generic_key)
+			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+			if value_control.is_connected("text_changed", generic_callable):
+				value_control.disconnect("text_changed", generic_callable)
 			value_control.connect("text_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
 	
 	# Store metadata for update handling
