@@ -909,7 +909,7 @@ func _on_array_add_item(array_key: String, items_container: VBoxContainer) -> vo
 		var first_item = array_value[0]
 		# Duplicate reference types to avoid shared references
 		if typeof(first_item) in [TYPE_OBJECT, TYPE_ARRAY, TYPE_DICTIONARY]:
-			default_value = first_item.duplicate()
+			default_value = first_item.duplicate(true)
 		else:
 			default_value = first_item
 	
