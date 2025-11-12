@@ -1219,10 +1219,10 @@ func _on_quaternion_changed(new_value: float, key: String, component: int) -> vo
 		return
 	
 	match component:
-		0: quaternion_value.x = new_value
-		1: quaternion_value.y = new_value
-		2: quaternion_value.z = new_value
-		3: quaternion_value.w = new_value
+		0: quaternion_value = Quaternion(new_value, quaternion_value.y, quaternion_value.z, quaternion_value.w)
+		1: quaternion_value = Quaternion(quaternion_value.x, new_value, quaternion_value.z, quaternion_value.w)
+		2: quaternion_value = Quaternion(quaternion_value.x, quaternion_value.y, new_value, quaternion_value.w)
+		3: quaternion_value = Quaternion(quaternion_value.x, quaternion_value.y, quaternion_value.z, new_value)
 	
 	updated_params[key] = quaternion_value
 	populous_resource.set_params(updated_params)
