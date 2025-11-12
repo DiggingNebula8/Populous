@@ -1085,10 +1085,10 @@ func _on_rect2_changed(new_value: float, key: String, component: int) -> void:
 		return
 	
 	match component:
-		0: rect2_value.position.x = new_value
-		1: rect2_value.position.y = new_value
-		2: rect2_value.size.x = new_value
-		3: rect2_value.size.y = new_value
+		0: rect2_value.position = Vector2(new_value, rect2_value.position.y)
+		1: rect2_value.position = Vector2(rect2_value.position.x, new_value)
+		2: rect2_value.size = Vector2(new_value, rect2_value.size.y)
+		3: rect2_value.size = Vector2(rect2_value.size.x, new_value)
 	
 	updated_params[key] = rect2_value
 	populous_resource.set_params(updated_params)
@@ -1118,10 +1118,10 @@ func _on_rect2i_changed(new_value: float, key: String, component: int) -> void:
 		return
 	
 	match component:
-		0: rect2i_value.position.x = int(new_value)
-		1: rect2i_value.position.y = int(new_value)
-		2: rect2i_value.size.x = int(new_value)
-		3: rect2i_value.size.y = int(new_value)
+		0: rect2i_value.position = Vector2i(int(new_value), rect2i_value.position.y)
+		1: rect2i_value.position = Vector2i(rect2i_value.position.x, int(new_value))
+		2: rect2i_value.size = Vector2i(int(new_value), rect2i_value.size.y)
+		3: rect2i_value.size = Vector2i(rect2i_value.size.x, int(new_value))
 	
 	updated_params[key] = rect2i_value
 	populous_resource.set_params(updated_params)
@@ -1151,12 +1151,12 @@ func _on_aabb_changed(new_value: float, key: String, component: int) -> void:
 		return
 	
 	match component:
-		0: aabb_value.position.x = new_value
-		1: aabb_value.position.y = new_value
-		2: aabb_value.position.z = new_value
-		3: aabb_value.size.x = new_value
-		4: aabb_value.size.y = new_value
-		5: aabb_value.size.z = new_value
+		0: aabb_value.position = Vector3(new_value, aabb_value.position.y, aabb_value.position.z)
+		1: aabb_value.position = Vector3(aabb_value.position.x, new_value, aabb_value.position.z)
+		2: aabb_value.position = Vector3(aabb_value.position.x, aabb_value.position.y, new_value)
+		3: aabb_value.size = Vector3(new_value, aabb_value.size.y, aabb_value.size.z)
+		4: aabb_value.size = Vector3(aabb_value.size.x, new_value, aabb_value.size.z)
+		5: aabb_value.size = Vector3(aabb_value.size.x, aabb_value.size.y, new_value)
 	
 	updated_params[key] = aabb_value
 	populous_resource.set_params(updated_params)
