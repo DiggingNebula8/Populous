@@ -377,7 +377,8 @@ func _create_float_control(value: float, key: String) -> SpinBox:
 	spinbox.step = PopulousConstants.UI.spinbox_float_step
 	spinbox.value = value
 	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	spinbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spinbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spinbox.custom_minimum_size = Vector2(100, 0)
 	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
 	return spinbox
 
