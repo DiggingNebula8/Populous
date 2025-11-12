@@ -153,6 +153,42 @@ func _make_ui(params: Dictionary) -> void:
 		var margin_container = _create_row_container(key, input_field)
 		dynamic_ui_container.add_child(margin_container)
 
+## Helper to reconnect a control's signal to a specialized handler.
+## Disconnects the old handler if connected, then connects the new handler.
+##
+## @param control: The control to reconnect the signal on.
+## @param signal_name: The name of the signal to reconnect.
+## @param old_handler: The old callable handler to disconnect.
+## @param new_handler: The new callable handler to connect.
+## @return: void
+func _reconnect_signal(control: Control, signal_name: String, old_handler: Callable, new_handler: Callable) -> void:
+	if control.is_connected(signal_name, old_handler):
+		control.disconnect(signal_name, old_handler)
+	control.connect(signal_name, new_handler)
+
+## Helper to create a labeled spinbox pair.
+## Creates a Label and SpinBox configured with the given parameters.
+##
+## @param label_text: The text for the label.
+## @param value: The initial value for the SpinBox.
+## @param min_val: The minimum value for the SpinBox.
+## @param max_val: The maximum value for the SpinBox.
+## @param step: The step value for the SpinBox (default: 1.0).
+## @param label_size: The custom minimum size for the label (default: Vector2(15, 0)).
+## @return: Array containing [Label, SpinBox]
+func _create_labeled_spinbox(label_text: String, value: float, min_val: float, max_val: float, step: float = 1.0, label_size: Vector2 = Vector2(15, 0)) -> Array:
+	var label = Label.new()
+	label.text = label_text
+	label.custom_minimum_size = label_size
+	
+	var spin = SpinBox.new()
+	spin.min_value = min_val
+	spin.max_value = max_val
+	spin.step = step
+	spin.value = value
+	
+	return [label, spin]
+
 ## Creates a SpinBox control for integer values.
 ##
 ## @param value: The integer value to display.
@@ -353,44 +389,28 @@ func _create_array_item_control(item_value, array_key: String, index: int) -> Co
 	# Create appropriate control based on item type
 	var item_control: Control = null
 	var generic_key = array_key + "_" + str(index)
+	var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+	var array_handler := Callable(self, "_on_array_item_changed").bind(array_key, index)
+	
 	match typeof(item_value):
 		TYPE_INT:
 			item_control = _create_int_control(item_value, generic_key)
-			# Disconnect default handler and connect to array-specific handler
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("value_changed", generic_callable):
-				item_control.disconnect("value_changed", generic_callable)
-			item_control.connect("value_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
 		TYPE_FLOAT:
 			item_control = _create_float_control(item_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("value_changed", generic_callable):
-				item_control.disconnect("value_changed", generic_callable)
-			item_control.connect("value_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
 		TYPE_BOOL:
 			item_control = _create_bool_control(item_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("toggled", generic_callable):
-				item_control.disconnect("toggled", generic_callable)
-			item_control.connect("toggled", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "toggled", generic_callable, array_handler)
 		TYPE_STRING:
 			item_control = _create_string_control(item_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("text_changed", generic_callable):
-				item_control.disconnect("text_changed", generic_callable)
-			item_control.connect("text_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "text_changed", generic_callable, array_handler)
 		TYPE_COLOR:
 			item_control = _create_color_control(item_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("color_changed", generic_callable):
-				item_control.disconnect("color_changed", generic_callable)
-			item_control.connect("color_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "color_changed", generic_callable, array_handler)
 		_:
 			item_control = _create_string_control(item_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if item_control.is_connected("text_changed", generic_callable):
-				item_control.disconnect("text_changed", generic_callable)
-			item_control.connect("text_changed", Callable(self, "_on_array_item_changed").bind(array_key, index))
+			_reconnect_signal(item_control, "text_changed", generic_callable, array_handler)
 	
 	# Store array key and index in metadata for update handling
 	item_control.set_meta("array_key", array_key)
@@ -462,43 +482,28 @@ func _create_dictionary_pair_control(pair_key, pair_value, dict_key: String) -> 
 	# Value editor (create appropriate control based on value type)
 	var value_control: Control = null
 	var generic_key = dict_key + "_key_" + str(pair_key)
+	var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
+	var dict_handler := Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key)
+	
 	match typeof(pair_value):
 		TYPE_INT:
 			value_control = _create_int_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("value_changed", generic_callable):
-				value_control.disconnect("value_changed", generic_callable)
-			value_control.connect("value_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
 		TYPE_FLOAT:
 			value_control = _create_float_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("value_changed", generic_callable):
-				value_control.disconnect("value_changed", generic_callable)
-			value_control.connect("value_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
 		TYPE_BOOL:
 			value_control = _create_bool_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("toggled", generic_callable):
-				value_control.disconnect("toggled", generic_callable)
-			value_control.connect("toggled", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "toggled", generic_callable, dict_handler)
 		TYPE_STRING:
 			value_control = _create_string_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("text_changed", generic_callable):
-				value_control.disconnect("text_changed", generic_callable)
-			value_control.connect("text_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "text_changed", generic_callable, dict_handler)
 		TYPE_COLOR:
 			value_control = _create_color_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("color_changed", generic_callable):
-				value_control.disconnect("color_changed", generic_callable)
-			value_control.connect("color_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "color_changed", generic_callable, dict_handler)
 		_:
 			value_control = _create_string_control(pair_value, generic_key)
-			var generic_callable := Callable(self, "_on_value_changed").bind(generic_key)
-			if value_control.is_connected("text_changed", generic_callable):
-				value_control.disconnect("text_changed", generic_callable)
-			value_control.connect("text_changed", Callable(self, "_on_dictionary_pair_changed").bind(dict_key, pair_key))
+			_reconnect_signal(value_control, "text_changed", generic_callable, dict_handler)
 	
 	# Store metadata for update handling
 	key_edit.set_meta("dict_key", dict_key)
@@ -616,18 +621,16 @@ func _create_rect2_control(value: Rect2, key: String) -> HBoxContainer:
 	var values = [value.position.x, value.position.y, value.size.x, value.size.y]
 	
 	for i in range(4):
-		var label = Label.new()
-		label.text = labels[i]
-		label.custom_minimum_size = Vector2(15, 0)
-		hbox.add_child(label)
-		
-		var spin = SpinBox.new()
-		spin.min_value = PopulousConstants.UI.spinbox_float_min
-		spin.max_value = PopulousConstants.UI.spinbox_float_max
-		spin.step = PopulousConstants.UI.spinbox_float_step
-		spin.value = values[i]
-		spin.connect("value_changed", Callable(self, "_on_rect2_changed").bind(key, i))
-		hbox.add_child(spin)
+		var spinbox_pair = _create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_float_min,
+			PopulousConstants.UI.spinbox_float_max,
+			PopulousConstants.UI.spinbox_float_step
+		)
+		spinbox_pair[1].connect("value_changed", Callable(self, "_on_rect2_changed").bind(key, i))
+		hbox.add_child(spinbox_pair[0])
+		hbox.add_child(spinbox_pair[1])
 	
 	return hbox
 
@@ -646,17 +649,16 @@ func _create_rect2i_control(value: Rect2i, key: String) -> HBoxContainer:
 	var values = [value.position.x, value.position.y, value.size.x, value.size.y]
 	
 	for i in range(4):
-		var label = Label.new()
-		label.text = labels[i]
-		label.custom_minimum_size = Vector2(15, 0)
-		hbox.add_child(label)
-		
-		var spin = SpinBox.new()
-		spin.min_value = PopulousConstants.UI.spinbox_int_min
-		spin.max_value = PopulousConstants.UI.spinbox_int_max
-		spin.value = values[i]
-		spin.connect("value_changed", Callable(self, "_on_rect2i_changed").bind(key, i))
-		hbox.add_child(spin)
+		var spinbox_pair = _create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_int_min,
+			PopulousConstants.UI.spinbox_int_max,
+			1.0  # Integer step
+		)
+		spinbox_pair[1].connect("value_changed", Callable(self, "_on_rect2i_changed").bind(key, i))
+		hbox.add_child(spinbox_pair[0])
+		hbox.add_child(spinbox_pair[1])
 	
 	return hbox
 
@@ -675,18 +677,17 @@ func _create_aabb_control(value: AABB, key: String) -> HBoxContainer:
 	var values = [value.position.x, value.position.y, value.position.z, value.size.x, value.size.y, value.size.z]
 	
 	for i in range(6):
-		var label = Label.new()
-		label.text = labels[i]
-		label.custom_minimum_size = Vector2(20, 0)
-		hbox.add_child(label)
-		
-		var spin = SpinBox.new()
-		spin.min_value = PopulousConstants.UI.spinbox_float_min
-		spin.max_value = PopulousConstants.UI.spinbox_float_max
-		spin.step = PopulousConstants.UI.spinbox_float_step
-		spin.value = values[i]
-		spin.connect("value_changed", Callable(self, "_on_aabb_changed").bind(key, i))
-		hbox.add_child(spin)
+		var spinbox_pair = _create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_float_min,
+			PopulousConstants.UI.spinbox_float_max,
+			PopulousConstants.UI.spinbox_float_step,
+			Vector2(20, 0)  # Larger label size
+		)
+		spinbox_pair[1].connect("value_changed", Callable(self, "_on_aabb_changed").bind(key, i))
+		hbox.add_child(spinbox_pair[0])
+		hbox.add_child(spinbox_pair[1])
 	
 	return hbox
 
@@ -705,18 +706,17 @@ func _create_plane_control(value: Plane, key: String) -> HBoxContainer:
 	var values = [value.normal.x, value.normal.y, value.normal.z, value.d]
 	
 	for i in range(4):
-		var label = Label.new()
-		label.text = labels[i]
-		label.custom_minimum_size = Vector2(20, 0)
-		hbox.add_child(label)
-		
-		var spin = SpinBox.new()
-		spin.min_value = PopulousConstants.UI.spinbox_float_min
-		spin.max_value = PopulousConstants.UI.spinbox_float_max
-		spin.step = PopulousConstants.UI.spinbox_float_step
-		spin.value = values[i]
-		spin.connect("value_changed", Callable(self, "_on_plane_changed").bind(key, i))
-		hbox.add_child(spin)
+		var spinbox_pair = _create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_float_min,
+			PopulousConstants.UI.spinbox_float_max,
+			PopulousConstants.UI.spinbox_float_step,
+			Vector2(20, 0)  # Larger label size
+		)
+		spinbox_pair[1].connect("value_changed", Callable(self, "_on_plane_changed").bind(key, i))
+		hbox.add_child(spinbox_pair[0])
+		hbox.add_child(spinbox_pair[1])
 	
 	return hbox
 
@@ -736,20 +736,18 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 	var values = [value.x, value.y, value.z, value.w]
 	
 	for i in range(4):
-		var label = Label.new()
-		label.text = labels[i]
-		label.custom_minimum_size = Vector2(15, 0)
-		hbox.add_child(label)
-		
-		var spin = SpinBox.new()
-		spin.min_value = PopulousConstants.UI.spinbox_float_min
-		spin.max_value = PopulousConstants.UI.spinbox_float_max
-		spin.step = PopulousConstants.UI.spinbox_float_step
-		spin.value = values[i]
-		spin.custom_minimum_size = Vector2(70, 0)
-		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		spin.connect("value_changed", Callable(self, "_on_quaternion_changed").bind(key, i))
-		hbox.add_child(spin)
+		var spinbox_pair = _create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_float_min,
+			PopulousConstants.UI.spinbox_float_max,
+			PopulousConstants.UI.spinbox_float_step
+		)
+		spinbox_pair[1].custom_minimum_size = Vector2(70, 0)
+		spinbox_pair[1].size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spinbox_pair[1].connect("value_changed", Callable(self, "_on_quaternion_changed").bind(key, i))
+		hbox.add_child(spinbox_pair[0])
+		hbox.add_child(spinbox_pair[1])
 	
 	return hbox
 
