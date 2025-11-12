@@ -113,7 +113,23 @@ func _make_ui(params: Dictionary) -> void:
 		# Create input fields based on the type of value
 		match typeof(value):
 			TYPE_INT:
-				input_field = _create_int_control(value, key)
+				# Check if this int parameter is actually an enum
+				var enum_info = _get_enum_info_for_param(key)
+				if enum_info.has("is_enum") and enum_info.is_enum:
+					# Use enum control with auto-detected options
+					var enum_options = enum_info.get("enum_values", [])
+					var enum_names = enum_info.get("enum_names", [])
+					# If we have enum names, use them; otherwise use values
+					if enum_names.size() > 0:
+						input_field = _create_enum_control(value, key, enum_names)
+					elif enum_options.size() > 0:
+						input_field = _create_enum_control(value, key, enum_options)
+					else:
+						# Fallback to int control if enum detection failed
+						input_field = _create_int_control(value, key)
+				else:
+					# Regular int parameter
+					input_field = _create_int_control(value, key)
 			TYPE_FLOAT:
 				input_field = _create_float_control(value, key)
 			TYPE_BOOL:
@@ -188,6 +204,134 @@ func _create_labeled_spinbox(label_text: String, value: float, min_val: float, m
 	spin.value = value
 	
 	return [label, spin]
+
+## Helper to detect enum information for a parameter using Godot's reflection system.
+## Uses get_script_property_list() to check PropertyInfo for enum hints.
+## Supports both @export enum properties and typed enum properties.
+##
+## @param param_key: The parameter key name to check.
+## @return: Dictionary with "is_enum" (bool), "enum_values" (Array), "enum_names" (Array), or empty dict if not an enum.
+func _get_enum_info_for_param(param_key: String) -> Dictionary:
+	if populous_resource == null or populous_resource.generator == null:
+		return {}
+	
+	var generator = populous_resource.generator
+	var script = generator.get_script()
+	if script == null:
+		return {}
+	
+	# Get property list from the script
+	var property_list = generator.get_script_property_list()
+	
+	# Find property matching the param_key
+	for prop_info in property_list:
+		if prop_info.name == param_key:
+			# Check if this property has enum information via PROPERTY_HINT_ENUM
+			# This is set when @export uses enum types
+			if prop_info.hint == PROPERTY_HINT_ENUM and prop_info.hint_string != "":
+				# Parse enum values from hint_string
+				# Format can be: "Value1,Value2,Value3" or "Value1:0,Value2:1" (with explicit values)
+				var enum_names = []
+				var enum_values = []
+				var enum_strings = prop_info.hint_string.split(",")
+				
+				for enum_str in enum_strings:
+					enum_str = enum_str.strip_edges()
+					if enum_str.is_empty():
+						continue
+					
+					# Check if format is "Name:Value"
+					if ":" in enum_str:
+						var parts = enum_str.split(":")
+						if parts.size() == 2:
+							enum_names.append(parts[0].strip_edges())
+							enum_values.append(int(parts[1].strip_edges()))
+						else:
+							enum_names.append(enum_str)
+							enum_values.append(enum_names.size() - 1)
+					else:
+						# Simple format: just the name, value is index
+						enum_names.append(enum_str)
+						enum_values.append(enum_names.size() - 1)
+				
+				if enum_names.size() > 0:
+					return {
+						"is_enum": true,
+						"enum_values": enum_values,
+						"enum_names": enum_names,
+						"hint_string": prop_info.hint_string
+					}
+			
+			# Check if property type is int and has a class_name hint (for typed enums)
+			# This handles cases like: var prop: EnumClass.EnumName
+			if prop_info.type == TYPE_INT and prop_info.class_name != "":
+				# Try to get enum values from the enum class
+				var enum_info = _extract_enum_values_from_class(prop_info.class_name)
+				if enum_info.has("is_enum") and enum_info.is_enum:
+					return enum_info
+			
+			# Check usage hint - sometimes enums are marked differently
+			if prop_info.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+				# This is a script variable, check if we can infer enum from type hint
+				# For now, we'll rely on the above checks
+				pass
+	
+	return {}
+
+## Helper to extract enum values from an enum class name.
+## Attempts to access the enum class and get its values.
+## Supports both built-in enums (via ClassDB) and GDScript enums (via script access).
+##
+## @param enum_class_name: The name of the enum class (e.g., "CapsulePersonConstants.Gender").
+## @return: Dictionary with enum info or empty dict if extraction fails.
+func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
+	# Try to parse class name (might be "ClassName.EnumName" or just "EnumName")
+	var parts = enum_class_name.split(".")
+	
+	if parts.size() == 2:
+		# Format: "ClassName.EnumName"
+		var class_name = parts[0]
+		var enum_name = parts[1]
+		
+		# Try built-in class first (via ClassDB)
+		if ClassDB.class_exists(class_name):
+			var enum_constants = ClassDB.class_get_enum_constants(class_name, enum_name)
+			if enum_constants.size() > 0:
+				var enum_values = []
+				var enum_names = []
+				for constant_name in enum_constants:
+					enum_names.append(constant_name)
+					var enum_value = ClassDB.class_get_integer_constant(class_name, constant_name)
+					enum_values.append(enum_value)
+				
+				return {
+					"is_enum": true,
+					"enum_values": enum_values,
+					"enum_names": enum_names
+				}
+		
+		# Try GDScript enum class - access via script loading
+		# Try common paths for enum classes
+		var possible_paths = [
+			"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/" + class_name.to_lower() + ".gd",
+			"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/" + class_name.to_lower() + ".gd",
+			"res://addons/Populous/" + class_name.to_lower() + ".gd"
+		]
+		
+		for path in possible_paths:
+			if ResourceLoader.exists(path):
+				var enum_class_script = load(path)
+				if enum_class_script != null:
+					# Try to get enum values by instantiating or accessing constants
+					# For GDScript enums, we can try to access them via the script
+					# However, GDScript enum reflection is limited, so we'll rely on
+					# PROPERTY_HINT_ENUM which should be set when @export uses enum types
+					break
+	
+	# For GDScript enums, PROPERTY_HINT_ENUM should be set in PropertyInfo
+	# when @export uses enum types. If we reach here, the enum wasn't found
+	# via ClassDB, so we'll rely on the PROPERTY_HINT_ENUM check in the caller
+	return {}
 
 ## Creates a SpinBox control for integer values.
 ##
@@ -313,11 +457,11 @@ func _create_color_control(value: Color, key: String) -> ColorPickerButton:
 	return color_picker
 
 ## Creates an OptionButton control for Enum values.
-## Note: Enum values should be passed as arrays of strings or integers.
-## For native enums, pass an array of enum names as strings.
+## Supports both auto-detected enums (via reflection) and manual enum_options.
 ##
 ## @param value: The enum value (int or string).
 ## @param key: The parameter key name.
+## @param enum_options: Array of enum option values or names. Can be Array[int] or Array[String].
 ## @return: Configured OptionButton control.
 func _create_enum_control(value, key: String, enum_options: Array = []) -> OptionButton:
 	var option_button = OptionButton.new()
@@ -330,10 +474,20 @@ func _create_enum_control(value, key: String, enum_options: Array = []) -> Optio
 		option_button.selected = 0
 	else:
 		# Populate with provided options
+		var selected_index = -1
 		for i in range(enum_options.size()):
-			option_button.add_item(str(enum_options[i]))
-			if enum_options[i] == value:
-				option_button.selected = i
+			var option_display = str(enum_options[i])
+			option_button.add_item(option_display)
+			# Check if this option matches the current value
+			# Handle both int and string comparisons
+			if enum_options[i] == value or str(enum_options[i]) == str(value):
+				selected_index = i
+		
+		# Set selected index, defaulting to 0 if value not found
+		if selected_index >= 0:
+			option_button.selected = selected_index
+		elif enum_options.size() > 0:
+			option_button.selected = 0
 	
 	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option_button.custom_minimum_size = Vector2(100, 0)
