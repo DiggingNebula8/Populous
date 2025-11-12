@@ -280,15 +280,34 @@ func _get_enum_info_for_param(param_key: String) -> Dictionary:
 
 ## Returns an array of directory paths to search for enum class scripts.
 ## These directories are searched when trying to locate GDScript enum classes.
-## Can be extended or made configurable via project settings if needed.
+## Supports configuration via project settings and automatically includes the generator script's directory.
 ##
 ## @return: Array of directory paths (with trailing slashes) to search for enum classes.
 func _get_enum_search_directories() -> Array[String]:
-	return [
+	var dirs: Array[String] = []
+	
+	# Try to get custom paths from project settings
+	if ProjectSettings.has_setting("populous/enum_search_paths"):
+		var custom_paths = ProjectSettings.get_setting("populous/enum_search_paths")
+		if custom_paths is Array:
+			dirs.append_array(custom_paths)
+	
+	# Add default paths
+	dirs.append_array([
 		"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/",
 		"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/",
 		"res://addons/Populous/"
-	]
+	])
+	
+	# Add generator script's directory
+	if populous_resource != null and populous_resource.generator != null:
+		var gen_script = populous_resource.generator.get_script()
+		if gen_script != null:
+			var script_path = gen_script.resource_path.get_base_dir() + "/"
+			if not dirs.has(script_path):
+				dirs.append(script_path)
+	
+	return dirs
 
 ## Helper to extract enum values from an enum class name.
 ## Attempts to access the enum class and get its values.
