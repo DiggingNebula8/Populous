@@ -1008,8 +1008,12 @@ func _on_dictionary_add_pair(dict_key: String, pairs_container: VBoxContainer) -
 		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
 		return
 	
-	# Generate a unique key
-	var new_key = "new_key_" + str(dict_value.size())
+	# Generate a unique key by checking for collisions
+	var counter = 0
+	var new_key = "new_key_" + str(counter)
+	while dict_value.has(new_key):
+		counter += 1
+		new_key = "new_key_" + str(counter)
 	dict_value[new_key] = ""
 	updated_params[dict_key] = dict_value
 	populous_resource.set_params(updated_params)
