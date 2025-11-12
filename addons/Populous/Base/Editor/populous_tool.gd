@@ -543,6 +543,12 @@ func _on_dictionary_key_changed(new_text: String, dict_key: String, old_key) -> 
 	
 	# If key changed, rename the key
 	if dict_value.has(old_key) and new_text != str(old_key):
+		# Prevent overwriting existing keys
+		if dict_value.has(new_text):
+			PopulousLogger.warning("Key '%s' already exists in dictionary '%s'" % [new_text, dict_key])
+			_update_ui()  # Refresh to revert UI change
+			return
+		
 		var value = dict_value[old_key]
 		dict_value.erase(old_key)
 		dict_value[new_text] = value
