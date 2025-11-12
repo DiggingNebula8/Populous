@@ -578,6 +578,8 @@ func _create_packed_scene_control(value: PackedScene, key: String) -> EditorReso
 ## @return: Configured EditorResourcePicker control.
 func _create_resource_control(value: Resource, key: String) -> EditorResourcePicker:
 	var resource_picker = EditorResourcePicker.new()
+	# Default to "Resource" if value is null
+	resource_picker.base_type = "Resource"
 	if value != null:
 		resource_picker.base_type = value.get_class()
 	resource_picker.edited_resource = value
