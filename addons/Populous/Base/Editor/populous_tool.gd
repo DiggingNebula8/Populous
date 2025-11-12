@@ -564,20 +564,76 @@ func _create_array_item_control(item_value, array_key: String, index: int) -> Co
 	
 	match typeof(item_value):
 		TYPE_INT:
-			item_control = _create_int_control(item_value, generic_key)
-			_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
+			# Check for enum types
+			var enum_info = _get_enum_info_for_param(array_key)
+			if enum_info.has("is_enum") and enum_info.is_enum:
+				var enum_names = enum_info.get("enum_names", [])
+				item_control = _create_enum_control(item_value, generic_key, enum_names)
+				# Use array-specific enum handler
+				var enum_handler := Callable(self, "_on_array_enum_changed").bind(array_key, index, enum_info.get("enum_values", []))
+				_reconnect_signal(item_control, "item_selected", generic_callable, enum_handler)
+			else:
+				item_control = _create_int_control(item_value, generic_key)
+				_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
 		TYPE_FLOAT:
 			item_control = _create_float_control(item_value, generic_key)
 			_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
 		TYPE_BOOL:
 			item_control = _create_bool_control(item_value, generic_key)
 			_reconnect_signal(item_control, "toggled", generic_callable, array_handler)
+		TYPE_VECTOR3:
+			# Create Vector3 control with array-specific callbacks
+			var vector3_value = item_value as Vector3
+			var hbox = HBoxContainer.new()
+			hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+			hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			hbox.add_theme_constant_override("separation", 4)
+			
+			# X component SpinBox
+			var x_spin = SpinBox.new()
+			x_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			x_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			x_spin.step = PopulousConstants.UI.spinbox_float_step
+			x_spin.value = vector3_value.x
+			x_spin.custom_minimum_size = Vector2(80, 0)
+			x_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			x_spin.connect("value_changed", Callable(self, "_on_array_vector3_changed").bind(array_key, index, 0))
+			hbox.add_child(x_spin)
+			
+			# Y component SpinBox
+			var y_spin = SpinBox.new()
+			y_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			y_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			y_spin.step = PopulousConstants.UI.spinbox_float_step
+			y_spin.value = vector3_value.y
+			y_spin.custom_minimum_size = Vector2(80, 0)
+			y_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			y_spin.connect("value_changed", Callable(self, "_on_array_vector3_changed").bind(array_key, index, 1))
+			hbox.add_child(y_spin)
+			
+			# Z component SpinBox
+			var z_spin = SpinBox.new()
+			z_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			z_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			z_spin.step = PopulousConstants.UI.spinbox_float_step
+			z_spin.value = vector3_value.z
+			z_spin.custom_minimum_size = Vector2(80, 0)
+			z_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			z_spin.connect("value_changed", Callable(self, "_on_array_vector3_changed").bind(array_key, index, 2))
+			hbox.add_child(z_spin)
+			
+			item_control = hbox
 		TYPE_STRING:
 			item_control = _create_string_control(item_value, generic_key)
 			_reconnect_signal(item_control, "text_changed", generic_callable, array_handler)
 		TYPE_COLOR:
 			item_control = _create_color_control(item_value, generic_key)
 			_reconnect_signal(item_control, "color_changed", generic_callable, array_handler)
+		TYPE_NODE_PATH:
+			item_control = _create_node_path_control(item_value, generic_key)
+			# Reconnect to use array-specific handler
+			var node_path_handler := Callable(self, "_on_array_node_path_changed").bind(array_key, index)
+			_reconnect_signal(item_control, "text_changed", generic_callable, node_path_handler)
 		_:
 			item_control = _create_string_control(item_value, generic_key)
 			_reconnect_signal(item_control, "text_changed", generic_callable, array_handler)
@@ -657,20 +713,76 @@ func _create_dictionary_pair_control(pair_key, pair_value, dict_key: String) -> 
 	
 	match typeof(pair_value):
 		TYPE_INT:
-			value_control = _create_int_control(pair_value, generic_key)
-			_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
+			# Check for enum types
+			var enum_info = _get_enum_info_for_param(dict_key)
+			if enum_info.has("is_enum") and enum_info.is_enum:
+				var enum_names = enum_info.get("enum_names", [])
+				value_control = _create_enum_control(pair_value, generic_key, enum_names)
+				# Use dictionary-specific enum handler
+				var enum_handler := Callable(self, "_on_dictionary_enum_changed").bind(dict_key, pair_key, enum_info.get("enum_values", []))
+				_reconnect_signal(value_control, "item_selected", generic_callable, enum_handler)
+			else:
+				value_control = _create_int_control(pair_value, generic_key)
+				_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
 		TYPE_FLOAT:
 			value_control = _create_float_control(pair_value, generic_key)
 			_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
 		TYPE_BOOL:
 			value_control = _create_bool_control(pair_value, generic_key)
 			_reconnect_signal(value_control, "toggled", generic_callable, dict_handler)
+		TYPE_VECTOR3:
+			# Create Vector3 control with dictionary-specific callbacks
+			var vector3_value = pair_value as Vector3
+			var hbox = HBoxContainer.new()
+			hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+			hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			hbox.add_theme_constant_override("separation", 4)
+			
+			# X component SpinBox
+			var x_spin = SpinBox.new()
+			x_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			x_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			x_spin.step = PopulousConstants.UI.spinbox_float_step
+			x_spin.value = vector3_value.x
+			x_spin.custom_minimum_size = Vector2(80, 0)
+			x_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			x_spin.connect("value_changed", Callable(self, "_on_dictionary_vector3_changed").bind(dict_key, pair_key, 0))
+			hbox.add_child(x_spin)
+			
+			# Y component SpinBox
+			var y_spin = SpinBox.new()
+			y_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			y_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			y_spin.step = PopulousConstants.UI.spinbox_float_step
+			y_spin.value = vector3_value.y
+			y_spin.custom_minimum_size = Vector2(80, 0)
+			y_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			y_spin.connect("value_changed", Callable(self, "_on_dictionary_vector3_changed").bind(dict_key, pair_key, 1))
+			hbox.add_child(y_spin)
+			
+			# Z component SpinBox
+			var z_spin = SpinBox.new()
+			z_spin.min_value = PopulousConstants.UI.spinbox_float_min
+			z_spin.max_value = PopulousConstants.UI.spinbox_float_max
+			z_spin.step = PopulousConstants.UI.spinbox_float_step
+			z_spin.value = vector3_value.z
+			z_spin.custom_minimum_size = Vector2(80, 0)
+			z_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			z_spin.connect("value_changed", Callable(self, "_on_dictionary_vector3_changed").bind(dict_key, pair_key, 2))
+			hbox.add_child(z_spin)
+			
+			value_control = hbox
 		TYPE_STRING:
 			value_control = _create_string_control(pair_value, generic_key)
 			_reconnect_signal(value_control, "text_changed", generic_callable, dict_handler)
 		TYPE_COLOR:
 			value_control = _create_color_control(pair_value, generic_key)
 			_reconnect_signal(value_control, "color_changed", generic_callable, dict_handler)
+		TYPE_NODE_PATH:
+			value_control = _create_node_path_control(pair_value, generic_key)
+			# Reconnect to use dictionary-specific handler
+			var node_path_handler := Callable(self, "_on_dictionary_node_path_changed").bind(dict_key, pair_key)
+			_reconnect_signal(value_control, "text_changed", generic_callable, node_path_handler)
 		_:
 			value_control = _create_string_control(pair_value, generic_key)
 			_reconnect_signal(value_control, "text_changed", generic_callable, dict_handler)
@@ -1056,6 +1168,108 @@ func _on_array_item_changed(new_value, array_key: String, index: int) -> void:
 		updated_params[array_key] = array_value
 		populous_resource.set_params(updated_params)
 
+## Callback when a Vector3 component changes in an array item.
+##
+## @param new_value: The new component value from the SpinBox.
+## @param array_key: The parameter key name for the array.
+## @param index: The index of the Vector3 item in the array.
+## @param axis: The axis index (0=x, 1=y, 2=z).
+## @return: void
+func _on_array_vector3_changed(new_value: float, array_key: String, index: int, axis: int) -> void:
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for array Vector3 update")
+		return
+	
+	if not updated_params.has(array_key):
+		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
+		return
+	
+	var array_value = updated_params[array_key] as Array
+	if array_value == null:
+		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
+		return
+	
+	if index >= 0 and index < array_value.size():
+		var vector3_value = array_value[index] as Vector3
+		if vector3_value == null:
+			PopulousLogger.warning("Array item at index %d is not a Vector3" % index)
+			return
+		
+		if axis == 0:
+			vector3_value.x = new_value
+		elif axis == 1:
+			vector3_value.y = new_value
+		elif axis == 2:
+			vector3_value.z = new_value
+		
+		array_value[index] = vector3_value
+		updated_params[array_key] = array_value
+		populous_resource.set_params(updated_params)
+
+## Callback when a NodePath changes in an array item.
+##
+## @param new_text: The new NodePath text from the LineEdit.
+## @param array_key: The parameter key name for the array.
+## @param index: The index of the NodePath item in the array.
+## @return: void
+func _on_array_node_path_changed(new_text: String, array_key: String, index: int) -> void:
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for array NodePath update")
+		return
+	
+	if not updated_params.has(array_key):
+		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
+		return
+	
+	var array_value = updated_params[array_key] as Array
+	if array_value == null:
+		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
+		return
+	
+	if index >= 0 and index < array_value.size():
+		var node_path = NodePath(new_text)
+		array_value[index] = node_path
+		updated_params[array_key] = array_value
+		populous_resource.set_params(updated_params)
+
+## Callback when an enum value changes in an array item.
+##
+## @param selected_index: The selected index in the OptionButton.
+## @param array_key: The parameter key name for the array.
+## @param index: The index of the enum item in the array.
+## @param enum_options: Array of enum option values.
+## @return: void
+func _on_array_enum_changed(selected_index: int, array_key: String, index: int, enum_options: Array) -> void:
+	if populous_resource == null or enum_options.is_empty():
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for array enum update")
+		return
+	
+	if not updated_params.has(array_key):
+		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
+		return
+	
+	var array_value = updated_params[array_key] as Array
+	if array_value == null:
+		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
+		return
+	
+	if selected_index >= 0 and selected_index < enum_options.size() and index >= 0 and index < array_value.size():
+		array_value[index] = enum_options[selected_index]
+		updated_params[array_key] = array_value
+		populous_resource.set_params(updated_params)
+
 ## Callback when the Add Item button is pressed for an array.
 ##
 ## @param array_key: The parameter key name for the array.
@@ -1154,6 +1368,110 @@ func _on_dictionary_pair_changed(new_value, dict_key: String, pair_key) -> void:
 	dict_value[pair_key] = new_value
 	updated_params[dict_key] = dict_value
 	populous_resource.set_params(updated_params)
+
+## Callback when a Vector3 component changes in a dictionary pair value.
+##
+## @param new_value: The new component value from the SpinBox.
+## @param dict_key: The parameter key name for the dictionary.
+## @param pair_key: The key of the dictionary pair.
+## @param axis: The axis index (0=x, 1=y, 2=z).
+## @return: void
+func _on_dictionary_vector3_changed(new_value: float, dict_key: String, pair_key, axis: int) -> void:
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for dictionary Vector3 update")
+		return
+	
+	if not updated_params.has(dict_key):
+		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
+		return
+	
+	var dict_value = updated_params[dict_key] as Dictionary
+	if dict_value == null:
+		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
+		return
+	
+	if not dict_value.has(pair_key):
+		PopulousLogger.warning("Dictionary pair key '%s' not found" % str(pair_key))
+		return
+	
+	var vector3_value = dict_value[pair_key] as Vector3
+	if vector3_value == null:
+		PopulousLogger.warning("Dictionary pair value at key '%s' is not a Vector3" % str(pair_key))
+		return
+	
+	if axis == 0:
+		vector3_value.x = new_value
+	elif axis == 1:
+		vector3_value.y = new_value
+	elif axis == 2:
+		vector3_value.z = new_value
+	
+	dict_value[pair_key] = vector3_value
+	updated_params[dict_key] = dict_value
+	populous_resource.set_params(updated_params)
+
+## Callback when a NodePath changes in a dictionary pair value.
+##
+## @param new_text: The new NodePath text from the LineEdit.
+## @param dict_key: The parameter key name for the dictionary.
+## @param pair_key: The key of the dictionary pair.
+## @return: void
+func _on_dictionary_node_path_changed(new_text: String, dict_key: String, pair_key) -> void:
+	if populous_resource == null:
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for dictionary NodePath update")
+		return
+	
+	if not updated_params.has(dict_key):
+		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
+		return
+	
+	var dict_value = updated_params[dict_key] as Dictionary
+	if dict_value == null:
+		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
+		return
+	
+	var node_path = NodePath(new_text)
+	dict_value[pair_key] = node_path
+	updated_params[dict_key] = dict_value
+	populous_resource.set_params(updated_params)
+
+## Callback when an enum value changes in a dictionary pair value.
+##
+## @param selected_index: The selected index in the OptionButton.
+## @param dict_key: The parameter key name for the dictionary.
+## @param pair_key: The key of the dictionary pair.
+## @param enum_options: Array of enum option values.
+## @return: void
+func _on_dictionary_enum_changed(selected_index: int, dict_key: String, pair_key, enum_options: Array) -> void:
+	if populous_resource == null or enum_options.is_empty():
+		return
+	
+	var updated_params = populous_resource.get_params()
+	if updated_params == null:
+		PopulousLogger.warning("Failed to get params for dictionary enum update")
+		return
+	
+	if not updated_params.has(dict_key):
+		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
+		return
+	
+	var dict_value = updated_params[dict_key] as Dictionary
+	if dict_value == null:
+		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
+		return
+	
+	if selected_index >= 0 and selected_index < enum_options.size():
+		dict_value[pair_key] = enum_options[selected_index]
+		updated_params[dict_key] = dict_value
+		populous_resource.set_params(updated_params)
 
 ## Callback when the Add Pair button is pressed for a dictionary.
 ##
