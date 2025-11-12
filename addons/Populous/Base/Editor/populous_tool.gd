@@ -278,6 +278,18 @@ func _get_enum_info_for_param(param_key: String) -> Dictionary:
 	
 	return {}
 
+## Returns an array of directory paths to search for enum class scripts.
+## These directories are searched when trying to locate GDScript enum classes.
+## Can be extended or made configurable via project settings if needed.
+##
+## @return: Array of directory paths (with trailing slashes) to search for enum classes.
+func _get_enum_search_directories() -> Array[String]:
+	return [
+		"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/",
+		"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/",
+		"res://addons/Populous/"
+	]
+
 ## Helper to extract enum values from an enum class name.
 ## Attempts to access the enum class and get its values.
 ## Supports both built-in enums (via ClassDB) and GDScript enums (via script access).
@@ -311,12 +323,16 @@ func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
 				}
 		
 		# Try GDScript enum class - access via script loading
-		# Try common paths for enum classes
-		var possible_paths = [
-			"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/Scripts/" + class_name.to_lower() + ".gd",
-			"res://addons/Populous/ExtendedExamples/CapsulePersonGenerator/" + class_name.to_lower() + ".gd",
-			"res://addons/Populous/" + class_name.to_lower() + ".gd"
+		# Try to find the class script via ResourceLoader with common patterns
+		var possible_patterns = [
+			class_name.to_lower() + ".gd",
+			class_name + ".gd"
 		]
+		var search_dirs = _get_enum_search_directories()
+		var possible_paths = []
+		for dir in search_dirs:
+			for pattern in possible_patterns:
+				possible_paths.append(dir + pattern)
 		
 		for path in possible_paths:
 			if ResourceLoader.exists(path):
