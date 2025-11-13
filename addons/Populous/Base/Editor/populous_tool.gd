@@ -117,13 +117,11 @@ func _make_ui(params: Dictionary) -> void:
 				var enum_info = _get_enum_info_for_param(key)
 				if enum_info.has("is_enum") and enum_info.is_enum:
 					# Use enum control with auto-detected options
-					var enum_options = enum_info.get("enum_values", [])
+					var enum_values = enum_info.get("enum_values", [])
 					var enum_names = enum_info.get("enum_names", [])
-					# If we have enum names, use them; otherwise use values
-					if enum_names.size() > 0:
-						input_field = _create_enum_control(value, key, enum_names)
-					elif enum_options.size() > 0:
-						input_field = _create_enum_control(value, key, enum_options)
+					# Both enum_names and enum_values are required for proper enum control
+					if enum_names.size() > 0 and enum_values.size() > 0:
+						input_field = _create_enum_control(value, key, enum_names, enum_values)
 					else:
 						# Fallback to int control if enum detection failed
 						input_field = _create_int_control(value, key)
@@ -495,39 +493,49 @@ func _create_color_control(value: Color, key: String) -> ColorPickerButton:
 ## Creates an OptionButton control for Enum values.
 ## Supports both auto-detected enums (via reflection) and manual enum_options.
 ##
-## @param value: The enum value (int or string).
+## @param value: The enum value (int).
 ## @param key: The parameter key name.
-## @param enum_options: Array of enum option values or names. Can be Array[int] or Array[String].
+## @param enum_names: Array of enum option names (strings) for display.
+## @param enum_values: Array of enum option values (ints) for matching and storage.
 ## @return: Configured OptionButton control.
-func _create_enum_control(value, key: String, enum_options: Array = []) -> OptionButton:
+func _create_enum_control(value, key: String, enum_names: Array = [], enum_values: Array = []) -> OptionButton:
 	var option_button = OptionButton.new()
 	
-	# If enum_options is provided, use it; otherwise try to infer from value
-	if enum_options.is_empty():
-		# Try to get enum options from parameter metadata if available
-		# For now, create a simple dropdown with the current value
-		option_button.add_item(str(value))
-		option_button.selected = 0
-	else:
-		# Populate with provided options
+	# If enum_names and enum_values are provided, use them
+	if enum_names.size() > 0 and enum_values.size() > 0:
+		# Ensure arrays are the same size
+		if enum_names.size() != enum_values.size():
+			PopulousLogger.warning("Enum names and values arrays have different sizes for parameter '%s'" % key)
+			# Fallback: use the smaller size
+			var min_size = min(enum_names.size(), enum_values.size())
+			enum_names = enum_names.slice(0, min_size)
+			enum_values = enum_values.slice(0, min_size)
+		
+		# Populate with enum names for display
 		var selected_index = -1
-		for i in range(enum_options.size()):
-			var option_display = str(enum_options[i])
+		for i in range(enum_names.size()):
+			var option_display = str(enum_names[i])
 			option_button.add_item(option_display)
-			# Check if this option matches the current value
-			# Handle both int and string comparisons
-			if enum_options[i] == value or str(enum_options[i]) == str(value):
+			# Match using enum_values (integers) against the current value (integer)
+			if enum_values[i] == value:
 				selected_index = i
 		
 		# Set selected index, defaulting to 0 if value not found
 		if selected_index >= 0:
 			option_button.selected = selected_index
-		elif enum_options.size() > 0:
+		elif enum_names.size() > 0:
 			option_button.selected = 0
+		
+		# Connect with enum_values for proper value updates
+		option_button.connect("item_selected", Callable(self, "_on_enum_changed").bind(key, enum_values))
+	else:
+		# Fallback: create a simple dropdown with the current value
+		option_button.add_item(str(value))
+		option_button.selected = 0
+		PopulousLogger.warning("Enum control created without enum names/values for parameter '%s'" % key)
 	
 	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option_button.custom_minimum_size = Vector2(100, 0)
-	option_button.connect("item_selected", Callable(self, "_on_enum_changed").bind(key, enum_options))
 	return option_button
 
 ## Creates a custom array editor control for Array values.
@@ -588,10 +596,15 @@ func _create_array_item_control(item_value, array_key: String, index: int) -> Co
 			var enum_info = _get_enum_info_for_param(array_key)
 			if enum_info.has("is_enum") and enum_info.is_enum:
 				var enum_names = enum_info.get("enum_names", [])
-				item_control = _create_enum_control(item_value, generic_key, enum_names)
-				# Use array-specific enum handler
-				var enum_handler := Callable(self, "_on_array_enum_changed").bind(array_key, index, enum_info.get("enum_values", []))
-				_reconnect_signal(item_control, "item_selected", generic_callable, enum_handler)
+				var enum_values = enum_info.get("enum_values", [])
+				if enum_names.size() > 0 and enum_values.size() > 0:
+					item_control = _create_enum_control(item_value, generic_key, enum_names, enum_values)
+					# Use array-specific enum handler
+					var enum_handler := Callable(self, "_on_array_enum_changed").bind(array_key, index, enum_values)
+					_reconnect_signal(item_control, "item_selected", generic_callable, enum_handler)
+				else:
+					item_control = _create_int_control(item_value, generic_key)
+					_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
 			else:
 				item_control = _create_int_control(item_value, generic_key)
 				_reconnect_signal(item_control, "value_changed", generic_callable, array_handler)
@@ -737,10 +750,15 @@ func _create_dictionary_pair_control(pair_key, pair_value, dict_key: String) -> 
 			var enum_info = _get_enum_info_for_param(dict_key)
 			if enum_info.has("is_enum") and enum_info.is_enum:
 				var enum_names = enum_info.get("enum_names", [])
-				value_control = _create_enum_control(pair_value, generic_key, enum_names)
-				# Use dictionary-specific enum handler
-				var enum_handler := Callable(self, "_on_dictionary_enum_changed").bind(dict_key, pair_key, enum_info.get("enum_values", []))
-				_reconnect_signal(value_control, "item_selected", generic_callable, enum_handler)
+				var enum_values = enum_info.get("enum_values", [])
+				if enum_names.size() > 0 and enum_values.size() > 0:
+					value_control = _create_enum_control(pair_value, generic_key, enum_names, enum_values)
+					# Use dictionary-specific enum handler
+					var enum_handler := Callable(self, "_on_dictionary_enum_changed").bind(dict_key, pair_key, enum_values)
+					_reconnect_signal(value_control, "item_selected", generic_callable, enum_handler)
+				else:
+					value_control = _create_int_control(pair_value, generic_key)
+					_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)
 			else:
 				value_control = _create_int_control(pair_value, generic_key)
 				_reconnect_signal(value_control, "value_changed", generic_callable, dict_handler)

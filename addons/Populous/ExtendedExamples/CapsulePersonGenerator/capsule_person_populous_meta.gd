@@ -16,8 +16,8 @@ var first_name: String
 var last_name: String
 
 # Meta parameters with defaults
-var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
-var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
+@export(Enum, "Random:-1", "Male:0", "Female:1", "Neutral:2") var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
+@export(Enum, "Random:-1", "Default:0", "Light:1", "Medium:2", "Dark:3") var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
 var name_colors: Array[Color] = [Color.WHITE]
 var part_tags_filter: Array[String] = []
 var custom_properties: Dictionary = {}
