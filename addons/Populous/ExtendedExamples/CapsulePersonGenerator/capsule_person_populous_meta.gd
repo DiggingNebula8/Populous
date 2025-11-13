@@ -10,8 +10,6 @@ class_name CapsulePersonPopulousMeta extends PopulousMeta
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
 
-var final_parts: Array
-
 var first_name: String
 var last_name: String
 
@@ -270,9 +268,6 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 	
 	# Store parts in NPC metadata
 	npc.set_meta("Parts", npc_parts)
-	
-	# Also update class variable for compatibility (but use local array)
-	final_parts = npc_parts.duplicate()
 
 ## Applies meta parameters to the NPC.
 ##
