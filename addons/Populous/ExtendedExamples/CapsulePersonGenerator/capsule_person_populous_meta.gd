@@ -75,7 +75,7 @@ func set_metadata(npc: Node) -> void:
 		gender = gender_preference as CapsulePersonConstants.Gender
 	else:
 		# Randomly pick from available genders
-		var available_genders = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE]
+		var available_genders = [CapsulePersonConstants.Gender.MALE, CapsulePersonConstants.Gender.FEMALE, CapsulePersonConstants.Gender.NEUTRAL]
 		gender = available_genders[randi() % available_genders.size()]
 	
 	# Determine skin type based on preference
