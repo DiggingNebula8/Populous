@@ -31,7 +31,8 @@ class UI:
 	
 	# UI spacing
 	const margin_left: int = 10
-	const margin_top: int = 5
+	const margin_top: int = 8
 	const margin_right: int = 10
-	const margin_bottom: int = 5
+	const margin_bottom: int = 8
+	const row_spacing: int = 4
 	
