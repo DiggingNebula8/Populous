@@ -17,6 +17,9 @@ class_name PopulousTool
 
 const PopulousConstants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+const ParamConfig = preload("res://addons/Populous/Base/Editor/UIComponents/param_config.gd")
+const ControlFactory = preload("res://addons/Populous/Base/Editor/UIComponents/control_factory.gd")
+const UIStyles = preload("res://addons/Populous/Base/Editor/UIComponents/ui_styles.gd")
 
 #═══════════════════════════════════════════════════════════════════════════════
 # UI REFERENCES
@@ -48,6 +51,50 @@ var populous_resource: PopulousResource = null
 
 ## Original parameters for reset functionality
 var original_params: Dictionary = {}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAM UPDATE HELPERS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Validates resource and params exist. Returns params dict or empty dict if invalid.
+func _validate_and_get_params(context: String = "update") -> Dictionary:
+	if populous_resource == null:
+		return {}
+	var params = populous_resource.get_params()
+	if params == null:
+		PopulousLogger.warning("Failed to get params for %s" % context)
+		return {}
+	return params
+
+## Updates a simple parameter value. Handles all validation internally.
+func _update_param(key: String, value) -> void:
+	var params = _validate_and_get_params("param update")
+	if params.is_empty():
+		return
+	params[key] = value
+	populous_resource.set_params(params)
+
+## Gets a validated array parameter. Returns null if invalid.
+func _get_array_param(params: Dictionary, array_key: String) -> Array:
+	if not params.has(array_key):
+		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
+		return []
+	var arr = params[array_key] as Array
+	if arr == null:
+		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
+		return []
+	return arr
+
+## Gets a validated dictionary parameter. Returns null if invalid.
+func _get_dict_param(params: Dictionary, dict_key: String) -> Dictionary:
+	if not params.has(dict_key):
+		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
+		return {}
+	var dict = params[dict_key] as Dictionary
+	if dict == null:
+		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
+		return {}
+	return dict
 
 #═══════════════════════════════════════════════════════════════════════════════
 # INITIALIZATION
@@ -160,6 +207,9 @@ func _update_ui() -> void:
 
 		# Generate new UI elements inside the referenced VBoxContainer
 		_make_ui(populous_generator_params)
+	
+	# Auto-resize window to fit content
+	call_deferred("_auto_resize_window")
 
 #═══════════════════════════════════════════════════════════════════════════════
 # UI GENERATION
@@ -167,73 +217,321 @@ func _update_ui() -> void:
 
 ## Dynamically creates UI controls for generator parameters.
 ## 
-## Creates appropriate input controls (SpinBox, CheckBox, LineEdit, etc.) based on parameter types.
-## Supports: int, float, bool, Vector3, Color, Array, Dictionary, Enum, PackedScene, Resource, NodePath,
-## Rect2, Rect2i, AABB, Plane, Quaternion, and string types.
+## Now reads UI configuration from generators/metas to organize parameters
+## into collapsible sections. Falls back to ParamConfig for unconfigured params.
 ## 
 ## @param params: Dictionary with parameter names as keys and values as values.
 ## @return: void
 func _make_ui(params: Dictionary) -> void:
+	var ui_config = populous_resource.get_ui_config()
+	
+	if ui_config.is_empty() or not ui_config.has("sections") or ui_config.sections.is_empty():
+		# Fallback: use ParamConfig-based categorization
+		_make_ui_fallback(params)
+		return
+	
+	# Track which params have been added to sections
+	var configured_params: Array = []
+	
+	# Create sections from config
+	for section_def in ui_config.sections:
+		var section_name = section_def.get("name", "Section")
+		var section_params = section_def.get("params", [])
+		var section_expanded = section_def.get("expanded", true)
+		
+		# Filter to only params that exist in the actual params dict
+		var valid_params: Array = []
+		for param_key in section_params:
+			if params.has(param_key):
+				valid_params.append(param_key)
+				configured_params.append(param_key)
+		
+		if valid_params.is_empty():
+			continue
+		
+		# Create collapsible section
+		var section = CollapsibleSection.new()
+		section.title = section_name
+		section.default_expanded = section_expanded
+		dynamic_ui_container.add_child(section)
+		
+		# Connect to section toggle for auto-resize
+		section.toggled.connect(_on_section_toggled)
+		
+		# Add controls for each param in this section
+		for key in valid_params:
+			var value = params[key]
+			var control = _create_param_control_with_config(key, value, ui_config.get("param_config", {}))
+			if control:
+				section.add_content(control)
+	
+	# Handle unconfigured params in an "Other" section
+	var unconfigured_params: Array = []
 	for key in params.keys():
-		var value = params[key]
-		var input_field: Control = null
+		if not configured_params.has(key):
+			unconfigured_params.append(key)
+	
+	if not unconfigured_params.is_empty():
+		var other_section = CollapsibleSection.new()
+		other_section.title = "Other"
+		other_section.default_expanded = false
+		dynamic_ui_container.add_child(other_section)
+		other_section.toggled.connect(_on_section_toggled)
+		
+		for key in unconfigured_params:
+			var value = params[key]
+			var control = _create_param_control_with_config(key, value, ui_config.get("param_config", {}))
+			if control:
+				other_section.add_content(control)
 
-		# Create input fields based on the type of value
-		match typeof(value):
-			TYPE_INT:
-				# Check if this int parameter is actually an enum
-				var enum_info = _get_enum_info_for_param(key)
-				if enum_info.has("is_enum") and enum_info.is_enum:
-					# Use enum control with auto-detected options
-					var enum_values = enum_info.get("enum_values", [])
-					var enum_names = enum_info.get("enum_names", [])
-					# Both enum_names and enum_values are required for proper enum control
-					if enum_names.size() > 0 and enum_values.size() > 0:
-						input_field = _create_enum_control(value, key, enum_names, enum_values)
-					else:
-						# Fallback to int control if enum detection failed
-						input_field = _create_int_control(value, key)
-				else:
-					# Regular int parameter
-					input_field = _create_int_control(value, key)
-			TYPE_FLOAT:
-				input_field = _create_float_control(value, key)
-			TYPE_BOOL:
-				input_field = _create_bool_control(value, key)
-			TYPE_VECTOR3:
-				input_field = _create_vector3_control(value, key)
-			TYPE_NODE_PATH:
-				input_field = _create_node_path_control(value, key)
-			TYPE_RECT2:
-				input_field = _create_rect2_control(value, key)
-			TYPE_RECT2I:
-				input_field = _create_rect2i_control(value, key)
-			TYPE_AABB:
-				input_field = _create_aabb_control(value, key)
-			TYPE_PLANE:
-				input_field = _create_plane_control(value, key)
-			TYPE_QUATERNION:
-				input_field = _create_quaternion_control(value, key)
-			TYPE_COLOR:
-				input_field = _create_color_control(value, key)
-			TYPE_ARRAY:
-				input_field = _create_array_control(value, key)
-			TYPE_DICTIONARY:
-				input_field = _create_dictionary_control(value, key)
-			TYPE_OBJECT:
-				# Check for specific object types
-				if value is PackedScene:
-					input_field = _create_packed_scene_control(value, key)
-				elif value is Resource:
-					input_field = _create_resource_control(value, key)
-				else:
-					input_field = _create_string_control(value, key)
-			_:
-				input_field = _create_string_control(value, key)
+## Fallback UI generation using ParamConfig categories.
+## Used when generators don't provide custom UI configuration.
+## 
+## @param params: Dictionary with parameter names as keys and values as values.
+## @return: void
+func _make_ui_fallback(params: Dictionary) -> void:
+	# Group params by category using ParamConfig
+	var categorized_params: Dictionary = {}
+	var uncategorized_params: Array = []
+	
+	for key in params.keys():
+		var category = ParamConfig.get_category(key)
+		if category == "Other":
+			uncategorized_params.append(key)
+		else:
+			if not categorized_params.has(category):
+				categorized_params[category] = []
+			categorized_params[category].append(key)
+	
+	# Create sections for each category (in order)
+	for category in ParamConfig.CATEGORY_ORDER:
+		if not categorized_params.has(category):
+			continue
+		
+		var category_params = categorized_params[category]
+		if category_params.is_empty():
+			continue
+		
+		# Create collapsible section
+		var section = CollapsibleSection.new()
+		section.title = category
+		section.default_expanded = ParamConfig.is_category_default_open(category)
+		dynamic_ui_container.add_child(section)
+		section.toggled.connect(_on_section_toggled)
+		
+		# Add controls for each param in this category
+		for key in category_params:
+			var value = params[key]
+			var control = _create_param_control(key, value)
+			if control:
+				section.add_content(control)
+	
+	# Handle uncategorized params in an "Other" section
+	if not uncategorized_params.is_empty():
+		var other_section = CollapsibleSection.new()
+		other_section.title = "Other"
+		other_section.default_expanded = false
+		dynamic_ui_container.add_child(other_section)
+		other_section.toggled.connect(_on_section_toggled)
+		
+		for key in uncategorized_params:
+			var value = params[key]
+			var control = _create_param_control(key, value)
+			if control:
+				other_section.add_content(control)
 
-		# Create and add the row container with label and input field
-		var margin_container = _create_row_container(key, input_field)
-		dynamic_ui_container.add_child(margin_container)
+## Creates a control for a single parameter using UI config for display/tooltip.
+## 
+## @param key: Parameter name
+## @param value: Parameter value
+## @param param_config: Dictionary with parameter display configuration
+## @return: Control with label and input field
+func _create_param_control_with_config(key: String, value, param_config: Dictionary) -> Control:
+	var input_field: Control = null
+	var config = param_config.get(key, {})
+	var control_hint = config.get("control", ParamConfig.get_control_hint(key))
+	
+	# Check for special control hints first
+	match control_hint:
+		"range_slider":
+			if value is Vector3:
+				input_field = _create_range_slider_control(value, key)
+		"quaternion_euler":
+			if value is Quaternion:
+				input_field = _create_improved_quaternion_control(value, key)
+		"aabb_split":
+			if value is AABB:
+				input_field = _create_improved_aabb_control(value, key)
+		"vector3_labeled":
+			if value is Vector3:
+				input_field = _create_improved_vector3_control(value, key)
+	
+	# If no special hint or hint didn't apply, use type-based detection
+	if input_field == null:
+		input_field = _create_input_field_for_type(key, value)
+	
+	# Create row container with label and tooltip from config
+	return _create_row_container_with_config(key, input_field, config)
+
+## Creates a control for a single parameter based on its type and hints.
+## Uses ParamConfig for display configuration (fallback mode).
+## 
+## @param key: Parameter name
+## @param value: Parameter value
+## @return: Control with label and input field
+func _create_param_control(key: String, value) -> Control:
+	var input_field: Control = null
+	var control_hint = ParamConfig.get_control_hint(key)
+	
+	# Check for special control hints first
+	match control_hint:
+		"range_slider":
+			# Scale range uses Vector3 but we want Min/Max slider
+			if value is Vector3:
+				input_field = _create_range_slider_control(value, key)
+		"quaternion_euler":
+			if value is Quaternion:
+				input_field = _create_improved_quaternion_control(value, key)
+		"aabb_split":
+			if value is AABB:
+				input_field = _create_improved_aabb_control(value, key)
+		"vector3_labeled":
+			if value is Vector3:
+				input_field = _create_improved_vector3_control(value, key)
+	
+	# If no special hint or hint didn't apply, use type-based detection
+	if input_field == null:
+		input_field = _create_input_field_for_type(key, value)
+
+	# Create row container with label and tooltip
+	return _create_row_container_improved(key, input_field)
+
+## Creates an input field control based on value type.
+## 
+## @param key: Parameter name
+## @param value: Parameter value
+## @return: Input control for the value type
+func _create_input_field_for_type(key: String, value) -> Control:
+	match typeof(value):
+		TYPE_INT:
+			var enum_info = _get_enum_info_for_param(key)
+			if enum_info.has("is_enum") and enum_info.is_enum:
+				var enum_values = enum_info.get("enum_values", [])
+				var enum_names = enum_info.get("enum_names", [])
+				if enum_names.size() > 0 and enum_values.size() > 0:
+					return _create_enum_control(value, key, enum_names, enum_values)
+				else:
+					return _create_int_control(value, key)
+			else:
+				return _create_int_control(value, key)
+		TYPE_FLOAT:
+			return _create_float_control(value, key)
+		TYPE_BOOL:
+			return _create_bool_control_improved(value, key)
+		TYPE_VECTOR3:
+			return _create_improved_vector3_control(value, key)
+		TYPE_NODE_PATH:
+			return _create_node_path_control(value, key)
+		TYPE_RECT2:
+			return _create_rect2_control(value, key)
+		TYPE_RECT2I:
+			return _create_rect2i_control(value, key)
+		TYPE_AABB:
+			return _create_improved_aabb_control(value, key)
+		TYPE_PLANE:
+			return _create_plane_control(value, key)
+		TYPE_QUATERNION:
+			return _create_improved_quaternion_control(value, key)
+		TYPE_COLOR:
+			return _create_color_control(value, key)
+		TYPE_ARRAY:
+			return _create_array_control(value, key)
+		TYPE_DICTIONARY:
+			return _create_dictionary_control(value, key)
+		TYPE_OBJECT:
+			if value is PackedScene:
+				return _create_packed_scene_control(value, key)
+			elif value is Resource:
+				return _create_resource_control(value, key)
+			else:
+				return _create_string_control(value, key)
+		_:
+			return _create_string_control(value, key)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# IMPROVED CONTROLS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Creates improved Vector3 control with labeled axes
+func _create_improved_vector3_control(value: Vector3, key: String) -> Control:
+	var control = Vector3Control.new()
+	control.value = value
+	control.set_range(PopulousConstants.UI.spinbox_float_min, PopulousConstants.UI.spinbox_float_max, PopulousConstants.UI.spinbox_float_step)
+	control.value_changed.connect(func(new_val): _on_value_changed(new_val, key))
+	return control
+
+## Creates improved AABB control with Origin/Size split
+func _create_improved_aabb_control(value: AABB, key: String) -> Control:
+	var control = AABBControl.new()
+	control.value = value
+	control.set_range(PopulousConstants.UI.spinbox_float_min, PopulousConstants.UI.spinbox_float_max, PopulousConstants.UI.spinbox_float_step)
+	control.value_changed.connect(func(new_val): _on_value_changed(new_val, key))
+	return control
+
+## Creates improved Quaternion control with Euler mode
+func _create_improved_quaternion_control(value: Quaternion, key: String) -> Control:
+	var control = QuaternionControl.new()
+	control.value = value
+	control.euler_mode = true  # Default to Euler for usability
+	control.value_changed.connect(func(new_val): _on_value_changed(new_val, key))
+	return control
+
+## Creates Range Slider control for scale ranges
+func _create_range_slider_control(value: Vector3, key: String) -> Control:
+	var control = RangeSliderControl.new()
+	control.set_absolute_range(
+		PopulousConstants.UI.range_slider_min,
+		PopulousConstants.UI.range_slider_max,
+		PopulousConstants.UI.range_slider_step
+	)
+	control.set_values(value.x, value.y)  # X = min, Y = max
+	control.value_changed.connect(func(min_val, max_val): 
+		_on_value_changed(Vector3(min_val, max_val, value.z), key)
+	)
+	return control
+
+## Creates improved Bool control with description
+func _create_bool_control_improved(value: bool, key: String) -> CheckBox:
+	var checkbox = CheckBox.new()
+	checkbox.button_pressed = value
+	checkbox.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	
+	# Add description text after checkbox
+	var tooltip = ParamConfig.get_tooltip(key)
+	if tooltip != "":
+		checkbox.tooltip_text = tooltip
+	
+	checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
+	return checkbox
+
+## Creates row container with display name and tooltip.
+## Unified method replacing _create_row_container_with_config and _create_row_container_improved.
+func _create_row_container_with_config(key: String, input_field: Control, config: Dictionary = {}) -> MarginContainer:
+	# Get display name: config > ParamConfig > auto-format
+	var display_name = config.get("display_name", "")
+	if display_name == "":
+		display_name = ParamConfig.get_display_name(key)
+	
+	# Get tooltip: config > ParamConfig
+	var tooltip = config.get("tooltip", "")
+	if tooltip == "":
+		tooltip = ParamConfig.get_tooltip(key)
+	
+	return ControlFactory.create_row(key, input_field, display_name, tooltip)
+
+## Creates row container using ParamConfig defaults (convenience wrapper)
+func _create_row_container_improved(key: String, input_field: Control) -> MarginContainer:
+	return _create_row_container_with_config(key, input_field, {})
 
 ## Helper to reconnect a control's signal to a specialized handler.
 ## Disconnects the old handler if connected, then connects the new handler.
@@ -249,27 +547,8 @@ func _reconnect_signal(control: Control, signal_name: String, old_handler: Calla
 	control.connect(signal_name, new_handler)
 
 ## Helper to create a labeled spinbox pair.
-## Creates a Label and SpinBox configured with the given parameters.
-##
-## @param label_text: The text for the label.
-## @param value: The initial value for the SpinBox.
-## @param min_val: The minimum value for the SpinBox.
-## @param max_val: The maximum value for the SpinBox.
-## @param step: The step value for the SpinBox (default: 1.0).
-## @param label_size: The custom minimum size for the label (default: Vector2(15, 0)).
-## @return: Array containing [Label, SpinBox]
 func _create_labeled_spinbox(label_text: String, value: float, min_val: float, max_val: float, step: float = 1.0, label_size: Vector2 = Vector2(15, 0)) -> Array:
-	var label = Label.new()
-	label.text = label_text
-	label.custom_minimum_size = label_size
-	
-	var spin = SpinBox.new()
-	spin.min_value = min_val
-	spin.max_value = max_val
-	spin.step = step
-	spin.value = value
-	
-	return [label, spin]
+	return ControlFactory.create_labeled_spinbox(label_text, value, min_val, max_val, step, label_size)
 
 #═══════════════════════════════════════════════════════════════════════════════
 # ENUM DETECTION
@@ -440,128 +719,24 @@ func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Creates a SpinBox control for integer values.
-##
-## @param value: The integer value to display.
-## @param key: The parameter key name.
-## @return: Configured SpinBox control.
 func _create_int_control(value: int, key: String) -> SpinBox:
-	var spinbox = SpinBox.new()
-	spinbox.min_value = PopulousConstants.UI.spinbox_int_min
-	spinbox.max_value = PopulousConstants.UI.spinbox_int_max
-	spinbox.value = value
-	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	spinbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	spinbox.custom_minimum_size = Vector2(100, 0)
-	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
-	return spinbox
+	return ControlFactory.create_int_spinbox(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates a SpinBox control for float values.
-##
-## @param value: The float value to display.
-## @param key: The parameter key name.
-## @return: Configured SpinBox control.
 func _create_float_control(value: float, key: String) -> SpinBox:
-	var spinbox = SpinBox.new()
-	spinbox.min_value = PopulousConstants.UI.spinbox_float_min
-	spinbox.max_value = PopulousConstants.UI.spinbox_float_max
-	spinbox.step = PopulousConstants.UI.spinbox_float_step
-	spinbox.value = value
-	spinbox.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	spinbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	spinbox.custom_minimum_size = Vector2(100, 0)
-	spinbox.connect("value_changed", Callable(self, "_on_value_changed").bind(key))
-	return spinbox
+	return ControlFactory.create_float_spinbox(value, Callable(self, "_on_value_changed").bind(key))
 
-## Creates a CheckBox control for boolean values.
-##
-## @param value: The boolean value to display.
-## @param key: The parameter key name.
-## @return: Configured CheckBox control.
+## Creates a CheckBox control for boolean values (basic version).
 func _create_bool_control(value: bool, key: String) -> CheckBox:
-	var checkbox = CheckBox.new()
-	checkbox.button_pressed = value
-	checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	checkbox.connect("toggled", Callable(self, "_on_value_changed").bind(key))
-	return checkbox
-
-## Creates an HBoxContainer with three SpinBoxes for Vector3 values.
-##
-## Vector3 parameters require special handling: each component (x, y, z) gets its own SpinBox.
-## The axis parameter (0, 1, 2) is bound to the callback to identify which component changed.
-## This allows updating individual Vector3 components without reconstructing the entire vector.
-##
-## @param value: The Vector3 value to display.
-## @param key: The parameter key name.
-## @return: Configured HBoxContainer with three SpinBox controls.
-func _create_vector3_control(value: Vector3, key: String) -> HBoxContainer:
-	var hbox = HBoxContainer.new()
-	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 4)
-
-	# X component SpinBox
-	var x_spin = SpinBox.new()
-	x_spin.min_value = PopulousConstants.UI.spinbox_float_min
-	x_spin.max_value = PopulousConstants.UI.spinbox_float_max
-	x_spin.step = PopulousConstants.UI.spinbox_float_step
-	x_spin.value = value.x
-	x_spin.custom_minimum_size = Vector2(80, 0)
-	x_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# Bind axis index 0 (x) to the callback
-	x_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 0))
-	hbox.add_child(x_spin)
-
-	# Y component SpinBox
-	var y_spin = SpinBox.new()
-	y_spin.min_value = PopulousConstants.UI.spinbox_float_min
-	y_spin.max_value = PopulousConstants.UI.spinbox_float_max
-	y_spin.step = PopulousConstants.UI.spinbox_float_step
-	y_spin.value = value.y
-	y_spin.custom_minimum_size = Vector2(80, 0)
-	y_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# Bind axis index 1 (y) to the callback
-	y_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 1))
-	hbox.add_child(y_spin)
-
-	# Z component SpinBox
-	var z_spin = SpinBox.new()
-	z_spin.min_value = PopulousConstants.UI.spinbox_float_min
-	z_spin.max_value = PopulousConstants.UI.spinbox_float_max
-	z_spin.step = PopulousConstants.UI.spinbox_float_step
-	z_spin.value = value.z
-	z_spin.custom_minimum_size = Vector2(80, 0)
-	z_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# Bind axis index 2 (z) to the callback
-	z_spin.connect("value_changed", Callable(self, "_on_vector3_changed").bind(key, 2))
-	hbox.add_child(z_spin)
-
-	return hbox
+	return ControlFactory.create_checkbox(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates a LineEdit control for string/other values.
-##
-## @param value: The value to display as a string.
-## @param key: The parameter key name.
-## @return: Configured LineEdit control.
 func _create_string_control(value, key: String) -> LineEdit:
-	var line_edit = LineEdit.new()
-	line_edit.text = str(value)
-	line_edit.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line_edit.custom_minimum_size = Vector2(100, 0)
-	line_edit.connect("text_changed", Callable(self, "_on_value_changed").bind(key))
-	return line_edit
+	return ControlFactory.create_line_edit(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates a ColorPickerButton control for Color values.
-##
-## @param value: The Color value to display.
-## @param key: The parameter key name.
-## @return: Configured ColorPickerButton control.
 func _create_color_control(value: Color, key: String) -> ColorPickerButton:
-	var color_picker = ColorPickerButton.new()
-	color_picker.color = value
-	color_picker.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	color_picker.connect("color_changed", Callable(self, "_on_value_changed").bind(key))
-	return color_picker
+	return ControlFactory.create_color_picker(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates an OptionButton control for Enum values.
 ## Supports both auto-detected enums (via reflection) and manual enum_options.
@@ -961,47 +1136,16 @@ func _on_dictionary_key_changed(new_text: String, dict_key: String, old_key) -> 
 		_update_ui()
 
 ## Creates an EditorResourcePicker control for PackedScene values.
-##
-## @param value: The PackedScene value to display.
-## @param key: The parameter key name.
-## @return: Configured EditorResourcePicker control.
 func _create_packed_scene_control(value: PackedScene, key: String) -> EditorResourcePicker:
-	var resource_picker = EditorResourcePicker.new()
-	resource_picker.base_type = "PackedScene"
-	resource_picker.edited_resource = value
-	resource_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	resource_picker.connect("resource_changed", Callable(self, "_on_value_changed").bind(key))
-	return resource_picker
+	return ControlFactory.create_packed_scene_picker(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates an EditorResourcePicker control for Resource values.
-##
-## @param value: The Resource value to display.
-## @param key: The parameter key name.
-## @return: Configured EditorResourcePicker control.
 func _create_resource_control(value: Resource, key: String) -> EditorResourcePicker:
-	var resource_picker = EditorResourcePicker.new()
-	# Default to "Resource" if value is null
-	resource_picker.base_type = "Resource"
-	if value != null:
-		resource_picker.base_type = value.get_class()
-	resource_picker.edited_resource = value
-	resource_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	resource_picker.connect("resource_changed", Callable(self, "_on_value_changed").bind(key))
-	return resource_picker
+	return ControlFactory.create_resource_picker(value, Callable(self, "_on_value_changed").bind(key))
 
 ## Creates a LineEdit control for NodePath values.
-##
-## @param value: The NodePath value to display.
-## @param key: The parameter key name.
-## @return: Configured LineEdit control.
 func _create_node_path_control(value: NodePath, key: String) -> LineEdit:
-	var line_edit = LineEdit.new()
-	line_edit.text = str(value)
-	line_edit.placeholder_text = "NodePath (e.g., /root/NodeName)"
-	line_edit.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line_edit.connect("text_changed", Callable(self, "_on_node_path_changed").bind(key))
-	return line_edit
+	return ControlFactory.create_node_path_edit(value, Callable(self, "_on_node_path_changed").bind(key))
 
 #═══════════════════════════════════════════════════════════════════════════════
 # CONTROL CREATION - GEOMETRY TYPES (Rect2, AABB, Plane, Quaternion)
@@ -1157,678 +1301,281 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Callback when a parameter value changes in the UI.
-## 
-## Updates the parameter in the resource and triggers parameter binding.
-## This enables real-time parameter updates as users modify UI controls.
-## 
-## @param new_value: The new value from the UI control.
-## @param key: The parameter key name.
-## @return: void
 func _on_value_changed(new_value, key: String) -> void:
-	if populous_resource == null:
-		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for update")
-		return
-	
-	updated_params[key] = new_value
-	populous_resource.set_params(updated_params)
+	_update_param(key, new_value)
 
 ## Callback when a Vector3 component value changes in the UI.
-## 
-## Updates a specific component (x, y, or z) of a Vector3 parameter.
-## Reconstructs the Vector3 with the updated component and updates the resource.
-## 
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (Vector3 parameter).
-## @param axis: The axis index (0=x, 1=y, 2=z).
-## @return: void
 func _on_vector3_changed(new_value: float, key: String, axis: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("Vector3 update")
+	if params.is_empty() or not params.has(key):
 		return
 	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for Vector3 update")
+	var vec = params[key] as Vector3
+	if vec == null:
 		return
 	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var vector3_value = updated_params[key] as Vector3
-	if vector3_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Vector3" % key)
-		return
-
-	if axis == 0:
-		vector3_value.x = new_value
-	elif axis == 1:
-		vector3_value.y = new_value
-	elif axis == 2:
-		vector3_value.z = new_value
-
-	updated_params[key] = vector3_value
-	populous_resource.set_params(updated_params)
+	vec[axis] = new_value
+	params[key] = vec
+	populous_resource.set_params(params)
 
 ## Callback when an enum value changes in the UI.
-##
-## @param index: The selected index in the OptionButton.
-## @param key: The parameter key name.
-## @param enum_options: Array of enum option values.
-## @return: void
 func _on_enum_changed(index: int, key: String, enum_options: Array) -> void:
-	if populous_resource == null or enum_options.is_empty():
+	if enum_options.is_empty() or index < 0 or index >= enum_options.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for enum update")
-		return
-	
-	if index >= 0 and index < enum_options.size():
-		updated_params[key] = enum_options[index]
-		populous_resource.set_params(updated_params)
+	_update_param(key, enum_options[index])
 
 #═══════════════════════════════════════════════════════════════════════════════
 # VALUE CHANGE CALLBACKS - ARRAYS
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Callback when an array item value changes in the UI.
-##
-## @param new_value: The new value from the UI control.
-## @param array_key: The parameter key name for the array.
-## @param index: The index of the changed item.
-## @return: void
 func _on_array_item_changed(new_value, array_key: String, index: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("array item update")
+	var arr = _get_array_param(params, array_key)
+	if arr.is_empty() or index < 0 or index >= arr.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array item update")
-		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	if index >= 0 and index < array_value.size():
-		array_value[index] = new_value
-		updated_params[array_key] = array_value
-		populous_resource.set_params(updated_params)
+	arr[index] = new_value
+	params[array_key] = arr
+	populous_resource.set_params(params)
 
 ## Callback when a Vector3 component changes in an array item.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param array_key: The parameter key name for the array.
-## @param index: The index of the Vector3 item in the array.
-## @param axis: The axis index (0=x, 1=y, 2=z).
-## @return: void
 func _on_array_vector3_changed(new_value: float, array_key: String, index: int, axis: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("array Vector3 update")
+	var arr = _get_array_param(params, array_key)
+	if arr.is_empty() or index < 0 or index >= arr.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array Vector3 update")
+	var vec = arr[index] as Vector3
+	if vec == null:
 		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	if index >= 0 and index < array_value.size():
-		var vector3_value = array_value[index] as Vector3
-		if vector3_value == null:
-			PopulousLogger.warning("Array item at index %d is not a Vector3" % index)
-			return
-		
-		if axis == 0:
-			vector3_value.x = new_value
-		elif axis == 1:
-			vector3_value.y = new_value
-		elif axis == 2:
-			vector3_value.z = new_value
-		
-		array_value[index] = vector3_value
-		updated_params[array_key] = array_value
-		populous_resource.set_params(updated_params)
+	vec[axis] = new_value
+	arr[index] = vec
+	params[array_key] = arr
+	populous_resource.set_params(params)
 
 ## Callback when a NodePath changes in an array item.
-##
-## @param new_text: The new NodePath text from the LineEdit.
-## @param array_key: The parameter key name for the array.
-## @param index: The index of the NodePath item in the array.
-## @return: void
 func _on_array_node_path_changed(new_text: String, array_key: String, index: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("array NodePath update")
+	var arr = _get_array_param(params, array_key)
+	if arr.is_empty() or index < 0 or index >= arr.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array NodePath update")
-		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	if index >= 0 and index < array_value.size():
-		var node_path = NodePath(new_text)
-		array_value[index] = node_path
-		updated_params[array_key] = array_value
-		populous_resource.set_params(updated_params)
+	arr[index] = NodePath(new_text)
+	params[array_key] = arr
+	populous_resource.set_params(params)
 
 ## Callback when an enum value changes in an array item.
-##
-## @param selected_index: The selected index in the OptionButton.
-## @param array_key: The parameter key name for the array.
-## @param index: The index of the enum item in the array.
-## @param enum_options: Array of enum option values.
-## @return: void
 func _on_array_enum_changed(selected_index: int, array_key: String, index: int, enum_options: Array) -> void:
-	if populous_resource == null or enum_options.is_empty():
+	if enum_options.is_empty() or selected_index < 0 or selected_index >= enum_options.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array enum update")
+	var params = _validate_and_get_params("array enum update")
+	var arr = _get_array_param(params, array_key)
+	if arr.is_empty() or index < 0 or index >= arr.size():
 		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	if selected_index >= 0 and selected_index < enum_options.size() and index >= 0 and index < array_value.size():
-		array_value[index] = enum_options[selected_index]
-		updated_params[array_key] = array_value
-		populous_resource.set_params(updated_params)
+	arr[index] = enum_options[selected_index]
+	params[array_key] = arr
+	populous_resource.set_params(params)
 
 ## Callback when the Add Item button is pressed for an array.
-##
-## @param array_key: The parameter key name for the array.
-## @param items_container: The VBoxContainer containing array items.
-## @return: void
-func _on_array_add_item(array_key: String, items_container: VBoxContainer) -> void:
-	if populous_resource == null:
+func _on_array_add_item(array_key: String, _items_container: VBoxContainer) -> void:
+	var params = _validate_and_get_params("array add")
+	var arr = _get_array_param(params, array_key)
+	if params.is_empty():
 		return
 	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array add")
-		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	# Determine default value type from existing array or use empty string
+	# Determine default value from existing array or use empty string
 	var default_value = ""
-	if array_value.size() > 0:
-		var first_item = array_value[0]
-		# Duplicate reference types to avoid shared references
-		if typeof(first_item) in [TYPE_OBJECT, TYPE_ARRAY, TYPE_DICTIONARY]:
-			default_value = first_item.duplicate(true)
+	if arr.size() > 0:
+		var first = arr[0]
+		if typeof(first) in [TYPE_OBJECT, TYPE_ARRAY, TYPE_DICTIONARY]:
+			default_value = first.duplicate(true) if first != null else ""
 		else:
-			default_value = first_item
+			default_value = first
 	
-	array_value.append(default_value)
-	updated_params[array_key] = array_value
-	populous_resource.set_params(updated_params)
-	
-	# Refresh UI
+	arr.append(default_value)
+	params[array_key] = arr
+	populous_resource.set_params(params)
 	_update_ui()
 
 ## Callback when the Remove Item button is pressed for an array.
-##
-## @param array_key: The parameter key name for the array.
-## @param index: The index of the item to remove.
-## @return: void
 func _on_array_remove_item(array_key: String, index: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("array remove")
+	var arr = _get_array_param(params, array_key)
+	if arr.is_empty() or index < 0 or index >= arr.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for array remove")
-		return
-	
-	if not updated_params.has(array_key):
-		PopulousLogger.warning("Array parameter key '%s' not found" % array_key)
-		return
-	
-	var array_value = updated_params[array_key] as Array
-	if array_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an Array" % array_key)
-		return
-	
-	if index >= 0 and index < array_value.size():
-		array_value.remove_at(index)
-		updated_params[array_key] = array_value
-		populous_resource.set_params(updated_params)
-		
-		# Refresh UI
-		_update_ui()
+	arr.remove_at(index)
+	params[array_key] = arr
+	populous_resource.set_params(params)
+	_update_ui()
 
 #═══════════════════════════════════════════════════════════════════════════════
 # VALUE CHANGE CALLBACKS - DICTIONARIES
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Callback when a dictionary pair value changes in the UI.
-##
-## @param new_value: The new value from the UI control.
-## @param dict_key: The parameter key name for the dictionary.
-## @param pair_key: The key of the dictionary pair.
-## @return: void
 func _on_dictionary_pair_changed(new_value, dict_key: String, pair_key) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("dictionary pair update")
+	var dict = _get_dict_param(params, dict_key)
+	if dict.is_empty():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary pair update")
-		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	dict_value[pair_key] = new_value
-	updated_params[dict_key] = dict_value
-	populous_resource.set_params(updated_params)
+	dict[pair_key] = new_value
+	params[dict_key] = dict
+	populous_resource.set_params(params)
 
 ## Callback when a Vector3 component changes in a dictionary pair value.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param dict_key: The parameter key name for the dictionary.
-## @param pair_key: The key of the dictionary pair.
-## @param axis: The axis index (0=x, 1=y, 2=z).
-## @return: void
 func _on_dictionary_vector3_changed(new_value: float, dict_key: String, pair_key, axis: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("dictionary Vector3 update")
+	var dict = _get_dict_param(params, dict_key)
+	if dict.is_empty() or not dict.has(pair_key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary Vector3 update")
+	var vec = dict[pair_key] as Vector3
+	if vec == null:
 		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	if not dict_value.has(pair_key):
-		PopulousLogger.warning("Dictionary pair key '%s' not found" % str(pair_key))
-		return
-	
-	var vector3_value = dict_value[pair_key] as Vector3
-	if vector3_value == null:
-		PopulousLogger.warning("Dictionary pair value at key '%s' is not a Vector3" % str(pair_key))
-		return
-	
-	if axis == 0:
-		vector3_value.x = new_value
-	elif axis == 1:
-		vector3_value.y = new_value
-	elif axis == 2:
-		vector3_value.z = new_value
-	
-	dict_value[pair_key] = vector3_value
-	updated_params[dict_key] = dict_value
-	populous_resource.set_params(updated_params)
+	vec[axis] = new_value
+	dict[pair_key] = vec
+	params[dict_key] = dict
+	populous_resource.set_params(params)
 
 ## Callback when a NodePath changes in a dictionary pair value.
-##
-## @param new_text: The new NodePath text from the LineEdit.
-## @param dict_key: The parameter key name for the dictionary.
-## @param pair_key: The key of the dictionary pair.
-## @return: void
 func _on_dictionary_node_path_changed(new_text: String, dict_key: String, pair_key) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("dictionary NodePath update")
+	var dict = _get_dict_param(params, dict_key)
+	if dict.is_empty():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary NodePath update")
-		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	var node_path = NodePath(new_text)
-	dict_value[pair_key] = node_path
-	updated_params[dict_key] = dict_value
-	populous_resource.set_params(updated_params)
+	dict[pair_key] = NodePath(new_text)
+	params[dict_key] = dict
+	populous_resource.set_params(params)
 
 ## Callback when an enum value changes in a dictionary pair value.
-##
-## @param selected_index: The selected index in the OptionButton.
-## @param dict_key: The parameter key name for the dictionary.
-## @param pair_key: The key of the dictionary pair.
-## @param enum_options: Array of enum option values.
-## @return: void
 func _on_dictionary_enum_changed(selected_index: int, dict_key: String, pair_key, enum_options: Array) -> void:
-	if populous_resource == null or enum_options.is_empty():
+	if enum_options.is_empty() or selected_index < 0 or selected_index >= enum_options.size():
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary enum update")
+	var params = _validate_and_get_params("dictionary enum update")
+	var dict = _get_dict_param(params, dict_key)
+	if dict.is_empty():
 		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	if selected_index >= 0 and selected_index < enum_options.size():
-		dict_value[pair_key] = enum_options[selected_index]
-		updated_params[dict_key] = dict_value
-		populous_resource.set_params(updated_params)
+	dict[pair_key] = enum_options[selected_index]
+	params[dict_key] = dict
+	populous_resource.set_params(params)
 
 ## Callback when the Add Pair button is pressed for a dictionary.
-##
-## @param dict_key: The parameter key name for the dictionary.
-## @param pairs_container: The VBoxContainer containing dictionary pairs.
-## @return: void
-func _on_dictionary_add_pair(dict_key: String, pairs_container: VBoxContainer) -> void:
-	if populous_resource == null:
+func _on_dictionary_add_pair(dict_key: String, _pairs_container: VBoxContainer) -> void:
+	var params = _validate_and_get_params("dictionary add")
+	var dict = _get_dict_param(params, dict_key)
+	if params.is_empty():
 		return
 	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary add")
-		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	# Generate a unique key by checking for collisions
+	# Generate unique key
 	var counter = 0
 	var new_key = "new_key_" + str(counter)
-	while dict_value.has(new_key):
+	while dict.has(new_key):
 		counter += 1
 		new_key = "new_key_" + str(counter)
-	dict_value[new_key] = ""
-	updated_params[dict_key] = dict_value
-	populous_resource.set_params(updated_params)
 	
-	# Refresh UI
+	dict[new_key] = ""
+	params[dict_key] = dict
+	populous_resource.set_params(params)
 	_update_ui()
 
 ## Callback when the Remove Pair button is pressed for a dictionary.
-##
-## @param dict_key: The parameter key name for the dictionary.
-## @param pair_key: The key of the pair to remove.
-## @return: void
 func _on_dictionary_remove_pair(dict_key: String, pair_key) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("dictionary remove")
+	var dict = _get_dict_param(params, dict_key)
+	if dict.is_empty() or not dict.has(pair_key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for dictionary remove")
-		return
-	
-	if not updated_params.has(dict_key):
-		PopulousLogger.warning("Dictionary parameter key '%s' not found" % dict_key)
-		return
-	
-	var dict_value = updated_params[dict_key] as Dictionary
-	if dict_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Dictionary" % dict_key)
-		return
-	
-	if dict_value.has(pair_key):
-		dict_value.erase(pair_key)
-		updated_params[dict_key] = dict_value
-		populous_resource.set_params(updated_params)
-		
-		# Refresh UI
-		_update_ui()
+	dict.erase(pair_key)
+	params[dict_key] = dict
+	populous_resource.set_params(params)
+	_update_ui()
 
 #═══════════════════════════════════════════════════════════════════════════════
 # VALUE CHANGE CALLBACKS - GEOMETRY TYPES
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Callback when a NodePath value changes in the UI.
-##
-## @param new_text: The new text from the LineEdit.
-## @param key: The parameter key name.
-## @return: void
 func _on_node_path_changed(new_text: String, key: String) -> void:
-	if populous_resource == null:
-		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for NodePath update")
-		return
-	
-	var node_path = NodePath(new_text)
-	updated_params[key] = node_path
-	populous_resource.set_params(updated_params)
+	_update_param(key, NodePath(new_text))
 
 ## Callback when a Rect2 component value changes in the UI.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (Rect2 parameter).
-## @param component: The component index (0=x, 1=y, 2=width, 3=height).
-## @return: void
 func _on_rect2_changed(new_value: float, key: String, component: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("Rect2 update")
+	if params.is_empty() or not params.has(key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for Rect2 update")
+	var rect = params[key] as Rect2
+	if rect == null:
 		return
-	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var rect2_value = updated_params[key] as Rect2
-	if rect2_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Rect2" % key)
-		return
-	
 	match component:
-		0: rect2_value.position = Vector2(new_value, rect2_value.position.y)
-		1: rect2_value.position = Vector2(rect2_value.position.x, new_value)
-		2: rect2_value.size = Vector2(new_value, rect2_value.size.y)
-		3: rect2_value.size = Vector2(rect2_value.size.x, new_value)
-	
-	updated_params[key] = rect2_value
-	populous_resource.set_params(updated_params)
+		0: rect.position.x = new_value
+		1: rect.position.y = new_value
+		2: rect.size.x = new_value
+		3: rect.size.y = new_value
+	params[key] = rect
+	populous_resource.set_params(params)
 
 ## Callback when a Rect2i component value changes in the UI.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (Rect2i parameter).
-## @param component: The component index (0=x, 1=y, 2=width, 3=height).
-## @return: void
 func _on_rect2i_changed(new_value: float, key: String, component: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("Rect2i update")
+	if params.is_empty() or not params.has(key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for Rect2i update")
+	var rect = params[key] as Rect2i
+	if rect == null:
 		return
-	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var rect2i_value = updated_params[key] as Rect2i
-	if rect2i_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Rect2i" % key)
-		return
-	
+	var int_val = int(new_value)
 	match component:
-		0: rect2i_value.position = Vector2i(int(new_value), rect2i_value.position.y)
-		1: rect2i_value.position = Vector2i(rect2i_value.position.x, int(new_value))
-		2: rect2i_value.size = Vector2i(int(new_value), rect2i_value.size.y)
-		3: rect2i_value.size = Vector2i(rect2i_value.size.x, int(new_value))
-	
-	updated_params[key] = rect2i_value
-	populous_resource.set_params(updated_params)
+		0: rect.position.x = int_val
+		1: rect.position.y = int_val
+		2: rect.size.x = int_val
+		3: rect.size.y = int_val
+	params[key] = rect
+	populous_resource.set_params(params)
 
 ## Callback when an AABB component value changes in the UI.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (AABB parameter).
-## @param component: The component index (0=px, 1=py, 2=pz, 3=width, 4=height, 5=depth).
-## @return: void
 func _on_aabb_changed(new_value: float, key: String, component: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("AABB update")
+	if params.is_empty() or not params.has(key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for AABB update")
+	var aabb = params[key] as AABB
+	if aabb == null:
 		return
-	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var aabb_value = updated_params[key] as AABB
-	if aabb_value == null:
-		PopulousLogger.warning("Parameter '%s' is not an AABB" % key)
-		return
-	
 	match component:
-		0: aabb_value.position = Vector3(new_value, aabb_value.position.y, aabb_value.position.z)
-		1: aabb_value.position = Vector3(aabb_value.position.x, new_value, aabb_value.position.z)
-		2: aabb_value.position = Vector3(aabb_value.position.x, aabb_value.position.y, new_value)
-		3: aabb_value.size = Vector3(new_value, aabb_value.size.y, aabb_value.size.z)
-		4: aabb_value.size = Vector3(aabb_value.size.x, new_value, aabb_value.size.z)
-		5: aabb_value.size = Vector3(aabb_value.size.x, aabb_value.size.y, new_value)
-	
-	updated_params[key] = aabb_value
-	populous_resource.set_params(updated_params)
+		0: aabb.position.x = new_value
+		1: aabb.position.y = new_value
+		2: aabb.position.z = new_value
+		3: aabb.size.x = new_value
+		4: aabb.size.y = new_value
+		5: aabb.size.z = new_value
+	params[key] = aabb
+	populous_resource.set_params(params)
 
 ## Callback when a Plane component value changes in the UI.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (Plane parameter).
-## @param component: The component index (0=nx, 1=ny, 2=nz, 3=distance).
-## @return: void
 func _on_plane_changed(new_value: float, key: String, component: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("Plane update")
+	if params.is_empty() or not params.has(key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for Plane update")
+	var plane = params[key] as Plane
+	if plane == null:
 		return
-	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var plane_value = updated_params[key] as Plane
-	if plane_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Plane" % key)
-		return
-	
 	match component:
-		0: plane_value.normal = Vector3(new_value, plane_value.normal.y, plane_value.normal.z)
-		1: plane_value.normal = Vector3(plane_value.normal.x, new_value, plane_value.normal.z)
-		2: plane_value.normal = Vector3(plane_value.normal.x, plane_value.normal.y, new_value)
-		3: plane_value.d = new_value
-	
-	updated_params[key] = plane_value
-	populous_resource.set_params(updated_params)
+		0: plane.normal.x = new_value
+		1: plane.normal.y = new_value
+		2: plane.normal.z = new_value
+		3: plane.d = new_value
+	params[key] = plane
+	populous_resource.set_params(params)
 
 ## Callback when a Quaternion component value changes in the UI.
-##
-## @param new_value: The new component value from the SpinBox.
-## @param key: The parameter key name (Quaternion parameter).
-## @param component: The component index (0=x, 1=y, 2=z, 3=w).
-## @return: void
 func _on_quaternion_changed(new_value: float, key: String, component: int) -> void:
-	if populous_resource == null:
+	var params = _validate_and_get_params("Quaternion update")
+	if params.is_empty() or not params.has(key):
 		return
-	
-	var updated_params = populous_resource.get_params()
-	if updated_params == null:
-		PopulousLogger.warning("Failed to get params for Quaternion update")
+	var quat = params[key] as Quaternion
+	if quat == null:
 		return
-	
-	if not updated_params.has(key):
-		PopulousLogger.warning("Parameter key '%s' not found in params" % key)
-		return
-	
-	var quaternion_value = updated_params[key] as Quaternion
-	if quaternion_value == null:
-		PopulousLogger.warning("Parameter '%s' is not a Quaternion" % key)
-		return
-	
 	match component:
-		0: quaternion_value = Quaternion(new_value, quaternion_value.y, quaternion_value.z, quaternion_value.w)
-		1: quaternion_value = Quaternion(quaternion_value.x, new_value, quaternion_value.z, quaternion_value.w)
-		2: quaternion_value = Quaternion(quaternion_value.x, quaternion_value.y, new_value, quaternion_value.w)
-		3: quaternion_value = Quaternion(quaternion_value.x, quaternion_value.y, quaternion_value.z, new_value)
-	
-	updated_params[key] = quaternion_value
-	populous_resource.set_params(updated_params)
+		0: quat.x = new_value
+		1: quat.y = new_value
+		2: quat.z = new_value
+		3: quat.w = new_value
+	params[key] = quat
+	populous_resource.set_params(params)
 
 #═══════════════════════════════════════════════════════════════════════════════
 # HELPERS
@@ -1836,44 +1583,8 @@ func _on_quaternion_changed(new_value: float, key: String, component: int) -> vo
 
 ## Converts snake_case parameter names to Title Case for display.
 ## Example: "spawn_position" -> "Spawn Position"
-##
-## @param name: The snake_case parameter name.
-## @return: Title Case formatted string.
 func _format_param_name(name: String) -> String:
-	var words = name.split("_")
-	var result = []
-	for word in words:
-		if word.length() > 0:
-			result.append(word.capitalize())
-	return " ".join(result)
-
-## Creates a row container with a label and input control.
-## Used for each parameter in the dynamic UI.
-##
-## @param key: The parameter key (used as label text).
-## @param input_field: The input control for this parameter.
-## @return: MarginContainer containing the row.
-func _create_row_container(key: String, input_field: Control) -> MarginContainer:
-	var margin_container = MarginContainer.new()
-	margin_container.add_theme_constant_override("margin_top", 4)
-	margin_container.add_theme_constant_override("margin_bottom", 4)
-	
-	var hbox = HBoxContainer.new()
-	hbox.alignment = BoxContainer.ALIGNMENT_BEGIN
-	hbox.add_theme_constant_override("separation", 12)
-	
-	var label = Label.new()
-	label.text = _format_param_name(key)
-	label.custom_minimum_size = Vector2(150, 0)
-	label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	
-	hbox.add_child(label)
-	if input_field != null:
-		input_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		hbox.add_child(input_field)
-	
-	margin_container.add_child(hbox)
-	return margin_container
+	return ControlFactory._format_param_name(name)
 
 ## Shows an error message in the UI error label.
 ##
@@ -1908,3 +1619,86 @@ func _on_reset_defaults_pressed() -> void:
 	populous_resource.set_params(original_params.duplicate(true))
 	_update_ui()
 	PopulousLogger.info("Parameters reset to defaults")
+
+## Called when a collapsible section is toggled (expanded/collapsed).
+## Triggers auto-resize to fit the new content size.
+##
+## @param expanded: Whether the section is now expanded.
+## @return: void
+func _on_section_toggled(_expanded: bool) -> void:
+	_auto_resize_window()
+
+## Auto-resizes the window to fit content.
+## Called after UI is generated or when sections are toggled.
+##
+## @return: void
+func _auto_resize_window() -> void:
+	var window = get_window()
+	if window == null:
+		return
+	
+	# Wait for layout to settle
+	await get_tree().process_frame
+	await get_tree().process_frame  # Extra frame for nested containers
+	
+	# Calculate required size based on content
+	var required_size = _calculate_required_size()
+	
+	# Define bounds
+	const MIN_WIDTH = 800
+	const MIN_HEIGHT = 600
+	const MAX_WIDTH = 1600
+	const MAX_HEIGHT = 1200
+	
+	# Clamp to reasonable bounds
+	required_size.x = clamp(required_size.x, MIN_WIDTH, MAX_WIDTH)
+	required_size.y = clamp(required_size.y, MIN_HEIGHT, MAX_HEIGHT)
+	
+	# Resize window to fit content (both grow and shrink to fit)
+	var new_width = int(required_size.x)
+	var new_height = int(required_size.y)
+	
+	if new_width != window.size.x or new_height != window.size.y:
+		window.size = Vector2i(new_width, new_height)
+		# Update min_size to prevent shrinking below base minimum
+		window.min_size = Vector2i(MIN_WIDTH, MIN_HEIGHT)
+
+## Calculates the required window size based on content.
+##
+## @return: Vector2 with required width and height.
+func _calculate_required_size() -> Vector2:
+	var required = Vector2(800, 600)  # Base minimum
+	
+	if dynamic_ui_container == null:
+		return required
+	
+	# Get the actual rendered size (more accurate than minimum size)
+	var content_size = dynamic_ui_container.size
+	
+	# Also try combined minimum size for cases where layout hasn't settled
+	var min_size = dynamic_ui_container.get_combined_minimum_size()
+	content_size.x = max(content_size.x, min_size.x)
+	content_size.y = max(content_size.y, min_size.y)
+	
+	# Calculate maximum width needed by any child (sections + their content)
+	for child in dynamic_ui_container.get_children():
+		if child is CollapsibleSection:
+			var section_min = child.get_combined_minimum_size()
+			var section_size = child.size
+			content_size.x = max(content_size.x, section_min.x, section_size.x)
+			content_size.y = max(content_size.y, section_min.y, section_size.y)
+	
+	# Also check generator_scroll_container minimum size
+	if generator_scroll_container != null:
+		var scroll_min = generator_scroll_container.get_combined_minimum_size()
+		content_size.x = max(content_size.x, scroll_min.x)
+		content_size.y = max(content_size.y, scroll_min.y)
+	
+	# Add padding for margins, headers, buttons, etc.
+	const EXTRA_HEIGHT = 350  # Header, labels, buttons, margins
+	const EXTRA_WIDTH = 120   # Side margins (left + right)
+	
+	required.x = max(required.x, content_size.x + EXTRA_WIDTH)
+	required.y = max(required.y, content_size.y + EXTRA_HEIGHT)
+	
+	return required

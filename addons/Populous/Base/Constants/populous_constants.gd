@@ -53,3 +53,12 @@ class UI:
 	const margin_bottom: int = 8
 	const row_spacing: int = 4
 	
+	# Control sizes
+	const spinbox_min_width: int = 80
+	const scroll_container_min_height: int = 150
+	
+	# Range slider defaults
+	const range_slider_min: float = 0.0
+	const range_slider_max: float = 5.0
+	const range_slider_step: float = 0.1
+	

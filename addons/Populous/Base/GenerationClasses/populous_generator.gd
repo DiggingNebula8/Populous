@@ -83,6 +83,26 @@ func _get_params() -> Dictionary:
 func _set_params(params: Dictionary) -> void:
 	pass  # Child classes handle actual params
 
+## Returns UI configuration for the Populous Tool.
+## 
+## Override this method to customize how parameters are displayed in the UI.
+## The tool will use this config to create sections, apply tooltips, and
+## select appropriate control types.
+## 
+## Return format:
+## {
+##   "sections": [
+##     {"name": "Section Name", "params": ["param1", "param2"], "expanded": true}
+##   ],
+##   "param_config": {
+##     "param1": {"display_name": "Display Name", "tooltip": "Help text", "control": "control_type"}
+##   }
+## }
+## 
+## @return: Dictionary with UI configuration, or empty dict for default behavior.
+func _get_ui_config() -> Dictionary:
+	return {}  # Override in child classes for custom UI layout
+
 #═══════════════════════════════════════════════════════════════════════════════
 # HELPERS
 #═══════════════════════════════════════════════════════════════════════════════

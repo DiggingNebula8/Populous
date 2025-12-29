@@ -79,6 +79,26 @@ func _get_params() -> Dictionary:
 		"random_albedo": isRandomAlbedo
 	}
 
+## Returns UI configuration for the Populous Tool.
+## 
+## @return: Dictionary with UI configuration.
+func _get_ui_config() -> Dictionary:
+	return {
+		"sections": [
+			{
+				"name": "Visual",
+				"params": ["random_albedo"],
+				"expanded": true
+			}
+		],
+		"param_config": {
+			"random_albedo": {
+				"display_name": "Random Color",
+				"tooltip": "When enabled, each NPC gets a random albedo color."
+			}
+		}
+	}
+
 func _set_params(params: Dictionary) -> void:
 	var v = PV.validate(params, "random_albedo", TYPE_BOOL)
 	if v != null:

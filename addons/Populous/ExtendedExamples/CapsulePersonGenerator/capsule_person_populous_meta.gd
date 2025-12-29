@@ -179,6 +179,108 @@ func _get_params() -> Dictionary:
 		"custom_metadata": custom_metadata
 	}
 
+## Returns UI configuration for the Populous Tool.
+## 
+## Organizes meta parameters into logical sections with tooltips and control hints.
+## @return: Dictionary with UI configuration.
+func _get_ui_config() -> Dictionary:
+	return {
+		"sections": [
+			{
+				"name": "Character",
+				"params": ["gender_preference", "skin_type_preference"],
+				"expanded": true
+			},
+			{
+				"name": "Parts Filter",
+				"params": ["preferred_part_tags", "excluded_part_tags", "part_tags_filter"],
+				"expanded": false
+			},
+			{
+				"name": "Customization",
+				"params": ["color_tint", "material_override", "scale_multiplier", "position_offset", "rotation_offset"],
+				"expanded": false
+			},
+			{
+				"name": "Metadata",
+				"params": ["name_colors", "custom_properties", "metadata_tags", "custom_metadata"],
+				"expanded": false
+			},
+			{
+				"name": "Spawn Constraints",
+				"params": ["spawn_area", "spawn_bounds_3d"],
+				"expanded": false
+			}
+		],
+		"param_config": {
+			"gender_preference": {
+				"display_name": "Gender",
+				"tooltip": "Filter NPCs by gender. Random selects any available gender."
+			},
+			"skin_type_preference": {
+				"display_name": "Skin Type",
+				"tooltip": "Filter NPCs by skin type. Random selects any available type."
+			},
+			"preferred_part_tags": {
+				"display_name": "Preferred Tags",
+				"tooltip": "Prefer parts with these tags when available."
+			},
+			"excluded_part_tags": {
+				"display_name": "Excluded Tags",
+				"tooltip": "Exclude parts with these tags."
+			},
+			"part_tags_filter": {
+				"display_name": "Legacy Tags",
+				"tooltip": "Legacy tag filter for parts (prefer using Preferred/Excluded Tags)."
+			},
+			"color_tint": {
+				"display_name": "Color Tint",
+				"tooltip": "Color tint applied to NPC materials."
+			},
+			"material_override": {
+				"display_name": "Material",
+				"tooltip": "Override the default material for NPCs."
+			},
+			"scale_multiplier": {
+				"display_name": "Scale",
+				"tooltip": "Additional scale multiplier applied to NPCs."
+			},
+			"position_offset": {
+				"display_name": "Position Offset",
+				"tooltip": "Additional offset applied after positioning."
+			},
+			"rotation_offset": {
+				"display_name": "Rotation Offset",
+				"tooltip": "Additional rotation applied after base rotation."
+			},
+			"name_colors": {
+				"display_name": "Name Colors",
+				"tooltip": "Array of colors for NPC name display."
+			},
+			"custom_properties": {
+				"display_name": "Properties",
+				"tooltip": "Custom key-value properties applied to NPCs."
+			},
+			"metadata_tags": {
+				"display_name": "Tags",
+				"tooltip": "Array of tags stored in NPC metadata."
+			},
+			"custom_metadata": {
+				"display_name": "Custom Data",
+				"tooltip": "Dictionary of custom metadata values."
+			},
+			"spawn_area": {
+				"display_name": "Spawn Area 2D",
+				"tooltip": "2D spawn area constraint."
+			},
+			"spawn_bounds_3d": {
+				"display_name": "Spawn Bounds 3D",
+				"tooltip": "3D spawn bounds constraint.",
+				"control": "aabb_split"
+			}
+		}
+	}
+
 ## Sets meta parameters from dictionary with type validation.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.

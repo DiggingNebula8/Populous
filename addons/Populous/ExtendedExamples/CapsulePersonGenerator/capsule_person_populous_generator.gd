@@ -112,6 +112,102 @@ func _get_params() -> Dictionary:
 		"spawn_count": spawn_count
 	}
 
+## Returns UI configuration for the Populous Tool.
+## 
+## Organizes generator parameters into logical sections with tooltips and control hints.
+## @return: Dictionary with UI configuration.
+func _get_ui_config() -> Dictionary:
+	return {
+		"sections": [
+			{
+				"name": "Transform",
+				"params": ["spawn_position", "spawn_rotation", "scale_range"],
+				"expanded": true
+			},
+			{
+				"name": "Randomization",
+				"params": ["use_random_position", "use_random_rotation", "use_random_scale"],
+				"expanded": true
+			},
+			{
+				"name": "Spawn Area",
+				"params": ["spawn_bounds", "spawn_plane", "spawn_rect"],
+				"expanded": false
+			},
+			{
+				"name": "Appearance",
+				"params": ["spawn_color"],
+				"expanded": false
+			},
+			{
+				"name": "Advanced",
+				"params": ["alternative_scene", "spawn_tags", "spawn_properties", "spawn_count"],
+				"expanded": false
+			}
+		],
+		"param_config": {
+			"spawn_position": {
+				"display_name": "Position",
+				"tooltip": "Base position for spawned NPCs. Ignored if Random Position is enabled."
+			},
+			"spawn_rotation": {
+				"display_name": "Rotation",
+				"tooltip": "Base rotation for NPCs. Use Euler mode for intuitive angle editing.",
+				"control": "quaternion_euler"
+			},
+			"scale_range": {
+				"display_name": "Scale Range",
+				"tooltip": "Scale multiplier range. Min = smallest scale, Max = largest scale.",
+				"control": "range_slider"
+			},
+			"spawn_color": {
+				"display_name": "Color",
+				"tooltip": "Tint color applied to spawned NPCs."
+			},
+			"spawn_bounds": {
+				"display_name": "Bounds",
+				"tooltip": "3D bounding box for random spawning. Origin is the corner, Size defines the area.",
+				"control": "aabb_split"
+			},
+			"spawn_plane": {
+				"display_name": "Plane",
+				"tooltip": "Plane for 2D spawning. NPCs are projected onto this plane."
+			},
+			"spawn_rect": {
+				"display_name": "Rectangle",
+				"tooltip": "2D rectangle for spawning (used with spawn_plane)."
+			},
+			"use_random_position": {
+				"display_name": "Random Position",
+				"tooltip": "When enabled, NPCs spawn at random positions within Spawn Bounds."
+			},
+			"use_random_rotation": {
+				"display_name": "Random Rotation",
+				"tooltip": "When enabled, NPCs get random Y-axis (sideways) rotation."
+			},
+			"use_random_scale": {
+				"display_name": "Random Scale",
+				"tooltip": "When enabled, NPCs get random scale between Min and Max values."
+			},
+			"alternative_scene": {
+				"display_name": "Alt. Scene",
+				"tooltip": "Override the default NPC scene with a custom PackedScene."
+			},
+			"spawn_tags": {
+				"display_name": "Tags",
+				"tooltip": "Array of tags applied to each spawned NPC."
+			},
+			"spawn_properties": {
+				"display_name": "Properties",
+				"tooltip": "Dictionary of custom properties applied to each NPC."
+			},
+			"spawn_count": {
+				"display_name": "Count",
+				"tooltip": "Number of NPCs to spawn. Each gets unique randomization."
+			}
+		}
+	}
+
 ## Sets generator parameters from dictionary with type validation.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.

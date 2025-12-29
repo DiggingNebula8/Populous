@@ -72,3 +72,38 @@ func set_params(params: Dictionary) -> void:
 		return
 	
 	generator._set_params(params)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# UI CONFIGURATION
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Returns combined UI configuration from generator and meta resources.
+## 
+## Merges the UI configs from both the generator and its meta resource.
+## Generator sections come first, then meta sections.
+## 
+## @return: Dictionary with merged UI configuration.
+func get_ui_config() -> Dictionary:
+	var config = {"sections": [], "param_config": {}}
+	
+	if generator == null:
+		return config
+	
+	# Get generator UI config
+	var gen_config = generator._get_ui_config()
+	if not gen_config.is_empty():
+		if gen_config.has("sections"):
+			config.sections.append_array(gen_config.sections)
+		if gen_config.has("param_config"):
+			config.param_config.merge(gen_config.param_config)
+	
+	# Get meta UI config if available
+	if generator.meta_resource != null:
+		var meta_config = generator.meta_resource._get_ui_config()
+		if not meta_config.is_empty():
+			if meta_config.has("sections"):
+				config.sections.append_array(meta_config.sections)
+			if meta_config.has("param_config"):
+				config.param_config.merge(meta_config.param_config)
+	
+	return config

@@ -108,6 +108,44 @@ func _get_params() -> Dictionary:
 		generator_params = generator_params.merged(meta_resource._get_params())
 	return generator_params
 
+## Returns UI configuration for the Populous Tool.
+## 
+## Organizes generator parameters into logical sections with tooltips.
+## @return: Dictionary with UI configuration.
+func _get_ui_config() -> Dictionary:
+	return {
+		"sections": [
+			{
+				"name": "Grid Settings",
+				"params": ["rows", "columns", "spawn_padding"],
+				"expanded": true
+			},
+			{
+				"name": "Limits",
+				"params": ["populous_density"],
+				"expanded": true
+			}
+		],
+		"param_config": {
+			"rows": {
+				"display_name": "Rows",
+				"tooltip": "Number of rows in the spawn grid."
+			},
+			"columns": {
+				"display_name": "Columns",
+				"tooltip": "Number of columns in the spawn grid."
+			},
+			"spawn_padding": {
+				"display_name": "Spacing",
+				"tooltip": "Spacing between NPCs in the grid (X and Z axes)."
+			},
+			"populous_density": {
+				"display_name": "Max NPCs",
+				"tooltip": "Maximum number of NPCs to spawn (capped by grid size)."
+			}
+		}
+	}
+
 ## Sets generator parameters with type validation.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.

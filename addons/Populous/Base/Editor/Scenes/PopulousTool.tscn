@@ -5,7 +5,8 @@
 
 [node name="Window" type="Window"]
 position = Vector2i(0, 36)
-size = Vector2i(720, 720)
+size = Vector2i(1000, 950)
+min_size = Vector2i(800, 750)
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -68,15 +69,18 @@ autowrap_mode = 3
 
 [node name="MarginContainer2" type="MarginContainer" parent="Control/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 50
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 50
+theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 10
 
 [node name="PopulousMenu" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="PopulousSettings" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 layout_mode = 2
@@ -130,14 +134,19 @@ vertical_alignment = 1
 [node name="GeneratorScrollContainer" type="ScrollContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 300)
-layout_mode = 2
-
-[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/GeneratorScrollContainer"]
-unique_name_in_owner = true
+custom_minimum_size = Vector2(650, 550)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DynamicUIContainer" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/GeneratorScrollContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 500)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
 
 [node name="PopulousGenerate" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 layout_mode = 2
