@@ -41,6 +41,7 @@ enum PortType {
 	VECTOR3 = 7,
 	COLOR = 8,
 	RESOURCE = 9,
+	AABB = 10,
 }
 
 ## Colors for each port type
@@ -55,6 +56,7 @@ const PORT_COLORS := {
 	PortType.VECTOR3: Color(0.7, 0.4, 0.9),
 	PortType.COLOR: Color(0.9, 0.6, 0.8),
 	PortType.RESOURCE: Color(0.4, 0.9, 0.6),
+	PortType.AABB: Color(0.4, 0.9, 0.9),
 }
 
 #═══════════════════════════════════════════════════════════════════════════════
@@ -119,6 +121,10 @@ func _get_node_title() -> String:
 ## Returns the category for the "Add Node" menu
 func _get_node_category() -> String:
 	return "Populous"
+
+## Returns a description for tooltips and documentation
+func _get_node_description() -> String:
+	return ""
 
 ## Define input and output ports using add_input_port() and add_output_port()
 func _define_ports() -> void:

@@ -47,20 +47,63 @@ func evaluate() -> Dictionary:
 	
 	var results: Dictionary = {}
 	
-	# Find all output nodes and evaluate them
+	# Find all output nodes (including ParamPanelNode) and evaluate them
 	for child in graph_edit.get_children():
-		if child is GraphNode and child.has_method("get_param_key"):
-			var param_key = child.get_param_key()
-			if param_key != "":
-				var value = _evaluate_node(child)
-				if value != null:
-					results[param_key] = value
+		if child is GraphNode:
+			# Check for ParamPanelNode (unified output)
+			if child.has_method("is_param_panel") and child.is_param_panel():
+				_evaluate_panel_node(child, results)
+			# Check for individual ParamOutputNode
+			elif child.has_method("get_param_key"):
+				var param_key = child.get_param_key()
+				if param_key != "":
+					# First evaluate the node to compute its value
+					_evaluate_node(child)
 					
-					# Write to parameter source
-					if param_source:
-						param_source.set_param(param_key, value)
+					# Then get the output value from the node
+					var value = null
+					if child.has_method("get_output_value"):
+						value = child.get_output_value()
+					
+					if value != null:
+						results[param_key] = value
+						
+						# Write to parameter source
+						if param_source:
+							param_source.set_param(param_key, value)
+							print("[GraphEvaluator] Set param '%s' = %s" % [param_key, str(value)])
 	
 	return results
+
+## Evaluate a ParamPanelNode (unified outputs)
+func _evaluate_panel_node(panel: GraphNode, results: Dictionary) -> void:
+	# Get input ports from panel
+	if not "parameters" in panel:
+		return
+	
+	var params = panel.parameters
+	var idx = 0
+	for key in params:
+		# Get connections to this port
+		var inputs: Dictionary = {}
+		var connections = _get_connections_to_node_port(panel.name, idx)
+		
+		for conn in connections:
+			var from_node = _get_node_by_name(conn.from_node)
+			if from_node != null:
+				var source_value = _evaluate_node(from_node)
+				inputs["value"] = source_value
+		
+		# Call evaluate on panel with this port's inputs
+		if not inputs.is_empty():
+			var value = inputs.get("value", null)
+			if value != null:
+				results[key] = value
+				if param_source:
+					param_source.set_param(key, value)
+					print("[GraphEvaluator] Set param '%s' = %s" % [key, str(value)])
+		
+		idx += 1
 
 ## Evaluate a single node and return its output value
 func _evaluate_node(node: GraphNode) -> Variant:
@@ -136,6 +179,16 @@ func _get_connections_to_node(node_name: StringName) -> Array:
 	
 	for conn in graph_edit.get_connection_list():
 		if conn.to_node == node_name:
+			result.append(conn)
+	
+	return result
+
+## Get all connections going TO a specific port on a node
+func _get_connections_to_node_port(node_name: StringName, port_idx: int) -> Array:
+	var result: Array = []
+	
+	for conn in graph_edit.get_connection_list():
+		if conn.to_node == node_name and conn.to_port == port_idx:
 			result.append(conn)
 	
 	return result

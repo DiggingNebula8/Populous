@@ -11,11 +11,10 @@ const UIStyles = preload("res://addons/Populous/Base/Editor/UIComponents/ui_styl
 const ParameterSource = preload("res://addons/Populous/Base/Editor/parameter_source.gd")
 const GraphEvaluator = preload("res://addons/Populous/Base/Editor/GraphMode/graph_evaluator.gd")
 const GraphSerializer = preload("res://addons/Populous/Base/Editor/GraphMode/graph_serializer.gd")
+const NodeRegistry = preload("res://addons/Populous/Base/Editor/GraphMode/node_registry.gd")
 const ConstantNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Values/constant_node.gd")
-const RandomNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Values/random_node.gd")
-const MathNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Modifiers/math_node.gd")
-const ClampNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Modifiers/clamp_node.gd")
 const ParamOutputNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Outputs/param_output_node.gd")
+const ParamPanelNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Outputs/param_panel_node.gd")
 
 #═══════════════════════════════════════════════════════════════════════════════
 # SIGNALS
@@ -46,6 +45,9 @@ var populous_container: Node = null
 ## Debounce timer for auto-evaluation
 var _eval_timer: Timer = null
 
+## Map of menu ID to node name for Add Node menu
+var _menu_node_map: Dictionary = {}
+
 #═══════════════════════════════════════════════════════════════════════════════
 # UI REFERENCES
 #═══════════════════════════════════════════════════════════════════════════════
@@ -56,6 +58,8 @@ var resource_picker: EditorResourcePicker
 var resource_label: Label
 var add_node_button: MenuButton
 var fit_button: Button
+var save_button: Button
+var export_button: Button
 var generate_button: Button
 var reset_button: Button
 var graph_editor: GraphEdit
@@ -117,18 +121,35 @@ func _build_ui() -> void:
 	# Fit button
 	fit_button = Button.new()
 	fit_button.text = "⊞ Fit"
+	fit_button.tooltip_text = "Fit all nodes in view"
 	fit_button.pressed.connect(_on_fit_pressed)
 	toolbar.add_child(fit_button)
+	
+	# Save button (saves to resource)
+	save_button = Button.new()
+	save_button.text = "💾 Save"
+	save_button.tooltip_text = "Save graph to resource"
+	save_button.pressed.connect(_on_save_pressed)
+	toolbar.add_child(save_button)
+	
+	# Export button (exports to .pgraph file)
+	export_button = Button.new()
+	export_button.text = "📤 Export"
+	export_button.tooltip_text = "Export as .pgraph template"
+	export_button.pressed.connect(_on_export_pressed)
+	toolbar.add_child(export_button)
 	
 	# Generate button
 	generate_button = Button.new()
 	generate_button.text = "▶ Generate"
+	generate_button.tooltip_text = "Evaluate graph and run generator"
 	generate_button.pressed.connect(_on_generate_pressed)
 	toolbar.add_child(generate_button)
 	
 	# Reset button
 	reset_button = Button.new()
 	reset_button.text = "↺ Reset"
+	reset_button.tooltip_text = "Reset to default values"
 	reset_button.pressed.connect(_on_reset_pressed)
 	toolbar.add_child(reset_button)
 	
@@ -144,6 +165,7 @@ func _build_ui() -> void:
 	graph_editor.connection_request.connect(_on_connection_request)
 	graph_editor.disconnection_request.connect(_on_disconnection_request)
 	graph_editor.popup_request.connect(_on_popup_request)
+	graph_editor.delete_nodes_request.connect(_on_delete_nodes_request)
 	vbox.add_child(graph_editor)
 	
 	# No selection label (shown when nothing selected)
@@ -158,16 +180,27 @@ func _build_ui() -> void:
 func _setup_add_node_menu() -> void:
 	var popup = add_node_button.get_popup()
 	popup.clear()
+	_menu_node_map.clear()
 	
-	# Value nodes
-	popup.add_item("Constant", 0)
-	popup.add_item("Random", 1)
-	popup.add_separator("Modifiers")
-	popup.add_item("Math", 10)
-	popup.add_item("Clamp", 11)
-	popup.add_item("Round", 12)
-	popup.add_separator("Output")
-	popup.add_item("Parameter Output", 20)
+	# Get menu structure from registry
+	var registry = NodeRegistry.get_instance()
+	var menu_structure = registry.get_menu_structure()
+	
+	var id = 0
+	for category_data in menu_structure:
+		var category = category_data.category
+		var nodes = category_data.nodes
+		
+		if id > 0:
+			popup.add_separator(category)
+		else:
+			# Add category label for first section
+			popup.add_separator(category)
+		
+		for node_info in nodes:
+			popup.add_item(node_info.name, id)
+			_menu_node_map[id] = node_info.name
+			id += 1
 	
 	popup.id_pressed.connect(_on_add_node_menu_selected)
 
@@ -277,30 +310,39 @@ func _auto_generate_graph() -> void:
 		return
 	
 	var params = param_source.get_params()
+	if params.is_empty():
+		return
+	
 	var x_offset = 100
 	var y_offset = 50
-	var node_spacing_y = 120
-	var node_spacing_x = 350
+	var node_spacing_y = 80
+	var panel_x_offset = 450
 	
+	# Create unified parameter panel node (undeletable)
+	var panel_node = ParamPanelNode.new()
+	panel_node.name = "ParamPanel"
+	panel_node.set_parameters(params)
+	panel_node.position_offset = Vector2(panel_x_offset, y_offset)
+	graph_editor.add_child(panel_node)
+	
+	# Create constant nodes for each parameter and connect to panel
 	var index = 0
 	for key in params.keys():
 		var value = params[key]
 		
-		# Create constant node with proper class
+		# Create constant node
 		var const_node = _create_constant_node(key, value)
 		const_node.position_offset = Vector2(x_offset, y_offset + index * node_spacing_y)
 		const_node.value_changed.connect(_on_node_value_changed)
 		graph_editor.add_child(const_node)
 		
-		# Create output node with proper class
-		var output_node = _create_output_node(key, typeof(value))
-		output_node.position_offset = Vector2(x_offset + node_spacing_x, y_offset + index * node_spacing_y)
-		graph_editor.add_child(output_node)
-		
-		# Connect them
-		graph_editor.connect_node(const_node.name, 0, output_node.name, 0)
+		# Connect to the corresponding input on the panel (after nodes are ready)
+		call_deferred("_connect_to_panel", const_node.name, panel_node.name, index)
 		
 		index += 1
+
+func _connect_to_panel(from_node: String, panel_name: String, port_idx: int) -> void:
+	graph_editor.connect_node(from_node, 0, panel_name, port_idx)
 	
 	# Initial evaluation
 	_request_evaluation()
@@ -377,6 +419,59 @@ func _on_generate_pressed() -> void:
 	
 	generate_requested.emit()
 
+func _on_save_pressed() -> void:
+	# Save graph to the current resource
+	if graph_editor == null:
+		push_warning("No graph editor available")
+		return
+	
+	if current_resource == null:
+		push_warning("No resource selected - cannot save graph")
+		return
+	
+	var success = GraphSerializer.save_to_resource(graph_editor, current_resource)
+	if success:
+		print("[PopulousGraph] Graph saved to resource: ", current_resource.resource_path)
+	else:
+		push_error("Failed to save graph to resource")
+
+func _on_export_pressed() -> void:
+	# Export graph as a .pgraph template file
+	if graph_editor == null:
+		push_warning("No graph editor available")
+		return
+	
+	# Create file dialog for export
+	var dialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	dialog.access = FileDialog.ACCESS_RESOURCES
+	dialog.add_filter("*.pgraph", "Populous Graph Template")
+	dialog.current_dir = "res://"
+	
+	if current_resource and current_resource.resource_path:
+		dialog.current_file = current_resource.resource_path.get_file().get_basename() + ".pgraph"
+	else:
+		dialog.current_file = "graph_template.pgraph"
+	
+	dialog.file_selected.connect(_on_export_file_selected)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	
+	# Add dialog to scene tree
+	get_tree().root.add_child(dialog)
+	dialog.popup_centered(Vector2(600, 400))
+
+func _on_export_file_selected(path: String) -> void:
+	var success = GraphSerializer.export_to_file(graph_editor, path)
+	if success:
+		print("[PopulousGraph] Graph exported to: ", path)
+	else:
+		push_error("Failed to export graph to: ", path)
+	
+	# Clean up dialog
+	for child in get_tree().root.get_children():
+		if child is FileDialog:
+			child.queue_free()
+
 func _on_reset_pressed() -> void:
 	if param_source:
 		param_source.reset_to_defaults()
@@ -385,49 +480,26 @@ func _on_reset_pressed() -> void:
 func _on_add_node_menu_selected(id: int) -> void:
 	var center = graph_editor.scroll_offset + graph_editor.size / 2
 	
-	match id:
-		0: # Constant
-			var node = _create_constant_node("new", 0)
-			node.position_offset = center
-			node.value_changed.connect(_on_node_value_changed)
-			graph_editor.add_child(node)
-		1: # Random
-			var node = _create_random_node()
-			node.position_offset = center
-			node.value_changed.connect(_on_node_value_changed)
-			graph_editor.add_child(node)
-		10: # Math
-			var node = _create_math_node()
-			node.position_offset = center
-			node.value_changed.connect(_on_node_value_changed)
-			graph_editor.add_child(node)
-		11: # Clamp
-			var node = _create_clamp_node()
-			node.position_offset = center
-			node.value_changed.connect(_on_node_value_changed)
-			graph_editor.add_child(node)
-		12: # Round
-			# TODO: Implement RoundNode
-			pass
-		20: # Parameter Output
-			var node = _create_output_node("param", TYPE_NIL)
-			node.position_offset = center
-			graph_editor.add_child(node)
-
-func _create_random_node() -> GraphNode:
-	var node = RandomNode.new()
-	node.name = "Random_" + str(randi())
-	return node
-
-func _create_math_node() -> GraphNode:
-	var node = MathNode.new()
-	node.name = "Math_" + str(randi())
-	return node
-
-func _create_clamp_node() -> GraphNode:
-	var node = ClampNode.new()
-	node.name = "Clamp_" + str(randi())
-	return node
+	# Get node name from menu map
+	if not _menu_node_map.has(id):
+		push_warning("Unknown menu item ID: " + str(id))
+		return
+	
+	var node_name = _menu_node_map[id]
+	var registry = NodeRegistry.get_instance()
+	var node = registry.create_node(node_name)
+	
+	if node == null:
+		push_warning("Failed to create node: " + node_name)
+		return
+	
+	node.position_offset = center
+	
+	# Connect value changed signal if node has it
+	if node.has_signal("value_changed"):
+		node.value_changed.connect(_on_node_value_changed)
+	
+	graph_editor.add_child(node)
 
 func _on_connection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
 	graph_editor.connect_node(from_node, from_port, to_node, to_port)
@@ -442,3 +514,25 @@ func _on_popup_request(position: Vector2) -> void:
 	var popup = add_node_button.get_popup()
 	popup.position = get_screen_position() + position
 	popup.popup()
+
+func _on_delete_nodes_request(nodes: Array[StringName]) -> void:
+	# Delete selected nodes, except the ParamPanel which cannot be deleted
+	for node_name in nodes:
+		var node = graph_editor.get_node_or_null(NodePath(node_name))
+		if node == null:
+			continue
+		
+		# Don't allow deleting the ParamPanel node
+		if node is PopulousParamPanelNode or node.name == "ParamPanel":
+			continue
+		
+		# Disconnect all connections to/from this node first
+		for conn in graph_editor.get_connection_list():
+			if conn.from_node == node_name or conn.to_node == node_name:
+				graph_editor.disconnect_node(conn.from_node, conn.from_port, conn.to_node, conn.to_port)
+		
+		# Remove and free the node
+		graph_editor.remove_child(node)
+		node.queue_free()
+	
+	_request_evaluation()

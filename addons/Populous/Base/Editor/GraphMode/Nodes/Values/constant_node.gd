@@ -102,6 +102,8 @@ func _get_port_type_for_value() -> int:
 			return PortType.VECTOR3
 		TYPE_COLOR:
 			return PortType.COLOR
+		TYPE_AABB:
+			return PortType.AABB
 		_:
 			return PortType.ANY
 
@@ -131,6 +133,8 @@ func _create_value_editor() -> void:
 			_create_vector3_editor()
 		TYPE_COLOR:
 			_create_color_editor()
+		TYPE_AABB:
+			_create_aabb_editor()
 		_:
 			_create_generic_editor()
 	
@@ -262,6 +266,57 @@ func _create_color_editor() -> void:
 	add_child(picker)
 	value_control = picker
 
+func _create_aabb_editor() -> void:
+	var aabb_val = value if value is AABB else AABB()
+	
+	var vbox = VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Position row (Origin)
+	var pos_label = Label.new()
+	pos_label.text = "Position"
+	pos_label.add_theme_font_size_override("font_size", 11)
+	vbox.add_child(pos_label)
+	
+	var pos_hbox = HBoxContainer.new()
+	pos_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(pos_hbox)
+	
+	for i in range(3):
+		var spin = SpinBox.new()
+		spin.min_value = -999999.0
+		spin.max_value = 999999.0
+		spin.step = 0.1
+		spin.value = aabb_val.position[i]
+		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spin.prefix = ["X:", "Y:", "Z:"][i]
+		spin.value_changed.connect(_on_aabb_pos_changed.bind(i))
+		pos_hbox.add_child(spin)
+	
+	# Size row
+	var size_label = Label.new()
+	size_label.text = "Size"
+	size_label.add_theme_font_size_override("font_size", 11)
+	vbox.add_child(size_label)
+	
+	var size_hbox = HBoxContainer.new()
+	size_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(size_hbox)
+	
+	for i in range(3):
+		var spin = SpinBox.new()
+		spin.min_value = -999999.0
+		spin.max_value = 999999.0
+		spin.step = 0.1
+		spin.value = aabb_val.size[i]
+		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spin.prefix = ["W:", "H:", "D:"][i]
+		spin.value_changed.connect(_on_aabb_size_changed.bind(i))
+		size_hbox.add_child(spin)
+	
+	add_child(vbox)
+	value_control = vbox
+
 func _create_generic_editor() -> void:
 	var label = Label.new()
 	label.text = str(value)
@@ -326,4 +381,20 @@ func _on_vector3_z_changed(new_value: float) -> void:
 
 func _on_color_changed(new_color: Color) -> void:
 	value = new_color
+	_notify_value_changed()
+
+func _on_aabb_pos_changed(new_value: float, axis: int) -> void:
+	if not value is AABB:
+		value = AABB()
+	var pos = value.position
+	pos[axis] = new_value
+	value = AABB(pos, value.size)
+	_notify_value_changed()
+
+func _on_aabb_size_changed(new_value: float, axis: int) -> void:
+	if not value is AABB:
+		value = AABB()
+	var sz = value.size
+	sz[axis] = new_value
+	value = AABB(value.position, sz)
 	_notify_value_changed()

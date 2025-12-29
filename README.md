@@ -16,17 +16,26 @@ This separation allows for flexible combinations of generation strategies and me
 ## Features
 
 ### Core Features
+- **Visual Graph Editor**: Node-based parameter editing with real-time evaluation
 - **Modular NPC Creation**: Extensible generator/meta system for custom NPC generation
-- **Dynamic UI Generation**: Automatically creates UI controls based on generator parameters
 - **Container-Based Spawning**: Uses `PopulousContainer` Node3D nodes as spawn points
-- **Parameter Binding**: Two-way binding between UI controls and generator parameters
-- **Scene Integration**: Spawned NPCs are properly owned by the scene root
+- **Graph Templates**: Export/import reusable graph configurations as `.pgraph` files
+- **Custom Nodes**: Extend the graph system with your own node types
+
+### Graph Editor Nodes
+
+| Category | Nodes | Description |
+|----------|-------|-------------|
+| **Values** | Constant, Random | Generate or define values |
+| **Modifiers** | Math, Clamp | Transform values |
+| **Outputs** | Parameter Output | Write to generator parameters |
+| **Graphs** | Exposed Input/Output, Graph Instance | Create reusable sub-graphs |
 
 ### Built-in Tools
-- **Populous Tool**: Main editor window for generating NPCs with real-time parameter editing
-- **JSON-to-Resource Converter**: Convert JSON files to Godot `.tres` resources for easy data management
-- **Batch Resource Creator**: Batch create resources from FBX files with automatic mesh assignment
-- **Container Creator**: Quick creation of `PopulousContainer` nodes in your scene
+- **Graph Editor**: Visual node-based parameter editing (Bottom Dock)
+- **JSON-to-Resource Converter**: Convert JSON files to Godot `.tres` resources
+- **Batch Resource Creator**: Batch create resources from FBX files
+- **Container Creator**: Quick creation of `PopulousContainer` nodes
 
 ### Extension Examples
 - **Random Generation**: Simple example with grid-based spawning and random attributes
@@ -44,28 +53,36 @@ This separation allows for flexible combinations of generation strategies and me
 
 ### Basic Usage
 
-1. **Create a Container**: In your scene, go to **Project > Tools > Populous > Create Container** to add a `PopulousContainer` Node3D
-2. **Select the Container**: Click on the container node in the scene tree
-3. **Open Populous Tool**: Navigate to **Project > Tools > Populous > Populous Tool**
-4. **Assign a Resource**: Select a `PopulousResource` in the tool (or create one)
-5. **Adjust Parameters**: Modify any available parameters in the dynamic UI
-6. **Generate**: Click "Generate Populous" to spawn NPCs
+1. **Create a Container**: Go to **Project > Tools > Populous > Create Container** to add a `PopulousContainer` Node3D
+2. **Select the Container**: Click on the container node - the Graph Editor automatically opens in the bottom dock
+3. **Choose a Resource**: Use the resource picker in the toolbar to select a `PopulousResource`
+4. **Edit Parameters**: Connect nodes to modify generator parameters visually
+5. **Generate**: Click **▶ Generate** to spawn NPCs
+
+### Graph Editor Toolbar
+
+| Button | Action |
+|--------|--------|
+| **+ Add Node** | Add nodes to the graph |
+| **Fit** | Fit all nodes in view |
+| **Save** | Save graph to resource metadata |
+| **Export** | Export as `.pgraph` template file |
+| **Generate** | Evaluate graph and run generator |
+| **Reset** | Reset to default parameter values |
 
 ### Creating Custom NPCs
 
-To create custom NPCs, you'll need to extend both the Generator and Meta classes:
+To create custom NPCs, extend both the Generator and Meta classes:
 
 #### 1. Create a Custom Generator
 
 ```gdscript
 extends PopulousGenerator
 
-# Define your parameters
 var npc_count: int = 10
 var spawn_radius: float = 5.0
 
 func _generate(populous_container: Node) -> void:
-    # Your custom spawning logic here
     for i in range(npc_count):
         var npc = resource.instantiate()
         var angle = (i * TAU) / npc_count
@@ -75,16 +92,11 @@ func _generate(populous_container: Node) -> void:
         meta_resource.set_metadata(npc)
 
 func _get_params() -> Dictionary:
-    return {
-        "npc_count": npc_count,
-        "spawn_radius": spawn_radius
-    }
+    return {"npc_count": npc_count, "spawn_radius": spawn_radius}
 
 func _set_params(params: Dictionary) -> void:
-    if params.has("npc_count"):
-        npc_count = params["npc_count"]
-    if params.has("spawn_radius"):
-        spawn_radius = params["spawn_radius"]
+    npc_count = params.get("npc_count", npc_count)
+    spawn_radius = params.get("spawn_radius", spawn_radius)
 ```
 
 #### 2. Create a Custom Meta
@@ -95,7 +107,6 @@ extends PopulousMeta
 var use_random_colors: bool = true
 
 func set_metadata(npc: Node) -> void:
-    # Apply unique attributes to the NPC
     npc.set_meta("name", generate_random_name())
     if use_random_colors:
         npc.set_meta("color", Color(randf(), randf(), randf()))
@@ -104,144 +115,81 @@ func _get_params() -> Dictionary:
     return {"use_random_colors": use_random_colors}
 
 func _set_params(params: Dictionary) -> void:
-    if params.has("use_random_colors"):
-        use_random_colors = params["use_random_colors"]
+    use_random_colors = params.get("use_random_colors", use_random_colors)
 ```
 
-#### 3. Create Resources
+### Creating Custom Graph Nodes
 
-1. Create a new `PopulousGenerator` resource and assign your custom generator script
-2. Create a new `PopulousMeta` resource and assign your custom meta script
-3. Create a new `PopulousResource` and assign both your generator and meta
-4. Use it in the Populous Tool!
+Extend the graph editor with custom nodes by creating scripts in `res://populous_nodes/`:
+
+```gdscript
+@tool
+extends "res://addons/Populous/Base/Editor/GraphMode/Nodes/base_node.gd"
+class_name MyCustomNode
+
+func _get_node_title() -> String:
+    return "My Custom Node"
+
+func _get_node_category() -> String:
+    return "Custom"
+
+func _define_ports() -> void:
+    add_input_port("value", PortType.NUMBER)
+    add_output_port("result", PortType.NUMBER)
+
+func _evaluate(inputs: Dictionary) -> Dictionary:
+    var value = inputs.get("value", 0)
+    return {"result": value * 2}
+```
+
+Custom nodes are automatically discovered and added to the **+ Add Node** menu.
+
+### Creating Sub-Graphs
+
+1. Add **Exposed Input** and **Exposed Output** nodes to define the interface
+2. Export the graph as a `.pgraph` file using **📤 Export**
+3. Use **Graph Instance** node in other graphs to embed the sub-graph
 
 ## Architecture
 
 ### Core Classes
 
-#### `PopulousResource`
-The main entry point that combines a Generator and Meta.
+| Class | Description |
+|-------|-------------|
+| `PopulousResource` | Combines Generator and Meta resources |
+| `PopulousGenerator` | Base class for spawning logic |
+| `PopulousMeta` | Base class for NPC attributes |
+| `PopulousGraphPanel` | Visual graph editor |
+| `PopulousBaseNode` | Base class for custom graph nodes |
 
-**Properties:**
-| Property | Type | Description |
-|----------|------|-------------|
-| `generator` | `PopulousGenerator` | The generator resource that defines spawning logic |
+### Graph Mode Classes
 
-**Methods:**
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `run_populous(populous_container: Node)` | `void` | Executes NPC generation in the container |
-| `get_params()` | `Dictionary` | Retrieves all generator parameters for UI binding |
-| `set_params(params: Dictionary)` | `void` | Updates generator parameters from UI |
-| `get_ui_config()` | `Dictionary` | Returns merged UI config from generator and meta |
+| Class | Description |
+|-------|-------------|
+| `PopulousGraphEvaluator` | Computes node values and updates parameters |
+| `PopulousNodeRegistry` | Discovers and registers graph nodes |
+| `PopulousGraphSerializer` | Saves/loads graph configurations |
 
----
+## Project Structure
 
-#### `PopulousGenerator` (Base Class)
-Abstract base class for NPC generation logic.
-
-**Properties:**
-| Property | Type | Description |
-|----------|------|-------------|
-| `resource` | `PackedScene` | The NPC scene template to instantiate |
-| `meta_resource` | `PopulousMeta` | The meta resource for NPC customization |
-
-**Override Methods:**
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `_generate(populous_container: Node)` | `void` | Core generation logic (override in subclasses) |
-| `_get_params()` | `Dictionary` | Returns parameters for UI binding |
-| `_set_params(params: Dictionary)` | `void` | Handles parameter updates from UI |
-| `_get_ui_config()` | `Dictionary` | Returns UI layout configuration (sections, tooltips, control types) |
-
-**Helper Methods:**
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `_spawn_npc(container: Node)` | `Node` | Spawns a single NPC with proper setup (recommended) |
-| `_clean_container(container: Node)` | `void` | Removes all children from container |
-| `_setup_npc_owner(npc: Node, container: Node)` | `void` | Sets up proper editor ownership |
-
----
-
-#### `PopulousMeta` (Base Class)
-Abstract base class for NPC metadata/attributes.
-
-**Override Methods:**
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `set_metadata(npc: Node)` | `void` | Applies metadata to spawned NPC |
-| `_get_params()` | `Dictionary` | Returns meta parameters for UI |
-| `_set_params(params: Dictionary)` | `void` | Handles parameter updates from UI |
-| `_get_ui_config()` | `Dictionary` | Returns UI layout configuration |
-
----
-
-### UI Configuration
-
-Generators and Metas can define custom UI layouts by overriding `_get_ui_config()`:
-
-```gdscript
-func _get_ui_config() -> Dictionary:
-    return {
-        "sections": [
-            {"name": "Transform", "params": ["position", "rotation"], "expanded": true},
-            {"name": "Appearance", "params": ["color", "scale"], "expanded": false}
-        ],
-        "param_config": {
-            "position": {
-                "display_name": "Spawn Position",
-                "tooltip": "Base position for NPC spawning",
-                "control": "vector3"
-            }
-        }
-    }
 ```
-
-## Examples
-
-### Random Generation Example
-
-Located in `addons/Populous/ExtendedExamples/RandomGeneration/`, this example demonstrates:
-- Grid-based NPC spawning
-- Random name generation from JSON resources
-- Optional random color assignment
-- Configurable density and spacing
-
-**Parameters:**
-- `populous_density`: Maximum NPCs to spawn
-- `spawn_padding`: Spacing between NPCs
-- `rows` / `columns`: Grid dimensions
-
-### Capsule Person Generator
-
-Located in `addons/Populous/ExtendedExamples/CapsulePersonGenerator/`, this advanced example shows:
-- Gender-based name generation (Male/Female/Neutral)
-- Modular body part system with weighted random selection
-- Skin type support (DEFAULT, LIGHT, MEDIUM, DARK)
-- Part filtering by gender and skin type
-- Optional part skipping for variation
-
-## Tools Reference
-
-### Populous Tool
-Main editor window for NPC generation. Features:
-- Automatic container selection detection
-- Resource picker for `PopulousResource`
-- Dynamic parameter UI generation
-- Real-time parameter editing
-- Generate button for spawning NPCs
-
-### JSON Tres Tool
-Converts JSON files to Godot `.tres` resources:
-1. Select a JSON file
-2. Choose output path for `.tres` file
-3. Convert and use in your meta classes
-
-### Batch Resources Tool
-Batch creates resources from FBX files:
-1. Select a blueprint resource
-2. Select multiple FBX files
-3. Resources are automatically generated with mesh assignment
+addons/Populous/
+├── Base/
+│   ├── Constants/                 # Centralized constants
+│   ├── Editor/
+│   │   ├── GraphMode/             # Graph editor system
+│   │   │   ├── graph_panel.gd     # Main dock panel
+│   │   │   ├── graph_evaluator.gd # Value computation
+│   │   │   ├── graph_serializer.gd# Save/load
+│   │   │   ├── node_registry.gd   # Node discovery
+│   │   │   └── Nodes/             # Built-in nodes
+│   │   └── UIComponents/          # Shared UI utilities
+│   ├── GenerationClasses/         # Generator and Meta base classes
+│   └── populous_resource.gd       # Main resource class
+├── ExtendedExamples/              # Example implementations
+├── Tools/                         # JSON converter, Batch creator
+└── populous.gd                    # Plugin entry point
+```
 
 ## Demo & Tutorial
 
@@ -253,26 +201,6 @@ Watch the demo videos:
 
 - **Godot Engine**: 4.4+ (Forward Plus renderer)
 - **Editor Access**: Plugin requires editor access (`@tool` classes)
-
-## Project Structure
-
-```
-addons/Populous/
-├── Base/                          # Core plugin files
-│   ├── Constants/                 # Centralized constants
-│   ├── Editor/                    # Editor tools and UI
-│   ├── GenerationClasses/         # Base generator and meta classes
-│   ├── ResourcePicker/            # Custom resource picker
-│   ├── Resources/                 # Default resources
-│   └── populous_resource.gd       # Main resource class
-├── ExtendedExamples/              # Example implementations
-│   ├── RandomGeneration/          # Simple random example
-│   └── CapsulePersonGenerator/    # Advanced modular example
-├── Tools/                         # Utility tools
-│   ├── JSON_TRES/                 # JSON converter
-│   └── Batch_Resources/           # Batch resource creator
-└── populous.gd                    # Plugin entry point
-```
 
 ## Contributing
 

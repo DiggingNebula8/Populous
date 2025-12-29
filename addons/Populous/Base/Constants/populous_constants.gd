@@ -11,8 +11,6 @@ class_name PopulousConstants
 #═══════════════════════════════════════════════════════════════════════════════
 
 class Scenes:
-	# PopulousTool now creates UI from code, so we preload the script instead
-	const populous_tool_script = preload("res://addons/Populous/Base/Editor/populous_tool.gd")
 	const json_tres_tool: PackedScene = preload("res://addons/Populous/Tools/JSON_TRES/JSON_TRESTool.tscn")
 	const batch_tres_tool: PackedScene = preload("res://addons/Populous/Tools/Batch_Resources/Batch_Resources.tscn")
 

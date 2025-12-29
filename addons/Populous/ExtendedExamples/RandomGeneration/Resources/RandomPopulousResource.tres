@@ -7,3 +7,130 @@
 script = ExtResource("2_yjg0x")
 generator = ExtResource("1_qt4lx")
 metadata/_custom_type_script = ExtResource("2_yjg0x")
+metadata/_populous_graph_data = {
+"connections": [{
+"from_node": "Constant_populous_density_933929223",
+"from_port": 0,
+"to_node": "Output_populous_density_2394581216",
+"to_port": 0
+}, {
+"from_node": "Constant_spawn_padding_3218906196",
+"from_port": 0,
+"to_node": "Output_spawn_padding_2418200325",
+"to_port": 0
+}, {
+"from_node": "Constant_rows_1851163983",
+"from_port": 0,
+"to_node": "Output_rows_844865829",
+"to_port": 0
+}, {
+"from_node": "Constant_columns_1139368689",
+"from_port": 0,
+"to_node": "Output_columns_1748345481",
+"to_port": 0
+}, {
+"from_node": "Constant_random_albedo_1268063514",
+"from_port": 0,
+"to_node": "Output_random_albedo_2836309682",
+"to_port": 0
+}],
+"nodes": [{
+"custom": {
+"param_key": "populous_density",
+"value": 6,
+"value_type": 2
+},
+"name": &"Constant_populous_density_933929223",
+"position": [100.0, 50.0],
+"size": [310.0, 109.0],
+"type": "ConstantNode"
+}, {
+"custom": {
+"param_key": "populous_density",
+"param_type": 2
+},
+"name": &"Output_populous_density_2394581216",
+"position": [450.0, 50.0],
+"size": [236.0, 106.0],
+"type": "ParamOutputNode"
+}, {
+"custom": {
+"param_key": "spawn_padding",
+"value": Vector3(2, 0, 2),
+"value_type": 9
+},
+"name": &"Constant_spawn_padding_3218906196",
+"position": [100.0, 170.0],
+"size": [426.0, 109.0],
+"type": "ConstantNode"
+}, {
+"custom": {
+"param_key": "spawn_padding",
+"param_type": 9
+},
+"name": &"Output_spawn_padding_2418200325",
+"position": [450.0, 170.0],
+"size": [218.0, 106.0],
+"type": "ParamOutputNode"
+}, {
+"custom": {
+"param_key": "rows",
+"value": 3,
+"value_type": 2
+},
+"name": &"Constant_rows_1851163983",
+"position": [100.0, 290.0],
+"size": [184.0, 109.0],
+"type": "ConstantNode"
+}, {
+"custom": {
+"param_key": "rows",
+"param_type": 2
+},
+"name": &"Output_rows_844865829",
+"position": [450.0, 290.0],
+"size": [150.0, 106.0],
+"type": "ParamOutputNode"
+}, {
+"custom": {
+"param_key": "columns",
+"value": 2,
+"value_type": 2
+},
+"name": &"Constant_columns_1139368689",
+"position": [100.0, 410.0],
+"size": [220.0, 109.0],
+"type": "ConstantNode"
+}, {
+"custom": {
+"param_key": "columns",
+"param_type": 2
+},
+"name": &"Output_columns_1748345481",
+"position": [450.0, 410.0],
+"size": [150.0, 106.0],
+"type": "ParamOutputNode"
+}, {
+"custom": {
+"param_key": "random_albedo",
+"value": true,
+"value_type": 1
+},
+"name": &"Constant_random_albedo_1268063514",
+"position": [100.0, 530.0],
+"size": [292.0, 109.0],
+"type": "ConstantNode"
+}, {
+"custom": {
+"param_key": "random_albedo",
+"param_type": 1
+},
+"name": &"Output_random_albedo_2836309682",
+"position": [450.0, 530.0],
+"size": [218.0, 106.0],
+"type": "ParamOutputNode"
+}],
+"scroll_offset": [-188.0, -112.0],
+"version": 1,
+"zoom": 1.0
+}
