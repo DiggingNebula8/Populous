@@ -14,8 +14,8 @@ var first_name: String
 var last_name: String
 
 # Meta parameters with defaults
-@export(Enum, "Random:-1", "Male:0", "Female:1", "Neutral:2") var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
-@export(Enum, "Random:-1", "Default:0", "Light:1", "Medium:2", "Dark:3") var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
+@export_enum("Random:-1", "Male:0", "Female:1", "Neutral:2") var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
+@export_enum("Random:-1", "Default:0", "Light:1", "Medium:2", "Dark:3") var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
 var name_colors: Array[Color] = [Color.WHITE]
 var part_tags_filter: Array[String] = []
 var custom_properties: Dictionary = {}
@@ -39,12 +39,14 @@ func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 	if names_list == null or names_list.data == null:
 		return "Unknown"
 	var names = []
+	var data = names_list.data
+	# Try gendered arrays first, fall back to generic FirstNames
 	if gender == CapsulePersonConstants.Gender.FEMALE:
-		names = names_list.data.FemaleFirstNames
+		names = data.get("FemaleFirstNames", data.get("FirstNames", []))
 	elif gender == CapsulePersonConstants.Gender.MALE:
-		names = names_list.data.MaleFirstNames
+		names = data.get("MaleFirstNames", data.get("FirstNames", []))
 	else:
-		names = names_list.data.NeutralFirstNames
+		names = data.get("NeutralFirstNames", data.get("FirstNames", []))
 	if names == null or names.is_empty():
 		return "Unknown"
 	return names[randi() % names.size()]

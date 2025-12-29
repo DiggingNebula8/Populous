@@ -214,12 +214,9 @@ func _get_enum_info_for_param(param_key: String) -> Dictionary:
 		return {}
 	
 	var generator = populous_resource.generator
-	var script = generator.get_script()
-	if script == null:
-		return {}
 	
-	# Get property list from the script
-	var property_list = generator.get_script_property_list()
+	# Get property list from the generator object
+	var property_list = generator.get_property_list()
 	
 	# Find property matching the param_key
 	for prop_info in property_list:
@@ -319,18 +316,18 @@ func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
 	
 	if parts.size() == 2:
 		# Format: "ClassName.EnumName"
-		var class_name = parts[0]
+		var cls_name = parts[0]
 		var enum_name = parts[1]
 		
 		# Try built-in class first (via ClassDB)
-		if ClassDB.class_exists(class_name):
-			var enum_constants = ClassDB.class_get_enum_constants(class_name, enum_name)
+		if ClassDB.class_exists(cls_name):
+			var enum_constants = ClassDB.class_get_enum_constants(cls_name, enum_name)
 			if enum_constants.size() > 0:
 				var enum_values = []
 				var enum_names = []
 				for constant_name in enum_constants:
 					enum_names.append(constant_name)
-					var enum_value = ClassDB.class_get_integer_constant(class_name, constant_name)
+					var enum_value = ClassDB.class_get_integer_constant(cls_name, constant_name)
 					enum_values.append(enum_value)
 				
 				return {
@@ -342,8 +339,8 @@ func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
 		# Try GDScript enum class - access via script loading
 		# Try to find the class script via ResourceLoader with common patterns
 		var possible_patterns = [
-			class_name.to_lower() + ".gd",
-			class_name + ".gd"
+			cls_name.to_lower() + ".gd",
+			cls_name + ".gd"
 		]
 		var search_dirs = _get_enum_search_directories()
 		var possible_paths = []
