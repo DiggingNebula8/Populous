@@ -68,8 +68,8 @@ func generate_last_name() -> String:
 
 func set_metadata(npc: Node) -> void:
 	# Seed random for this NPC to ensure unique variation
-	# Use NPC's unique ID or current time + random offset for variation
-	var npc_seed = Time.get_ticks_msec() + randi() % 1000000
+	# Use NPC's unique instance ID for reproducible, deterministic variation
+	var npc_seed = Time.get_ticks_msec() + npc.get_instance_id()
 	seed(npc_seed)
 	
 	# Determine gender based on preference
@@ -145,37 +145,101 @@ func _get_params() -> Dictionary:
 ## @return: void
 func _set_params(params: Dictionary) -> void:
 	if params.has("gender_preference"):
-		gender_preference = params["gender_preference"] as int
+		var value = params["gender_preference"]
+		if value is int:
+			gender_preference = value
+		else:
+			PopulousLogger.warning("Invalid type for gender_preference, expected int")
 	if params.has("skin_type_preference"):
-		skin_type_preference = params["skin_type_preference"] as int
+		var value = params["skin_type_preference"]
+		if value is int:
+			skin_type_preference = value
+		else:
+			PopulousLogger.warning("Invalid type for skin_type_preference, expected int")
 	if params.has("name_colors"):
-		name_colors = params["name_colors"] as Array
+		var value = params["name_colors"]
+		if value is Array:
+			name_colors = value
+		else:
+			PopulousLogger.warning("Invalid type for name_colors, expected Array")
 	if params.has("part_tags_filter"):
-		part_tags_filter = params["part_tags_filter"] as Array
+		var value = params["part_tags_filter"]
+		if value is Array:
+			part_tags_filter = value
+		else:
+			PopulousLogger.warning("Invalid type for part_tags_filter, expected Array")
 	if params.has("custom_properties"):
-		custom_properties = params["custom_properties"] as Dictionary
+		var value = params["custom_properties"]
+		if value is Dictionary:
+			custom_properties = value
+		else:
+			PopulousLogger.warning("Invalid type for custom_properties, expected Dictionary")
 	if params.has("material_override"):
-		material_override = params["material_override"] as Resource
+		var value = params["material_override"]
+		if value is Resource or value == null:
+			material_override = value
+		else:
+			PopulousLogger.warning("Invalid type for material_override, expected Resource or null")
 	if params.has("position_offset"):
-		position_offset = params["position_offset"] as Vector3
+		var value = params["position_offset"]
+		if value is Vector3:
+			position_offset = value
+		else:
+			PopulousLogger.warning("Invalid type for position_offset, expected Vector3")
 	if params.has("rotation_offset"):
-		rotation_offset = params["rotation_offset"] as Quaternion
+		var value = params["rotation_offset"]
+		if value is Quaternion:
+			rotation_offset = value
+		else:
+			PopulousLogger.warning("Invalid type for rotation_offset, expected Quaternion")
 	if params.has("scale_multiplier"):
-		scale_multiplier = params["scale_multiplier"] as Vector3
+		var value = params["scale_multiplier"]
+		if value is Vector3:
+			scale_multiplier = value
+		else:
+			PopulousLogger.warning("Invalid type for scale_multiplier, expected Vector3")
 	if params.has("color_tint"):
-		color_tint = params["color_tint"] as Color
+		var value = params["color_tint"]
+		if value is Color:
+			color_tint = value
+		else:
+			PopulousLogger.warning("Invalid type for color_tint, expected Color")
 	if params.has("spawn_area"):
-		spawn_area = params["spawn_area"] as Rect2
+		var value = params["spawn_area"]
+		if value is Rect2:
+			spawn_area = value
+		else:
+			PopulousLogger.warning("Invalid type for spawn_area, expected Rect2")
 	if params.has("spawn_bounds_3d"):
-		spawn_bounds_3d = params["spawn_bounds_3d"] as AABB
+		var value = params["spawn_bounds_3d"]
+		if value is AABB:
+			spawn_bounds_3d = value
+		else:
+			PopulousLogger.warning("Invalid type for spawn_bounds_3d, expected AABB")
 	if params.has("preferred_part_tags"):
-		preferred_part_tags = params["preferred_part_tags"] as Array
+		var value = params["preferred_part_tags"]
+		if value is Array:
+			preferred_part_tags = value
+		else:
+			PopulousLogger.warning("Invalid type for preferred_part_tags, expected Array")
 	if params.has("excluded_part_tags"):
-		excluded_part_tags = params["excluded_part_tags"] as Array
+		var value = params["excluded_part_tags"]
+		if value is Array:
+			excluded_part_tags = value
+		else:
+			PopulousLogger.warning("Invalid type for excluded_part_tags, expected Array")
 	if params.has("metadata_tags"):
-		metadata_tags = params["metadata_tags"] as Array
+		var value = params["metadata_tags"]
+		if value is Array:
+			metadata_tags = value
+		else:
+			PopulousLogger.warning("Invalid type for metadata_tags, expected Array")
 	if params.has("custom_metadata"):
-		custom_metadata = params["custom_metadata"] as Dictionary
+		var value = params["custom_metadata"]
+		if value is Dictionary:
+			custom_metadata = value
+		else:
+			PopulousLogger.warning("Invalid type for custom_metadata, expected Dictionary")
 
 #----------------------------------------------------------------------------
 # APPLY MODULAR PARTS
@@ -253,12 +317,25 @@ func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin
 			PopulousLogger.debug("Skipping optional part category: " + part_name)
 			continue
 
-		# Shuffle parts before sorting to add more variation
-		# This ensures that even parts with the same weight get different selection order
-		parts.shuffle()
-
 		# Sort parts by weight (higher weight means more likely to be chosen).
 		parts.sort_custom(func(a, b): return a.weight > b.weight)
+		
+		# Shuffle parts with equal weight to add variation
+		# Group parts by weight and shuffle each group to randomize equal-weight parts
+		var weight_groups: Dictionary = {}
+		for part in parts:
+			if not weight_groups.has(part.weight):
+				weight_groups[part.weight] = []
+			weight_groups[part.weight].append(part)
+		
+		parts.clear()
+		var sorted_weights = weight_groups.keys()
+		sorted_weights.sort()
+		sorted_weights.reverse()  # Highest weight first
+		for weight in sorted_weights:
+			var group = weight_groups[weight]
+			group.shuffle()  # Randomize parts with equal weight
+			parts.append_array(group)
 
 		# Use weighted random selection to pick a part.
 		# This will produce different results for each NPC due to randomization
