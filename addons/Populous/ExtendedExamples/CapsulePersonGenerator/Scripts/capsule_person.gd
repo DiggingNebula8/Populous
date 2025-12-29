@@ -30,6 +30,7 @@ func _process(delta: float) -> void:
 
 func _instantiate_person() -> void:
 	if mesh_container == null:
+		PopulousLogger.warning("Cannot instantiate person - mesh_container is null")
 		return
 	
 	if has_meta("Parts"):

@@ -16,6 +16,9 @@ var populous_resource: PopulousResource
 var generator_settings_label: Label
 var generator_scroll_container: ScrollContainer
 var dynamic_ui_container: VBoxContainer
+var error_label: Label
+var reset_button: Button
+var original_params: Dictionary = {}
 
 func _ready() -> void:
 	populous_menu = %PopulousMenu
@@ -23,6 +26,8 @@ func _ready() -> void:
 	generator_settings_label = %GeneratorSettingsLabel
 	generator_scroll_container = %GeneratorScrollContainer
 	dynamic_ui_container = %DynamicUIContainer
+	error_label = %ErrorLabel
+	reset_button = %ResetDefaults
 
 	# Connect the selection changed signal (only works in the editor)
 	if Engine.is_editor_hint():
@@ -57,11 +62,14 @@ func _on_selection_changed() -> void:
 ##
 ## @return: void
 func _on_generate_populous_pressed() -> void:
+	_clear_error()
 	if populous_container == null:
+		_show_error("No container selected. Please select a PopulousContainer node.")
 		PopulousLogger.error("Cannot generate - no container selected. Please select a PopulousContainer node.")
 		return
 	
 	if populous_resource == null:
+		_show_error("No resource selected. Please select a PopulousResource.")
 		PopulousLogger.error("Cannot generate - no resource selected. Please select a PopulousResource.")
 		return
 	
@@ -72,11 +80,18 @@ func _on_generate_populous_pressed() -> void:
 ##
 ## @return: void
 func _update_ui() -> void:
+	_clear_error()
 	if populous_resource == null:
 		%GeneratePopulous.visible = false
+		reset_button.visible = false
 		return
 
 	%GeneratePopulous.visible = true
+	reset_button.visible = true
+	
+	# Store original params for reset functionality
+	original_params = populous_resource.get_params().duplicate(true)
+	
 	var populous_generator_params = populous_resource.get_params()
 	
 	if populous_generator_params == null:
@@ -1068,36 +1083,6 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 	
 	return hbox
 
-## Creates a row container with label and input field, wrapped in a MarginContainer.
-##
-## @param label_text: The text for the label.
-## @param input_field: The input control to add.
-## @return: Configured MarginContainer with the row container inside.
-func _create_row_container(label_text: String, input_field: Control) -> MarginContainer:
-	var row_container = HBoxContainer.new()
-	row_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	row_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row_container.add_theme_constant_override("separation", 8)
-
-	var label = Label.new()
-	label.text = label_text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.custom_minimum_size = Vector2(150, 0)
-
-	row_container.add_child(label)
-	row_container.add_child(input_field)
-
-	var margin_container = MarginContainer.new()
-	margin_container.add_child(row_container)
-	margin_container.add_theme_constant_override("margin_left", PopulousConstants.UI.margin_left)
-	margin_container.add_theme_constant_override("margin_top", PopulousConstants.UI.margin_top)
-	margin_container.add_theme_constant_override("margin_right", PopulousConstants.UI.margin_right)
-	margin_container.add_theme_constant_override("margin_bottom", PopulousConstants.UI.margin_bottom)
-
-	return margin_container
-
 ## Callback when a parameter value changes in the UI.
 ## 
 ## Updates the parameter in the resource and triggers parameter binding.
@@ -1759,3 +1744,82 @@ func _on_quaternion_changed(new_value: float, key: String, component: int) -> vo
 	
 	updated_params[key] = quaternion_value
 	populous_resource.set_params(updated_params)
+
+#----------------------------------------------------------------------------
+# HELPER FUNCTIONS
+#----------------------------------------------------------------------------
+
+## Converts snake_case parameter names to Title Case for display.
+## Example: "spawn_position" -> "Spawn Position"
+##
+## @param name: The snake_case parameter name.
+## @return: Title Case formatted string.
+func _format_param_name(name: String) -> String:
+	var words = name.split("_")
+	var result = []
+	for word in words:
+		if word.length() > 0:
+			result.append(word.capitalize())
+	return " ".join(result)
+
+## Creates a row container with a label and input control.
+## Used for each parameter in the dynamic UI.
+##
+## @param key: The parameter key (used as label text).
+## @param input_field: The input control for this parameter.
+## @return: MarginContainer containing the row.
+func _create_row_container(key: String, input_field: Control) -> MarginContainer:
+	var margin_container = MarginContainer.new()
+	margin_container.add_theme_constant_override("margin_top", 4)
+	margin_container.add_theme_constant_override("margin_bottom", 4)
+	
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	hbox.add_theme_constant_override("separation", 12)
+	
+	var label = Label.new()
+	label.text = _format_param_name(key)
+	label.custom_minimum_size = Vector2(150, 0)
+	label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	
+	hbox.add_child(label)
+	if input_field != null:
+		input_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hbox.add_child(input_field)
+	
+	margin_container.add_child(hbox)
+	return margin_container
+
+## Shows an error message in the UI error label.
+##
+## @param message: The error message to display.
+## @return: void
+func _show_error(message: String) -> void:
+	if error_label != null:
+		error_label.text = message
+		error_label.visible = true
+
+## Clears the error message from the UI.
+##
+## @return: void
+func _clear_error() -> void:
+	if error_label != null:
+		error_label.text = ""
+		error_label.visible = false
+
+## Callback when the Reset Defaults button is pressed.
+## Reloads the original parameter values.
+##
+## @return: void
+func _on_reset_defaults_pressed() -> void:
+	if populous_resource == null:
+		PopulousLogger.warning("Cannot reset defaults - no resource selected")
+		return
+	
+	if original_params.is_empty():
+		PopulousLogger.warning("No original params stored to reset to")
+		return
+	
+	populous_resource.set_params(original_params.duplicate(true))
+	_update_ui()
+	PopulousLogger.info("Parameters reset to defaults")

@@ -89,7 +89,7 @@ func _toggle_window(
 func _toggle_populous_window():
 	var result = _toggle_window(
 		is_populous_window_open,
-		populous_window,
+		populous_window if is_instance_valid(populous_window) else null,
 		populous_constants.Scenes.populous_tool,
 		"Populous Tool",
 		Vector2i(720, 720),
@@ -113,7 +113,7 @@ func _on_populous_window_closed() -> void:
 func _toggle_json_tres_window() -> void:
 	var result = _toggle_window(
 		is_json_tres_window_open,
-		json_tres_window,
+		json_tres_window if is_instance_valid(json_tres_window) else null,
 		populous_constants.Scenes.json_tres_tool,
 		"JSON Tres Tool",
 		Vector2i(720, 480),
@@ -124,7 +124,9 @@ func _toggle_json_tres_window() -> void:
 
 func _on_json_tres_window_closed():
 	is_json_tres_window_open = false
-	json_tres_window.queue_free()
+	if json_tres_window != null and is_instance_valid(json_tres_window):
+		json_tres_window.queue_free()
+	json_tres_window = null
 
 func _create_container():
 	# Get the root node of the current scene
@@ -164,7 +166,7 @@ func _create_container():
 func _toggle_batch_resource_window():
 	var result = _toggle_window(
 		is_batch_resource_window_open,
-		batch_resource_window,
+		batch_resource_window if is_instance_valid(batch_resource_window) else null,
 		populous_constants.Scenes.batch_tres_tool,
 		"Batch Resource Creator",
 		populous_constants.UI.batch_resource_window_size,

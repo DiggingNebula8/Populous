@@ -142,10 +142,39 @@ size_flags_vertical = 3
 [node name="PopulousGenerate" type="VBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu"]
 layout_mode = 2
 
-[node name="GeneratePopulous" type="Button" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
+[node name="ErrorLabel" type="Label" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="HSeparator3" type="HSeparator" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="ButtonContainer" type="HBoxContainer" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate"]
+layout_mode = 2
+alignment = 1
+
+[node name="GeneratePopulous" type="Button" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/ButtonContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Generate NPCs using the selected resource"
 text = "Generate Populous"
 
-[connection signal="pressed" from="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/GeneratePopulous" to="Control/VBoxContainer/MarginContainer/PopulousTool" method="_on_generate_populous_pressed"]
+[node name="ResetDefaults" type="Button" parent="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/ButtonContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Reset all parameters to their default values"
+text = "Reset Defaults"
+
+[connection signal="pressed" from="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/ButtonContainer/GeneratePopulous" to="Control/VBoxContainer/MarginContainer/PopulousTool" method="_on_generate_populous_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/MarginContainer2/PopulousMenu/PopulousGenerate/ButtonContainer/ResetDefaults" to="Control/VBoxContainer/MarginContainer/PopulousTool" method="_on_reset_defaults_pressed"]

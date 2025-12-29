@@ -1,7 +1,6 @@
 @tool
 class_name CapsulePersonPopulousMeta extends PopulousMeta
 
-
 @export var modular_pieces: CapsulePersonParts 
 @export var material: ORMMaterial3D
 
@@ -37,6 +36,7 @@ var custom_metadata: Dictionary = {}
 
 func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 	if names_list == null or names_list.data == null:
+		PopulousLogger.warning("names_list is null or has no data - returning fallback name 'Unknown'")
 		return "Unknown"
 	var names = []
 	var data = names_list.data
@@ -48,14 +48,17 @@ func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 	else:
 		names = data.get("NeutralFirstNames", data.get("FirstNames", []))
 	if names == null or names.is_empty():
+		PopulousLogger.warning("FirstNames array is null or empty for gender " + str(gender) + " - returning fallback name 'Unknown'")
 		return "Unknown"
 	return names[randi() % names.size()]
 
 func generate_last_name() -> String:
 	if names_list == null or names_list.data == null:
+		PopulousLogger.warning("names_list is null or has no data - returning fallback name 'Doe'")
 		return "Doe"
 	var names = names_list.data.LastNames
 	if names == null or names.is_empty():
+		PopulousLogger.warning("LastNames array is null or empty - returning fallback name 'Doe'")
 		return "Doe"
 	return names[randi() % names.size()]
 
