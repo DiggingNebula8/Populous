@@ -1,15 +1,41 @@
 @tool
 class_name RandomPopulousMeta extends PopulousMeta
 
+## Simple random meta that applies random names and optional albedo colors.
+## 
+## This meta demonstrates:
+## - Random name generation from JSON data
+## - Optional random albedo color application
+## - Simple parameter binding
+
+const PV = preload("res://addons/Populous/Base/Utils/populous_param_validator.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# RESOURCES
+#═══════════════════════════════════════════════════════════════════════════════
+
 @export var names_list: JSONResource = preload("res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# CONSTANTS
+#═══════════════════════════════════════════════════════════════════════════════
 
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETERS
+#═══════════════════════════════════════════════════════════════════════════════
+
 var first_name: String
 var last_name: String
 
+## Whether to apply a random albedo color to NPCs
 @export var isRandomAlbedo: bool = true
+
+#═══════════════════════════════════════════════════════════════════════════════
+# NAME GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func generate_first_name() -> String:
 	if names_list == null or names_list.data == null:
@@ -31,6 +57,10 @@ func generate_last_name() -> String:
 		return "Doe"
 	return names[randi() % names.size()]
 
+#═══════════════════════════════════════════════════════════════════════════════
+# METADATA APPLICATION
+#═══════════════════════════════════════════════════════════════════════════════
+
 func set_metadata(npc: Node) -> void:
 	first_name = generate_first_name()
 	last_name = generate_last_name()
@@ -40,13 +70,16 @@ func set_metadata(npc: Node) -> void:
 	if isRandomAlbedo:
 		npc.set_meta("Albedo", Color(randf(), randf(), randf()))
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _get_params() -> Dictionary:
-	var meta_params: Dictionary = {
+	return {
 		"random_albedo": isRandomAlbedo
 	}
-	return meta_params
 
 func _set_params(params: Dictionary) -> void:
-	if params.has("random_albedo"):
-		isRandomAlbedo = params["random_albedo"]
+	var v = PV.validate(params, "random_albedo", TYPE_BOOL)
+	if v != null:
+		isRandomAlbedo = v

@@ -1,13 +1,26 @@
 @tool
 class_name PopulousResource extends Resource
 
+## Main resource class for Populous addon.
+## 
+## This is the top-level resource that users select in the Populous Tool.
+## Contains a generator that defines how NPCs are created and spawned.
+## 
+## Architecture:
+##   PopulousResource → PopulousGenerator → PopulousMeta
+##   (orchestration)    (spawning logic)    (NPC customization)
+
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
-## Main resource class for Populous addon.
-## Contains a generator that defines how NPCs are created and spawned.
-## Use this resource in the Populous Tool to generate NPCs in your scene.
+#═══════════════════════════════════════════════════════════════════════════════
+# RESOURCES
+#═══════════════════════════════════════════════════════════════════════════════
 
 @export var generator: PopulousGenerator = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousGenerator.tres")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Generates NPCs in the specified container using the configured generator.
 ## 
@@ -25,6 +38,10 @@ func run_populous(populous_container: Node) -> void:
 		return
 	
 	generator._generate(populous_container)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Returns a dictionary of all generator parameters for UI binding.
 ## 

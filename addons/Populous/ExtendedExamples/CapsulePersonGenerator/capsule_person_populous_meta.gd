@@ -1,38 +1,74 @@
 @tool
 class_name CapsulePersonPopulousMeta extends PopulousMeta
 
+## Capsule Person meta that applies modular character parts and metadata.
+## 
+## This meta demonstrates:
+## - Modular character part selection (hair, head, torso, etc.)
+## - Gender and skin type preferences
+## - Part tag filtering (preferred/excluded)
+## - Complex metadata application with transforms and colors
+
+const PV = preload("res://addons/Populous/Base/Utils/populous_param_validator.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# RESOURCES
+#═══════════════════════════════════════════════════════════════════════════════
+
 @export var modular_pieces: CapsulePersonParts 
 @export var material: ORMMaterial3D
-
 @export var names_list: JSONResource = preload("res://addons/Populous/ExtendedExamples/RandomGeneration/Resources/MetaResource/RandomNames.tres")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# CONSTANTS
+#═══════════════════════════════════════════════════════════════════════════════
 
 const first_name_key: StringName = "FirstName"
 const last_name_key: StringName = "LastName"
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETERS
+#═══════════════════════════════════════════════════════════════════════════════
+
 var first_name: String
 var last_name: String
 
-# Meta parameters with defaults
-@export_enum("Random:-1", "Male:0", "Female:1", "Neutral:2") var gender_preference: int = -1  # -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
-@export_enum("Random:-1", "Default:0", "Light:1", "Medium:2", "Dark:3") var skin_type_preference: int = -1  # -1 = random, 0-3 = specific skin type
+## Gender preference: -1 = random, 0 = MALE, 1 = FEMALE, 2 = NEUTRAL
+@export_enum("Random:-1", "Male:0", "Female:1", "Neutral:2") var gender_preference: int = -1
+## Skin type preference: -1 = random, 0-3 = specific skin type
+@export_enum("Random:-1", "Default:0", "Light:1", "Medium:2", "Dark:3") var skin_type_preference: int = -1
+## Available name colors (randomly selected per NPC)
 var name_colors: Array[Color] = [Color.WHITE]
+## Legacy tag filter for parts
 var part_tags_filter: Array[String] = []
+## Custom properties to apply to NPCs
 var custom_properties: Dictionary = {}
+## Material override for NPCs
 var material_override: Resource = null
+## Position offset applied to NPCs
 var position_offset: Vector3 = Vector3.ZERO
+## Rotation offset applied to NPCs
 var rotation_offset: Quaternion = Quaternion.IDENTITY
+## Scale multiplier applied to NPCs
 var scale_multiplier: Vector3 = Vector3.ONE
+## Color tint applied to NPCs
 var color_tint: Color = Color.WHITE
+## 2D spawn area constraint
 var spawn_area: Rect2 = Rect2()
+## 3D spawn bounds constraint
 var spawn_bounds_3d: AABB = AABB()
+## Tags to prefer when selecting parts
 var preferred_part_tags: Array[String] = []
+## Tags to exclude when selecting parts
 var excluded_part_tags: Array[String] = []
+## Metadata tags applied to NPCs
 var metadata_tags: Array[String] = []
+## Custom metadata dictionary applied to NPCs
 var custom_metadata: Dictionary = {}
 
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
 # NAME GENERATION
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
 
 func generate_first_name(gender: CapsulePersonConstants.Gender) -> String:
 	if names_list == null or names_list.data == null:
@@ -62,9 +98,9 @@ func generate_last_name() -> String:
 		return "Doe"
 	return names[randi() % names.size()]
 
-#----------------------------------------------------------------------------
-# SET METADATA & APPLY MODULAR PARTS
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
+# METADATA APPLICATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func set_metadata(npc: Node) -> void:
 	# Seed random for this NPC to ensure unique variation
@@ -116,6 +152,10 @@ func set_metadata(npc: Node) -> void:
 	# Reset random seed to system default after this NPC
 	randomize()
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Returns dictionary of meta parameters for UI binding.
 ## 
 ## @return: Dictionary with parameter names as keys and current values as values.
@@ -139,145 +179,66 @@ func _get_params() -> Dictionary:
 		"custom_metadata": custom_metadata
 	}
 
-## Validates and returns a parameter value if it matches the expected type.
-## 
-## @param params: Dictionary containing parameter key-value pairs.
-## @param key: The parameter key to validate.
-## @param expected_type: The expected type (e.g., int, Array, Vector3, etc.).
-## @param allow_null: Whether null values are allowed (default: false).
-## @return: The validated value, or null if validation fails.
-func _validate_param(params: Dictionary, key: String, expected_type: Variant.Type, allow_null: bool = false) -> Variant:
-	if not params.has(key):
-		return null
-	
-	var value = params[key]
-	
-	# Handle null values
-	if value == null:
-		if allow_null:
-			return null
-		else:
-			PopulousLogger.warning("Invalid value for %s, null not allowed" % key)
-			return null
-	
-	# Check type using typeof() for built-in types
-	if typeof(value) == expected_type:
-		return value
-	
-	# Special cases: types that need 'is' operator check
-	if expected_type == TYPE_QUATERNION and value is Quaternion:
-		return value
-	if expected_type == TYPE_RECT2 and value is Rect2:
-		return value
-	if expected_type == TYPE_RECT2I and value is Rect2i:
-		return value
-	if expected_type == TYPE_AABB and value is AABB:
-		return value
-	if expected_type == TYPE_PLANE and value is Plane:
-		return value
-	if expected_type == TYPE_OBJECT and value is Resource:
-		return value
-	
-	# Type mismatch - get readable type name
-	var type_name = ""
-	match expected_type:
-		TYPE_INT: type_name = "int"
-		TYPE_FLOAT: type_name = "float"
-		TYPE_BOOL: type_name = "bool"
-		TYPE_STRING: type_name = "String"
-		TYPE_VECTOR2: type_name = "Vector2"
-		TYPE_VECTOR3: type_name = "Vector3"
-		TYPE_COLOR: type_name = "Color"
-		TYPE_ARRAY: type_name = "Array"
-		TYPE_DICTIONARY: type_name = "Dictionary"
-		TYPE_QUATERNION: type_name = "Quaternion"
-		TYPE_RECT2: type_name = "Rect2"
-		TYPE_RECT2I: type_name = "Rect2i"
-		TYPE_AABB: type_name = "AABB"
-		TYPE_PLANE: type_name = "Plane"
-		TYPE_OBJECT: type_name = "Resource"
-		_: type_name = str(expected_type)
-	
-	PopulousLogger.warning("Invalid type for %s, expected %s" % [key, type_name])
-	return null
-
-## Sets meta parameters from dictionary (typically from UI changes).
+## Sets meta parameters from dictionary with type validation.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.
 ## @return: void
 func _set_params(params: Dictionary) -> void:
-	var validated_value
+	var v  # Validated value
 	
-	validated_value = _validate_param(params, "gender_preference", TYPE_INT)
-	if validated_value != null:
-		gender_preference = validated_value
+	v = PV.validate(params, "gender_preference", TYPE_INT)
+	if v != null: gender_preference = v
 	
-	validated_value = _validate_param(params, "skin_type_preference", TYPE_INT)
-	if validated_value != null:
-		skin_type_preference = validated_value
+	v = PV.validate(params, "skin_type_preference", TYPE_INT)
+	if v != null: skin_type_preference = v
 	
-	validated_value = _validate_param(params, "name_colors", TYPE_ARRAY)
-	if validated_value != null:
-		name_colors = validated_value
+	v = PV.validate_array(params, "name_colors")
+	if not v.is_empty(): name_colors = v
 	
-	validated_value = _validate_param(params, "part_tags_filter", TYPE_ARRAY)
-	if validated_value != null:
-		part_tags_filter = validated_value
+	v = PV.validate_array(params, "part_tags_filter", TYPE_STRING)
+	if not v.is_empty(): part_tags_filter = v
 	
-	validated_value = _validate_param(params, "custom_properties", TYPE_DICTIONARY)
-	if validated_value != null:
-		custom_properties = validated_value
+	v = PV.validate(params, "custom_properties", TYPE_DICTIONARY)
+	if v != null: custom_properties = v
 	
-	if params.has("material_override"):
-		var value = params["material_override"]
-		if value == null or value is Resource:
-			material_override = value
-		else:
-			PopulousLogger.warning("Invalid type for material_override, expected Resource or null")
+	# Material override allows null (to clear the override)
+	var res_result = PV.validate_resource(params, "material_override")
+	if res_result.valid:
+		material_override = res_result.value
 	
-	validated_value = _validate_param(params, "position_offset", TYPE_VECTOR3)
-	if validated_value != null:
-		position_offset = validated_value
+	v = PV.validate(params, "position_offset", TYPE_VECTOR3)
+	if v != null: position_offset = v
 	
-	validated_value = _validate_param(params, "rotation_offset", TYPE_QUATERNION)
-	if validated_value != null:
-		rotation_offset = validated_value
+	v = PV.validate(params, "rotation_offset", TYPE_QUATERNION)
+	if v != null: rotation_offset = v
 	
-	validated_value = _validate_param(params, "scale_multiplier", TYPE_VECTOR3)
-	if validated_value != null:
-		scale_multiplier = validated_value
+	v = PV.validate(params, "scale_multiplier", TYPE_VECTOR3)
+	if v != null: scale_multiplier = v
 	
-	validated_value = _validate_param(params, "color_tint", TYPE_COLOR)
-	if validated_value != null:
-		color_tint = validated_value
+	v = PV.validate(params, "color_tint", TYPE_COLOR)
+	if v != null: color_tint = v
 	
-	validated_value = _validate_param(params, "spawn_area", TYPE_RECT2)
-	if validated_value != null:
-		spawn_area = validated_value
+	v = PV.validate(params, "spawn_area", TYPE_RECT2)
+	if v != null: spawn_area = v
 	
-	validated_value = _validate_param(params, "spawn_bounds_3d", TYPE_AABB)
-	if validated_value != null:
-		spawn_bounds_3d = validated_value
+	v = PV.validate(params, "spawn_bounds_3d", TYPE_AABB)
+	if v != null: spawn_bounds_3d = v
 	
-	validated_value = _validate_param(params, "preferred_part_tags", TYPE_ARRAY)
-	if validated_value != null:
-		preferred_part_tags = validated_value
+	v = PV.validate_array(params, "preferred_part_tags", TYPE_STRING)
+	if not v.is_empty(): preferred_part_tags = v
 	
-	validated_value = _validate_param(params, "excluded_part_tags", TYPE_ARRAY)
-	if validated_value != null:
-		excluded_part_tags = validated_value
+	v = PV.validate_array(params, "excluded_part_tags", TYPE_STRING)
+	if not v.is_empty(): excluded_part_tags = v
 	
-	validated_value = _validate_param(params, "metadata_tags", TYPE_ARRAY)
-	if validated_value != null:
-		metadata_tags = validated_value
+	v = PV.validate_array(params, "metadata_tags", TYPE_STRING)
+	if not v.is_empty(): metadata_tags = v
 	
-	validated_value = _validate_param(params, "custom_metadata", TYPE_DICTIONARY)
-	if validated_value != null:
-		custom_metadata = validated_value
+	v = PV.validate(params, "custom_metadata", TYPE_DICTIONARY)
+	if v != null: custom_metadata = v
 
-#----------------------------------------------------------------------------
-# APPLY MODULAR PARTS
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
+# MODULAR PARTS APPLICATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func apply_modular_pieces(npc: Node, gender: CapsulePersonConstants.Gender, skin_type: CapsulePersonConstants.SkinType) -> void:
 	if modular_pieces == null:
@@ -463,9 +424,9 @@ func _apply_meta_params(npc: Node) -> void:
 		npc.set_meta("spawn_area", spawn_area)
 	if spawn_bounds_3d.size.length() > 0:
 		npc.set_meta("spawn_bounds_3d", spawn_bounds_3d)
-#----------------------------------------------------------------------------
-# HELPER FUNCTIONS
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
+# HELPERS
+#═══════════════════════════════════════════════════════════════════════════════
 
 # Returns a CapsulePart using weighted random selection.
 func weighted_random_pick(parts: Array[CapsulePart]) -> CapsulePart:

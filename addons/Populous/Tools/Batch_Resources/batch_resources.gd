@@ -1,12 +1,30 @@
 @tool
 extends Window
 
+## Batch Resource Creator - creates multiple .tres resources from FBX files.
+## 
+## This tool allows you to:
+## - Select a blueprint resource as a template
+## - Select multiple FBX files
+## - Generate a .tres file for each FBX, copying the blueprint and assigning the mesh
+## 
+## Useful for creating CapsulePart resources from multiple mesh files quickly.
+
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PROPERTIES
+#═══════════════════════════════════════════════════════════════════════════════
+
+## The template resource to duplicate for each FBX file
 @export var blueprint_resource: Resource
 
 var file_dialog: FileDialog
 var selected_fbx_files: PackedStringArray = []
+
+#═══════════════════════════════════════════════════════════════════════════════
+# INITIALIZATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Initializes the batch resource creator UI.
 ## 
@@ -49,6 +67,10 @@ func _ready() -> void:
 	file_dialog.files_selected.connect(_on_files_selected)
 	add_child(file_dialog)
 
+#═══════════════════════════════════════════════════════════════════════════════
+# UI ACTIONS
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Opens the file dialog for selecting FBX files.
 ##
 ## @return: void
@@ -69,6 +91,10 @@ func _on_files_selected(files: PackedStringArray) -> void:
 ## @return: void
 func _on_blueprint_selected(resource: Resource) -> void:
 	blueprint_resource = resource
+
+#═══════════════════════════════════════════════════════════════════════════════
+# RESOURCE GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Generates resources for all selected FBX files.
 ## 

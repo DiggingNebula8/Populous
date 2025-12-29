@@ -3,22 +3,55 @@ extends VBoxContainer
 
 class_name PopulousTool
 
+## Main UI tool for the Populous addon.
+## 
+## Provides a dynamic parameter editor that generates UI controls based on
+## generator/meta parameters. Supports many Godot types including Vector3,
+## Color, Arrays, Dictionaries, Enums, and more.
+## 
+## Usage:
+## 1. Select a PopulousContainer node in the scene
+## 2. Select a PopulousResource in the picker
+## 3. Adjust parameters via the generated UI
+## 4. Click Generate to spawn NPCs
+
 const PopulousConstants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
 
+#═══════════════════════════════════════════════════════════════════════════════
+# UI REFERENCES
+#═══════════════════════════════════════════════════════════════════════════════
+
 var populous_menu: VBoxContainer
 var menu_disabled_label: Label
-
-var is_container_selected: bool = false
-var populous_container: Node = null
-var populous_resource: PopulousResource
-
 var generator_settings_label: Label
 var generator_scroll_container: ScrollContainer
 var dynamic_ui_container: VBoxContainer
 var error_label: Label
 var reset_button: Button
+
+#═══════════════════════════════════════════════════════════════════════════════
+# STATE
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Whether a PopulousContainer is currently selected
+var is_container_selected: bool = false:
+	set(value):
+		is_container_selected = value
+		_update_menu_visibility()
+
+## The currently selected PopulousContainer node
+var populous_container: Node = null
+
+## The currently selected PopulousResource
+var populous_resource: PopulousResource = null
+
+## Original parameters for reset functionality
 var original_params: Dictionary = {}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# INITIALIZATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _ready() -> void:
 	populous_menu = %PopulousMenu
@@ -33,16 +66,32 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		var editor_selection = EditorInterface.get_selection()
 		editor_selection.selection_changed.connect(_on_selection_changed)
+		
+		# Connect resource picker signal
+		var resource_picker = %PopulousResourcePicker
+		if resource_picker:
+			resource_picker.resource_changed.connect(_on_resource_changed)
+	
+	# Initial visibility update
+	_update_menu_visibility()
 
-func _process(delta: float) -> void:
-	populous_menu.visible = is_container_selected
-	menu_disabled_label.visible = not is_container_selected
-	
-	var new_resource = %PopulousResourcePicker.edited_resource
+## Updates menu visibility based on container selection state.
+func _update_menu_visibility() -> void:
+	if populous_menu:
+		populous_menu.visible = is_container_selected
+	if menu_disabled_label:
+		menu_disabled_label.visible = not is_container_selected
+
+## Callback when the resource picker selection changes.
+func _on_resource_changed(new_resource: Resource) -> void:
 	if new_resource != populous_resource:
-		populous_resource = new_resource
-		_update_ui()  # Call function to update UI only when resource changes
+		populous_resource = new_resource as PopulousResource
+		_update_ui()
 	
+#═══════════════════════════════════════════════════════════════════════════════
+# SELECTION HANDLING
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Callback when editor selection changes.
 ## Updates the selected container if a PopulousContainer is selected.
 ##
@@ -111,6 +160,10 @@ func _update_ui() -> void:
 
 		# Generate new UI elements inside the referenced VBoxContainer
 		_make_ui(populous_generator_params)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# UI GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Dynamically creates UI controls for generator parameters.
 ## 
@@ -217,6 +270,10 @@ func _create_labeled_spinbox(label_text: String, value: float, min_val: float, m
 	spin.value = value
 	
 	return [label, spin]
+
+#═══════════════════════════════════════════════════════════════════════════════
+# ENUM DETECTION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Helper to detect enum information for a parameter using Godot's reflection system.
 ## Uses get_script_property_list() to check PropertyInfo for enum hints.
@@ -377,6 +434,10 @@ func _extract_enum_values_from_class(enum_class_name: String) -> Dictionary:
 	# when @export uses enum types. If we reach here, the enum wasn't found
 	# via ClassDB, so we'll rely on the PROPERTY_HINT_ENUM check in the caller
 	return {}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# CONTROL CREATION - BASIC TYPES
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Creates a SpinBox control for integer values.
 ##
@@ -549,6 +610,10 @@ func _create_enum_control(value, key: String, enum_names: Array = [], enum_value
 	option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option_button.custom_minimum_size = Vector2(100, 0)
 	return option_button
+
+#═══════════════════════════════════════════════════════════════════════════════
+# CONTROL CREATION - COMPLEX TYPES (Arrays, Dictionaries)
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Creates a custom array editor control for Array values.
 ##
@@ -938,6 +1003,10 @@ func _create_node_path_control(value: NodePath, key: String) -> LineEdit:
 	line_edit.connect("text_changed", Callable(self, "_on_node_path_changed").bind(key))
 	return line_edit
 
+#═══════════════════════════════════════════════════════════════════════════════
+# CONTROL CREATION - GEOMETRY TYPES (Rect2, AABB, Plane, Quaternion)
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Creates an HBoxContainer with four SpinBoxes for Rect2 values.
 ##
 ## @param value: The Rect2 value to display.
@@ -1083,6 +1152,10 @@ func _create_quaternion_control(value: Quaternion, key: String) -> HBoxContainer
 	
 	return hbox
 
+#═══════════════════════════════════════════════════════════════════════════════
+# VALUE CHANGE CALLBACKS - BASIC TYPES
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Callback when a parameter value changes in the UI.
 ## 
 ## Updates the parameter in the resource and triggers parameter binding.
@@ -1158,6 +1231,10 @@ func _on_enum_changed(index: int, key: String, enum_options: Array) -> void:
 	if index >= 0 and index < enum_options.size():
 		updated_params[key] = enum_options[index]
 		populous_resource.set_params(updated_params)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# VALUE CHANGE CALLBACKS - ARRAYS
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Callback when an array item value changes in the UI.
 ##
@@ -1361,6 +1438,10 @@ func _on_array_remove_item(array_key: String, index: int) -> void:
 		# Refresh UI
 		_update_ui()
 
+#═══════════════════════════════════════════════════════════════════════════════
+# VALUE CHANGE CALLBACKS - DICTIONARIES
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Callback when a dictionary pair value changes in the UI.
 ##
 ## @param new_value: The new value from the UI control.
@@ -1560,6 +1641,10 @@ func _on_dictionary_remove_pair(dict_key: String, pair_key) -> void:
 		# Refresh UI
 		_update_ui()
 
+#═══════════════════════════════════════════════════════════════════════════════
+# VALUE CHANGE CALLBACKS - GEOMETRY TYPES
+#═══════════════════════════════════════════════════════════════════════════════
+
 ## Callback when a NodePath value changes in the UI.
 ##
 ## @param new_text: The new text from the LineEdit.
@@ -1745,9 +1830,9 @@ func _on_quaternion_changed(new_value: float, key: String, component: int) -> vo
 	updated_params[key] = quaternion_value
 	populous_resource.set_params(updated_params)
 
-#----------------------------------------------------------------------------
-# HELPER FUNCTIONS
-#----------------------------------------------------------------------------
+#═══════════════════════════════════════════════════════════════════════════════
+# HELPERS
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Converts snake_case parameter names to Title Case for display.
 ## Example: "spawn_position" -> "Spawn Position"

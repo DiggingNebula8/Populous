@@ -1,7 +1,22 @@
 @tool
 class_name CapsulePersonPopulousGenerator extends PopulousGenerator
 
-# Generator parameters with defaults
+## Capsule Person generator with random positioning and transformation options.
+## 
+## This generator demonstrates:
+## - Random position spawning within bounds (AABB or Rect2)
+## - Random rotation (Y-axis only)
+## - Random scale with configurable range
+## - Multiple NPC spawning with spawn_count
+## - Alternative scene support
+
+const PV = preload("res://addons/Populous/Base/Utils/populous_param_validator.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETERS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Base spawn position for NPCs
 var spawn_position: Vector3 = Vector3.ZERO
 var spawn_rotation: Quaternion = Quaternion.IDENTITY
 var scale_range: Vector3 = Vector3(0.9, 1.1, 0.9)  # Min/Max scale multipliers
@@ -12,10 +27,18 @@ var spawn_rect: Rect2 = Rect2(-5, -5, 10, 10)
 var alternative_scene: PackedScene = null
 var spawn_tags: Array[String] = []
 var spawn_properties: Dictionary = {}
+## Enable random position within spawn_bounds or spawn_rect
 var use_random_position: bool = false
+## Enable random Y-axis rotation
 var use_random_rotation: bool = false
+## Enable random scale using scale_range
 var use_random_scale: bool = false
+## Number of NPCs to spawn
 var spawn_count: int = 1
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _generate(populous_container: Node) -> void:
 	if populous_container == null:
@@ -63,6 +86,86 @@ func _generate(populous_container: Node) -> void:
 		npc_meta_resource.set_metadata(spawned_npc)
 		
 		PopulousLogger.debug("Successfully spawned NPC %d" % (i + 1))
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Returns dictionary of generator parameters for UI binding.
+## 
+## @return: Dictionary with parameter names as keys and current values as values.
+func _get_params() -> Dictionary:
+	return {
+		"spawn_position": spawn_position,
+		"spawn_rotation": spawn_rotation,
+		"scale_range": scale_range,
+		"spawn_color": spawn_color,
+		"spawn_bounds": spawn_bounds,
+		"spawn_plane": spawn_plane,
+		"spawn_rect": spawn_rect,
+		"alternative_scene": alternative_scene,
+		"spawn_tags": spawn_tags,
+		"spawn_properties": spawn_properties,
+		"use_random_position": use_random_position,
+		"use_random_rotation": use_random_rotation,
+		"use_random_scale": use_random_scale,
+		"spawn_count": spawn_count
+	}
+
+## Sets generator parameters from dictionary with type validation.
+## 
+## @param params: Dictionary containing parameter key-value pairs.
+## @return: void
+func _set_params(params: Dictionary) -> void:
+	var v  # Validated value
+	
+	v = PV.validate(params, "spawn_position", TYPE_VECTOR3)
+	if v != null: spawn_position = v
+	
+	v = PV.validate(params, "spawn_rotation", TYPE_QUATERNION)
+	if v != null: spawn_rotation = v
+	
+	v = PV.validate(params, "scale_range", TYPE_VECTOR3)
+	if v != null: scale_range = v
+	
+	v = PV.validate(params, "spawn_color", TYPE_COLOR)
+	if v != null: spawn_color = v
+	
+	v = PV.validate(params, "spawn_bounds", TYPE_AABB)
+	if v != null: spawn_bounds = v
+	
+	v = PV.validate(params, "spawn_plane", TYPE_PLANE)
+	if v != null: spawn_plane = v
+	
+	v = PV.validate(params, "spawn_rect", TYPE_RECT2)
+	if v != null: spawn_rect = v
+	
+	# PackedScene allows null (to clear alternative scene)
+	var res_result = PV.validate_resource(params, "alternative_scene", PackedScene)
+	if res_result.valid:
+		alternative_scene = res_result.value
+	
+	v = PV.validate_array(params, "spawn_tags", TYPE_STRING)
+	if not v.is_empty(): spawn_tags = v
+	
+	v = PV.validate(params, "spawn_properties", TYPE_DICTIONARY)
+	if v != null: spawn_properties = v
+	
+	v = PV.validate(params, "use_random_position", TYPE_BOOL)
+	if v != null: use_random_position = v
+	
+	v = PV.validate(params, "use_random_rotation", TYPE_BOOL)
+	if v != null: use_random_rotation = v
+	
+	v = PV.validate(params, "use_random_scale", TYPE_BOOL)
+	if v != null: use_random_scale = v
+	
+	v = PV.validate_non_negative_int(params, "spawn_count")
+	if v >= 0: spawn_count = v
+
+#═══════════════════════════════════════════════════════════════════════════════
+# HELPERS
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Applies generator parameters to the spawned NPC.
 ##
@@ -130,58 +233,3 @@ func _apply_generator_params(npc: Node, index: int) -> void:
 	# Apply spawn tags
 	if not spawn_tags.is_empty():
 		npc.set_meta("spawn_tags", spawn_tags)
-
-## Returns dictionary of generator parameters for UI binding.
-## 
-## @return: Dictionary with parameter names as keys and current values as values.
-func _get_params() -> Dictionary:
-	return {
-		"spawn_position": spawn_position,
-		"spawn_rotation": spawn_rotation,
-		"scale_range": scale_range,
-		"spawn_color": spawn_color,
-		"spawn_bounds": spawn_bounds,
-		"spawn_plane": spawn_plane,
-		"spawn_rect": spawn_rect,
-		"alternative_scene": alternative_scene,
-		"spawn_tags": spawn_tags,
-		"spawn_properties": spawn_properties,
-		"use_random_position": use_random_position,
-		"use_random_rotation": use_random_rotation,
-		"use_random_scale": use_random_scale,
-		"spawn_count": spawn_count
-	}
-
-## Sets generator parameters from dictionary (typically from UI changes).
-## 
-## @param params: Dictionary containing parameter key-value pairs.
-## @return: void
-func _set_params(params: Dictionary) -> void:
-	if params.has("spawn_position"):
-		spawn_position = params["spawn_position"] as Vector3
-	if params.has("spawn_rotation"):
-		spawn_rotation = params["spawn_rotation"] as Quaternion
-	if params.has("scale_range"):
-		scale_range = params["scale_range"] as Vector3
-	if params.has("spawn_color"):
-		spawn_color = params["spawn_color"] as Color
-	if params.has("spawn_bounds"):
-		spawn_bounds = params["spawn_bounds"] as AABB
-	if params.has("spawn_plane"):
-		spawn_plane = params["spawn_plane"] as Plane
-	if params.has("spawn_rect"):
-		spawn_rect = params["spawn_rect"] as Rect2
-	if params.has("alternative_scene"):
-		alternative_scene = params["alternative_scene"] as PackedScene
-	if params.has("spawn_tags"):
-		spawn_tags = params["spawn_tags"] as Array
-	if params.has("spawn_properties"):
-		spawn_properties = params["spawn_properties"] as Dictionary
-	if params.has("use_random_position"):
-		use_random_position = params["use_random_position"] as bool
-	if params.has("use_random_rotation"):
-		use_random_rotation = params["use_random_rotation"] as bool
-	if params.has("use_random_scale"):
-		use_random_scale = params["use_random_scale"] as bool
-	if params.has("spawn_count"):
-		spawn_count = params["spawn_count"] as int

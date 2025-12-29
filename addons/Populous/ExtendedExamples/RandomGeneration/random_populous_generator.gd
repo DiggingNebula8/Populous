@@ -9,11 +9,24 @@ class_name RandomPopulousGenerator extends PopulousGenerator
 ## - Custom spacing via Vector3 padding
 ## - Position calculation based on grid coordinates
 
+const PV = preload("res://addons/Populous/Base/Utils/populous_param_validator.gd")
 
-@export var populous_density: int = 6  ## Maximum number of NPCs to spawn
-@export var spawn_padding: Vector3 = Vector3(2, 0, 2)  ## Spacing between NPCs (x, y, z)
-@export var rows: int = 3  ## Number of rows in the grid
-@export var columns: int = 2  ## Number of columns in the grid
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETERS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Maximum number of NPCs to spawn
+@export var populous_density: int = 6
+## Spacing between NPCs (x, y, z)
+@export var spawn_padding: Vector3 = Vector3(2, 0, 2)
+## Number of rows in the grid
+@export var rows: int = 3
+## Number of columns in the grid
+@export var columns: int = 2
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Generates NPCs in a grid pattern within the container.
 ## 
@@ -79,6 +92,10 @@ func _generate(populous_container: Node) -> void:
 			count += 1
 			PopulousLogger.debug("Spawned NPC at position: " + str(position))
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
+
 func _get_params() -> Dictionary:
 	var generator_params: Dictionary = {
 		"populous_density": populous_density,
@@ -86,18 +103,12 @@ func _get_params() -> Dictionary:
 		"rows": rows,
 		"columns": columns,
 	}
-	var populous_params = generator_params.merged(meta_resource._get_params())
-	return populous_params
+	# Merge with meta params if available
+	if meta_resource != null:
+		generator_params = generator_params.merged(meta_resource._get_params())
+	return generator_params
 
-## Sets generator parameters with validation.
-## 
-## Validates parameter types and ranges before setting:
-## - populous_density: Must be non-negative integer
-## - spawn_padding: Must be Vector3
-## - rows: Must be non-negative integer
-## - columns: Must be non-negative integer
-## 
-## Also forwards parameters to meta resource for processing.
+## Sets generator parameters with type validation.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.
 ## @return: void
@@ -106,35 +117,26 @@ func _set_params(params: Dictionary) -> void:
 		PopulousLogger.error("Cannot set params - params dictionary is null")
 		return
 	
-	if params.has("populous_density"):
-		var density_value = params["populous_density"]
-		if (typeof(density_value) == TYPE_INT) and density_value >= 0:
-			populous_density = int(density_value)
-		else:
-			PopulousLogger.error("Invalid populous_density value. Must be a non-negative integer.")
+	var v  # Validated value
 	
-	if params.has("spawn_padding"):
-		var padding_value = params["spawn_padding"]
-		if typeof(padding_value) == TYPE_VECTOR3:
-			spawn_padding = padding_value
-		else:
-			PopulousLogger.error("Invalid spawn_padding value. Must be a Vector3.")
+	v = PV.validate_non_negative_int(params, "populous_density")
+	if v >= 0: populous_density = v
 	
-	if params.has("rows"):
-		var rows_value = params["rows"]
-		if (typeof(rows_value) == TYPE_INT or typeof(rows_value) == TYPE_FLOAT) and rows_value >= 0:
-			rows = int(rows_value)
-			params["rows"] = rows
-		else:
-			PopulousLogger.error("Invalid rows value. Must be a non-negative integer.")
+	v = PV.validate(params, "spawn_padding", TYPE_VECTOR3)
+	if v != null: spawn_padding = v
 	
-	if params.has("columns"):
-		var columns_value = params["columns"]
-		if (typeof(columns_value) == TYPE_INT or typeof(columns_value) == TYPE_FLOAT) and columns_value >= 0:
-			columns = int(columns_value)
-			params["columns"] = columns
-		else:
-			PopulousLogger.error("Invalid columns value. Must be a non-negative integer.")
+	v = PV.validate_non_negative_int(params, "rows")
+	if v >= 0: rows = v
 	
+	v = PV.validate_non_negative_int(params, "columns")
+	if v >= 0: columns = v
+	
+	# Forward ONLY meta params (filtered, not the original dict)
 	if meta_resource != null:
-		meta_resource._set_params(params)
+		var meta_keys = ["random_albedo"]
+		var meta_params = {}
+		for key in meta_keys:
+			if params.has(key):
+				meta_params[key] = params[key]
+		if not meta_params.is_empty():
+			meta_resource._set_params(meta_params)

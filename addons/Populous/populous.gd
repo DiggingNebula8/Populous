@@ -1,8 +1,21 @@
 @tool
 extends EditorPlugin
 
+## Populous Editor Plugin - NPC generation framework for Godot.
+## 
+## Provides tools for spawning and configuring NPCs in your scenes:
+## - Populous Tool: Main UI for selecting resources and generating NPCs
+## - JSON TRES Tool: Convert JSON files to Godot resources
+## - Batch Resource Creator: Create multiple resources from FBX files
+## 
+## Access via Project → Tools → Populous menu.
+
 const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# WINDOW STATE
+#═══════════════════════════════════════════════════════════════════════════════
 
 var populous_window: Window
 var is_populous_window_open: bool = false
@@ -13,9 +26,17 @@ var is_json_tres_window_open: bool = false
 var batch_resource_window: Window
 var is_batch_resource_window_open: bool = false
 
+#═══════════════════════════════════════════════════════════════════════════════
+# PLUGIN LIFECYCLE
+#═══════════════════════════════════════════════════════════════════════════════
+
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
 	add_tool_submenu_item(populous_constants.Strings.populous, _create_populous_menu())
+
+#═══════════════════════════════════════════════════════════════════════════════
+# MENU CREATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _create_populous_menu():
 	var menu = PopupMenu.new()
@@ -36,6 +57,10 @@ func _on_populous_menu_selected(id: int) -> void:
 		1: _create_container()
 		2: _toggle_json_tres_window()
 		3: _toggle_batch_resource_window()
+
+#═══════════════════════════════════════════════════════════════════════════════
+# WINDOW MANAGEMENT
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Helper function to handle common window toggle logic for all Populous tools.
 ## 
@@ -127,6 +152,10 @@ func _on_json_tres_window_closed():
 	if json_tres_window != null and is_instance_valid(json_tres_window):
 		json_tres_window.queue_free()
 	json_tres_window = null
+
+#═══════════════════════════════════════════════════════════════════════════════
+# CONTAINER CREATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _create_container():
 	# Get the root node of the current scene
