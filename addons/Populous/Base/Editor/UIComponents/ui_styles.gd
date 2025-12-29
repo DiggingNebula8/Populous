@@ -40,6 +40,30 @@ const COLOR_RANGE_BORDER := Color(0.4, 0.4, 0.4, 1.0)
 const COLOR_RANGE_ACTIVE := Color(0.3, 0.6, 1.0, 0.7)
 const COLOR_RANGE_MARKER := Color(0.5, 0.8, 1.0, 1.0)
 
+## Error and status colors
+const COLOR_ERROR := Color(1, 0.3, 0.3, 1)
+const COLOR_SUCCESS := Color(0.3, 1, 0.3, 1)
+const COLOR_WARNING := Color(1, 0.8, 0.3, 1)
+
+## Window title colors
+const COLOR_TITLE := Color(0.42, 0.884, 1, 1)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# WINDOW SIZES
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Populous Tool window
+const WINDOW_SIZE_DEFAULT := Vector2i(1000, 950)
+const WINDOW_SIZE_MIN := Vector2i(800, 750)
+
+## Auto-resize bounds
+const WINDOW_RESIZE_MIN := Vector2(800, 600)
+const WINDOW_RESIZE_MAX := Vector2(1600, 1200)
+
+## Extra padding for resize calculation
+const WINDOW_RESIZE_PADDING_X := 120
+const WINDOW_RESIZE_PADDING_Y := 350
+
 #═══════════════════════════════════════════════════════════════════════════════
 # SIZING CONSTANTS
 #═══════════════════════════════════════════════════════════════════════════════
@@ -78,11 +102,40 @@ const ROW_SEPARATION := 16
 ## Spinbox defaults
 const SPINBOX_MIN_WIDTH := 80
 const SPINBOX_MIN_WIDTH_SMALL := 70
+const SPINBOX_SEPARATION := 4
+
+## Enum/Option button
+const ENUM_BUTTON_MIN_WIDTH := 100
 
 ## Range bar
 const RANGE_BAR_HEIGHT := 16
 const RANGE_BAR_MARKER_WIDTH := 2.0
 const RANGE_BAR_PADDING := 2
+
+## Window layout margins
+const MARGIN_HEADER_LEFT := 20
+const MARGIN_HEADER_TOP := 5
+const MARGIN_HEADER_RIGHT := 20
+const MARGIN_HEADER_BOTTOM := 5
+const MARGIN_CONTENT_LEFT := 20
+const MARGIN_CONTENT_TOP := 10
+const MARGIN_CONTENT_RIGHT := 20
+const MARGIN_CONTENT_BOTTOM := 10
+
+## Separator heights
+const SEPARATOR_HEIGHT := 12
+const SEPARATOR_HEIGHT_SMALL := 8
+
+## Font sizes for window elements
+const FONT_SIZE_TITLE := 30
+const FONT_SIZE_SECTION_TITLE := 22
+const FONT_SIZE_GENERATOR_LABEL := 20
+const FONT_SIZE_DISABLED := 10
+const FONT_SIZE_ERROR := 12
+
+## Scroll container sizes
+const SCROLL_CONTAINER_MIN_SIZE := Vector2(650, 550)
+const DYNAMIC_CONTAINER_MIN_SIZE := Vector2(620, 500)
 
 #═══════════════════════════════════════════════════════════════════════════════
 # STYLEBOX FACTORY METHODS
@@ -135,6 +188,16 @@ static func create_panel_stylebox(
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(8)
+	return style
+
+## Creates a panel style for section content areas (lighter, more subtle)
+static func create_content_panel_stylebox() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.18, 0.18, 0.20, 0.4)
+	style.border_color = Color(0.25, 0.25, 0.30, 0.3)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(2)
+	style.set_content_margin_all(4)
 	return style
 
 #═══════════════════════════════════════════════════════════════════════════════

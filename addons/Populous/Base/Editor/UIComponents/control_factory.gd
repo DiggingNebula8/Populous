@@ -76,29 +76,39 @@ static func create_labeled_spinbox(
 #═══════════════════════════════════════════════════════════════════════════════
 
 ## Creates a parameter row with label and input control.
-## Supports custom display name, tooltip, and consistent styling.
+## Includes styled panel background with border for visual separation.
 static func create_row(
 	key: String,
 	input_field: Control,
 	display_name: String = "",
 	tooltip: String = ""
-) -> MarginContainer:
+) -> PanelContainer:
+	# Outer panel with styled background
+	var panel = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", UIStyles.create_panel_stylebox())
+	
+	# Margin inside panel
 	var margin_container = MarginContainer.new()
 	margin_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin_container.add_theme_constant_override("margin_left", UIStyles.CONTROL_SEPARATION)
+	margin_container.add_theme_constant_override("margin_right", UIStyles.CONTROL_SEPARATION)
 	margin_container.add_theme_constant_override("margin_top", UIStyles.ROW_MARGIN_VERTICAL)
 	margin_container.add_theme_constant_override("margin_bottom", UIStyles.ROW_MARGIN_VERTICAL)
+	panel.add_child(margin_container)
 	
 	var hbox = HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.alignment = BoxContainer.ALIGNMENT_BEGIN
 	hbox.add_theme_constant_override("separation", UIStyles.ROW_SEPARATION)
 	
-	# Label
+	# Label with dim styling
 	var label = Label.new()
 	label.text = display_name if display_name != "" else _format_param_name(key)
 	label.custom_minimum_size = Vector2(UIStyles.ROW_LABEL_MIN_WIDTH, UIStyles.ROW_LABEL_MIN_HEIGHT)
 	label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_color_override("font_color", UIStyles.COLOR_TEXT_LABEL)
 	
 	if tooltip != "":
 		label.tooltip_text = tooltip
@@ -112,7 +122,7 @@ static func create_row(
 		hbox.add_child(input_field)
 	
 	margin_container.add_child(hbox)
-	return margin_container
+	return panel
 
 ## Converts snake_case to Title Case
 static func _format_param_name(name: String) -> String:
@@ -356,4 +366,170 @@ static func create_sub_panel(title: String) -> PanelContainer:
 	vbox.add_child(label)
 	
 	return panel
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GEOMETRY CONTROLS (Rect2, Rect2i, Plane, Quaternion, AABB)
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Creates an HBoxContainer with four SpinBoxes for Rect2 values.
+static func create_rect2_control(value: Rect2, callback: Callable) -> HBoxContainer:
+	var labels = ["X", "Y", "W", "H"]
+	var values = [value.position.x, value.position.y, value.size.x, value.size.y]
+	return create_multi_spinbox(
+		labels, values,
+		PopulousConstants.UI.spinbox_float_min,
+		PopulousConstants.UI.spinbox_float_max,
+		PopulousConstants.UI.spinbox_float_step,
+		callback
+	)
+
+## Creates an HBoxContainer with four SpinBoxes for Rect2i values.
+static func create_rect2i_control(value: Rect2i, callback: Callable) -> HBoxContainer:
+	var labels = ["X", "Y", "W", "H"]
+	var values = [value.position.x, value.position.y, value.size.x, value.size.y]
+	return create_multi_spinbox(
+		labels, values,
+		PopulousConstants.UI.spinbox_int_min,
+		PopulousConstants.UI.spinbox_int_max,
+		1.0,  # Integer step
+		callback
+	)
+
+## Creates an HBoxContainer with six SpinBoxes for AABB values (basic version).
+static func create_aabb_control_basic(value: AABB, callback: Callable) -> HBoxContainer:
+	var labels = ["PX", "PY", "PZ", "W", "H", "D"]
+	var values = [value.position.x, value.position.y, value.position.z, value.size.x, value.size.y, value.size.z]
+	return create_multi_spinbox(
+		labels, values,
+		PopulousConstants.UI.spinbox_float_min,
+		PopulousConstants.UI.spinbox_float_max,
+		PopulousConstants.UI.spinbox_float_step,
+		callback,
+		Vector2(20, 0)  # Larger label size
+	)
+
+## Creates an HBoxContainer with four SpinBoxes for Plane values.
+static func create_plane_control(value: Plane, callback: Callable) -> HBoxContainer:
+	var labels = ["NX", "NY", "NZ", "D"]
+	var values = [value.normal.x, value.normal.y, value.normal.z, value.d]
+	return create_multi_spinbox(
+		labels, values,
+		PopulousConstants.UI.spinbox_float_min,
+		PopulousConstants.UI.spinbox_float_max,
+		PopulousConstants.UI.spinbox_float_step,
+		callback,
+		Vector2(20, 0)  # Larger label size
+	)
+
+## Creates an HBoxContainer with four SpinBoxes for Quaternion values (basic version).
+static func create_quaternion_control_basic(value: Quaternion, callback: Callable) -> HBoxContainer:
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_theme_constant_override("separation", 4)
+	
+	var labels = ["X", "Y", "Z", "W"]
+	var values = [value.x, value.y, value.z, value.w]
+	
+	for i in range(4):
+		var pair = create_labeled_spinbox(
+			labels[i],
+			values[i],
+			PopulousConstants.UI.spinbox_float_min,
+			PopulousConstants.UI.spinbox_float_max,
+			PopulousConstants.UI.spinbox_float_step
+		)
+		pair[1].custom_minimum_size = Vector2(70, 0)
+		pair[1].size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if callback.is_valid():
+			pair[1].value_changed.connect(callback.bind(i))
+		hbox.add_child(pair[0])
+		hbox.add_child(pair[1])
+	
+	return hbox
+
+#═══════════════════════════════════════════════════════════════════════════════
+# ARRAY & DICTIONARY CONTROLS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Creates an array editor control.
+## Note: Requires callbacks for item control creation and change handling.
+static func create_array_editor(
+	value: Array,
+	size_label_format: String = "Array (%d items)",
+	add_button_text: String = "Add Item",
+	on_add_pressed: Callable = Callable()
+) -> VBoxContainer:
+	var array_container = VBoxContainer.new()
+	array_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Label showing array size
+	var size_label = Label.new()
+	size_label.text = size_label_format % value.size()
+	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	array_container.add_child(size_label)
+	
+	# Scroll container for array items
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 150)
+	
+	var items_container = VBoxContainer.new()
+	items_container.name = "ItemsContainer"
+	scroll.add_child(items_container)
+	array_container.add_child(scroll)
+	
+	# Add button
+	var add_button = Button.new()
+	add_button.text = add_button_text
+	if on_add_pressed.is_valid():
+		add_button.pressed.connect(on_add_pressed.bind(items_container))
+	array_container.add_child(add_button)
+	
+	return array_container
+
+## Creates a dictionary editor control.
+## Note: Requires callbacks for pair control creation and change handling.
+static func create_dictionary_editor(
+	value: Dictionary,
+	size_label_format: String = "Dictionary (%d pairs)",
+	add_button_text: String = "Add Pair",
+	on_add_pressed: Callable = Callable()
+) -> VBoxContainer:
+	var dict_container = VBoxContainer.new()
+	dict_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Label showing dictionary size
+	var size_label = Label.new()
+	size_label.text = size_label_format % value.size()
+	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	dict_container.add_child(size_label)
+	
+	# Scroll container for dictionary pairs
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 150)
+	
+	var pairs_container = VBoxContainer.new()
+	pairs_container.name = "PairsContainer"
+	scroll.add_child(pairs_container)
+	dict_container.add_child(scroll)
+	
+	# Add button
+	var add_button = Button.new()
+	add_button.text = add_button_text
+	if on_add_pressed.is_valid():
+		add_button.pressed.connect(on_add_pressed.bind(pairs_container))
+	dict_container.add_child(add_button)
+	
+	return dict_container
+
+## Creates a remove button for array/dictionary items.
+static func create_remove_button(on_remove: Callable) -> Button:
+	var remove_button = Button.new()
+	remove_button.text = "Remove"
+	if on_remove.is_valid():
+		remove_button.pressed.connect(on_remove)
+	return remove_button
+
 

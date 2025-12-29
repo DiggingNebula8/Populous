@@ -34,6 +34,7 @@ var section_tooltip: String = ""
 
 var is_expanded: bool = true
 var header_button: Button
+var content_panel: PanelContainer
 var content_margin: MarginContainer
 var content_container: VBoxContainer
 var header_hbox: HBoxContainer
@@ -75,6 +76,12 @@ func _init() -> void:
 	title_label.clip_text = false
 	header_hbox.add_child(title_label)
 	
+	# Content panel with styled background
+	content_panel = PanelContainer.new()
+	content_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_panel.add_theme_stylebox_override("panel", UIStyles.create_content_panel_stylebox())
+	add_child(content_panel)
+	
 	# Content container with margin
 	content_margin = MarginContainer.new()
 	content_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -82,7 +89,7 @@ func _init() -> void:
 	content_margin.add_theme_constant_override("margin_right", UIStyles.SECTION_PADDING_RIGHT)
 	content_margin.add_theme_constant_override("margin_top", UIStyles.SECTION_PADDING_TOP)
 	content_margin.add_theme_constant_override("margin_bottom", UIStyles.SECTION_PADDING_BOTTOM)
-	add_child(content_margin)
+	content_panel.add_child(content_margin)
 	
 	# Inner content container
 	content_container = VBoxContainer.new()
@@ -169,5 +176,5 @@ func _update_header() -> void:
 		_apply_collapsed_style()
 
 func _update_visibility() -> void:
-	if content_margin:
-		content_margin.visible = is_expanded
+	if content_panel:
+		content_panel.visible = is_expanded

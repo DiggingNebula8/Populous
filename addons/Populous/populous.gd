@@ -112,16 +112,22 @@ func _toggle_window(
 	return {is_open = true, window = new_window}
 
 func _toggle_populous_window():
-	var result = _toggle_window(
-		is_populous_window_open,
-		populous_window if is_instance_valid(populous_window) else null,
-		populous_constants.Scenes.populous_tool,
-		"Populous Tool",
-		Vector2i(720, 720),
-		_on_populous_window_closed
-	)
-	is_populous_window_open = result.is_open
-	populous_window = result.window
+	# PopulousTool now creates UI from code, so we instantiate differently
+	if is_populous_window_open:
+		if populous_window != null and is_instance_valid(populous_window):
+			populous_window.queue_free()
+		is_populous_window_open = false
+		populous_window = null
+		return
+	
+	# Create PopulousTool instance (it extends Window and builds its own UI)
+	populous_window = PopulousTool.new()
+	populous_window.always_on_top = true
+	populous_window.position = (Vector2i(get_editor_interface().get_base_control().size) - populous_window.size) / 2
+	get_editor_interface().get_base_control().add_child(populous_window)
+	populous_window.show()
+	populous_window.close_requested.connect(_on_populous_window_closed)
+	is_populous_window_open = true
 
 ## Callback when the Populous Tool window is closed.
 ##
