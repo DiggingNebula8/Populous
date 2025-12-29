@@ -139,107 +139,141 @@ func _get_params() -> Dictionary:
 		"custom_metadata": custom_metadata
 	}
 
+## Validates and returns a parameter value if it matches the expected type.
+## 
+## @param params: Dictionary containing parameter key-value pairs.
+## @param key: The parameter key to validate.
+## @param expected_type: The expected type (e.g., int, Array, Vector3, etc.).
+## @param allow_null: Whether null values are allowed (default: false).
+## @return: The validated value, or null if validation fails.
+func _validate_param(params: Dictionary, key: String, expected_type: Variant.Type, allow_null: bool = false) -> Variant:
+	if not params.has(key):
+		return null
+	
+	var value = params[key]
+	
+	# Handle null values
+	if value == null:
+		if allow_null:
+			return null
+		else:
+			PopulousLogger.warning("Invalid value for %s, null not allowed" % key)
+			return null
+	
+	# Check type using typeof() for built-in types
+	if typeof(value) == expected_type:
+		return value
+	
+	# Special cases: types that need 'is' operator check
+	if expected_type == TYPE_QUATERNION and value is Quaternion:
+		return value
+	if expected_type == TYPE_RECT2 and value is Rect2:
+		return value
+	if expected_type == TYPE_RECT2I and value is Rect2i:
+		return value
+	if expected_type == TYPE_AABB and value is AABB:
+		return value
+	if expected_type == TYPE_PLANE and value is Plane:
+		return value
+	if expected_type == TYPE_OBJECT and value is Resource:
+		return value
+	
+	# Type mismatch - get readable type name
+	var type_name = ""
+	match expected_type:
+		TYPE_INT: type_name = "int"
+		TYPE_FLOAT: type_name = "float"
+		TYPE_BOOL: type_name = "bool"
+		TYPE_STRING: type_name = "String"
+		TYPE_VECTOR2: type_name = "Vector2"
+		TYPE_VECTOR3: type_name = "Vector3"
+		TYPE_COLOR: type_name = "Color"
+		TYPE_ARRAY: type_name = "Array"
+		TYPE_DICTIONARY: type_name = "Dictionary"
+		TYPE_QUATERNION: type_name = "Quaternion"
+		TYPE_RECT2: type_name = "Rect2"
+		TYPE_RECT2I: type_name = "Rect2i"
+		TYPE_AABB: type_name = "AABB"
+		TYPE_PLANE: type_name = "Plane"
+		TYPE_OBJECT: type_name = "Resource"
+		_: type_name = str(expected_type)
+	
+	PopulousLogger.warning("Invalid type for %s, expected %s" % [key, type_name])
+	return null
+
 ## Sets meta parameters from dictionary (typically from UI changes).
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.
 ## @return: void
 func _set_params(params: Dictionary) -> void:
-	if params.has("gender_preference"):
-		var value = params["gender_preference"]
-		if value is int:
-			gender_preference = value
-		else:
-			PopulousLogger.warning("Invalid type for gender_preference, expected int")
-	if params.has("skin_type_preference"):
-		var value = params["skin_type_preference"]
-		if value is int:
-			skin_type_preference = value
-		else:
-			PopulousLogger.warning("Invalid type for skin_type_preference, expected int")
-	if params.has("name_colors"):
-		var value = params["name_colors"]
-		if value is Array:
-			name_colors = value
-		else:
-			PopulousLogger.warning("Invalid type for name_colors, expected Array")
-	if params.has("part_tags_filter"):
-		var value = params["part_tags_filter"]
-		if value is Array:
-			part_tags_filter = value
-		else:
-			PopulousLogger.warning("Invalid type for part_tags_filter, expected Array")
-	if params.has("custom_properties"):
-		var value = params["custom_properties"]
-		if value is Dictionary:
-			custom_properties = value
-		else:
-			PopulousLogger.warning("Invalid type for custom_properties, expected Dictionary")
+	var validated_value
+	
+	validated_value = _validate_param(params, "gender_preference", TYPE_INT)
+	if validated_value != null:
+		gender_preference = validated_value
+	
+	validated_value = _validate_param(params, "skin_type_preference", TYPE_INT)
+	if validated_value != null:
+		skin_type_preference = validated_value
+	
+	validated_value = _validate_param(params, "name_colors", TYPE_ARRAY)
+	if validated_value != null:
+		name_colors = validated_value
+	
+	validated_value = _validate_param(params, "part_tags_filter", TYPE_ARRAY)
+	if validated_value != null:
+		part_tags_filter = validated_value
+	
+	validated_value = _validate_param(params, "custom_properties", TYPE_DICTIONARY)
+	if validated_value != null:
+		custom_properties = validated_value
+	
 	if params.has("material_override"):
 		var value = params["material_override"]
-		if value is Resource or value == null:
+		if value == null or value is Resource:
 			material_override = value
 		else:
 			PopulousLogger.warning("Invalid type for material_override, expected Resource or null")
-	if params.has("position_offset"):
-		var value = params["position_offset"]
-		if value is Vector3:
-			position_offset = value
-		else:
-			PopulousLogger.warning("Invalid type for position_offset, expected Vector3")
-	if params.has("rotation_offset"):
-		var value = params["rotation_offset"]
-		if value is Quaternion:
-			rotation_offset = value
-		else:
-			PopulousLogger.warning("Invalid type for rotation_offset, expected Quaternion")
-	if params.has("scale_multiplier"):
-		var value = params["scale_multiplier"]
-		if value is Vector3:
-			scale_multiplier = value
-		else:
-			PopulousLogger.warning("Invalid type for scale_multiplier, expected Vector3")
-	if params.has("color_tint"):
-		var value = params["color_tint"]
-		if value is Color:
-			color_tint = value
-		else:
-			PopulousLogger.warning("Invalid type for color_tint, expected Color")
-	if params.has("spawn_area"):
-		var value = params["spawn_area"]
-		if value is Rect2:
-			spawn_area = value
-		else:
-			PopulousLogger.warning("Invalid type for spawn_area, expected Rect2")
-	if params.has("spawn_bounds_3d"):
-		var value = params["spawn_bounds_3d"]
-		if value is AABB:
-			spawn_bounds_3d = value
-		else:
-			PopulousLogger.warning("Invalid type for spawn_bounds_3d, expected AABB")
-	if params.has("preferred_part_tags"):
-		var value = params["preferred_part_tags"]
-		if value is Array:
-			preferred_part_tags = value
-		else:
-			PopulousLogger.warning("Invalid type for preferred_part_tags, expected Array")
-	if params.has("excluded_part_tags"):
-		var value = params["excluded_part_tags"]
-		if value is Array:
-			excluded_part_tags = value
-		else:
-			PopulousLogger.warning("Invalid type for excluded_part_tags, expected Array")
-	if params.has("metadata_tags"):
-		var value = params["metadata_tags"]
-		if value is Array:
-			metadata_tags = value
-		else:
-			PopulousLogger.warning("Invalid type for metadata_tags, expected Array")
-	if params.has("custom_metadata"):
-		var value = params["custom_metadata"]
-		if value is Dictionary:
-			custom_metadata = value
-		else:
-			PopulousLogger.warning("Invalid type for custom_metadata, expected Dictionary")
+	
+	validated_value = _validate_param(params, "position_offset", TYPE_VECTOR3)
+	if validated_value != null:
+		position_offset = validated_value
+	
+	validated_value = _validate_param(params, "rotation_offset", TYPE_QUATERNION)
+	if validated_value != null:
+		rotation_offset = validated_value
+	
+	validated_value = _validate_param(params, "scale_multiplier", TYPE_VECTOR3)
+	if validated_value != null:
+		scale_multiplier = validated_value
+	
+	validated_value = _validate_param(params, "color_tint", TYPE_COLOR)
+	if validated_value != null:
+		color_tint = validated_value
+	
+	validated_value = _validate_param(params, "spawn_area", TYPE_RECT2)
+	if validated_value != null:
+		spawn_area = validated_value
+	
+	validated_value = _validate_param(params, "spawn_bounds_3d", TYPE_AABB)
+	if validated_value != null:
+		spawn_bounds_3d = validated_value
+	
+	validated_value = _validate_param(params, "preferred_part_tags", TYPE_ARRAY)
+	if validated_value != null:
+		preferred_part_tags = validated_value
+	
+	validated_value = _validate_param(params, "excluded_part_tags", TYPE_ARRAY)
+	if validated_value != null:
+		excluded_part_tags = validated_value
+	
+	validated_value = _validate_param(params, "metadata_tags", TYPE_ARRAY)
+	if validated_value != null:
+		metadata_tags = validated_value
+	
+	validated_value = _validate_param(params, "custom_metadata", TYPE_DICTIONARY)
+	if validated_value != null:
+		custom_metadata = validated_value
 
 #----------------------------------------------------------------------------
 # APPLY MODULAR PARTS
