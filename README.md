@@ -120,22 +120,82 @@ func _set_params(params: Dictionary) -> void:
 ### Core Classes
 
 #### `PopulousResource`
-The main entry point that combines a Generator and Meta. Contains:
-- `run_populous(populous_container: Node)`: Executes NPC generation
-- `get_params() -> Dictionary`: Retrieves generator parameters for UI
-- `set_params(params: Dictionary)`: Updates generator parameters
+The main entry point that combines a Generator and Meta.
+
+**Properties:**
+| Property | Type | Description |
+|----------|------|-------------|
+| `generator` | `PopulousGenerator` | The generator resource that defines spawning logic |
+
+**Methods:**
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `run_populous(populous_container: Node)` | `void` | Executes NPC generation in the container |
+| `get_params()` | `Dictionary` | Retrieves all generator parameters for UI binding |
+| `set_params(params: Dictionary)` | `void` | Updates generator parameters from UI |
+| `get_ui_config()` | `Dictionary` | Returns merged UI config from generator and meta |
+
+---
 
 #### `PopulousGenerator` (Base Class)
-Abstract base class for NPC generation logic. Override:
-- `_generate(populous_container: Node)`: Core generation logic
-- `_get_params() -> Dictionary`: Returns parameters for UI binding
-- `_set_params(params: Dictionary)`: Updates parameters from UI
+Abstract base class for NPC generation logic.
+
+**Properties:**
+| Property | Type | Description |
+|----------|------|-------------|
+| `resource` | `PackedScene` | The NPC scene template to instantiate |
+| `meta_resource` | `PopulousMeta` | The meta resource for NPC customization |
+
+**Override Methods:**
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `_generate(populous_container: Node)` | `void` | Core generation logic (override in subclasses) |
+| `_get_params()` | `Dictionary` | Returns parameters for UI binding |
+| `_set_params(params: Dictionary)` | `void` | Handles parameter updates from UI |
+| `_get_ui_config()` | `Dictionary` | Returns UI layout configuration (sections, tooltips, control types) |
+
+**Helper Methods:**
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `_spawn_npc(container: Node)` | `Node` | Spawns a single NPC with proper setup (recommended) |
+| `_clean_container(container: Node)` | `void` | Removes all children from container |
+| `_setup_npc_owner(npc: Node, container: Node)` | `void` | Sets up proper editor ownership |
+
+---
 
 #### `PopulousMeta` (Base Class)
-Abstract base class for NPC metadata/attributes. Override:
-- `set_metadata(npc: Node)`: Applies metadata to spawned NPC
-- `_get_params() -> Dictionary`: Returns meta parameters for UI
-- `_set_params(params: Dictionary)`: Updates meta parameters
+Abstract base class for NPC metadata/attributes.
+
+**Override Methods:**
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `set_metadata(npc: Node)` | `void` | Applies metadata to spawned NPC |
+| `_get_params()` | `Dictionary` | Returns meta parameters for UI |
+| `_set_params(params: Dictionary)` | `void` | Handles parameter updates from UI |
+| `_get_ui_config()` | `Dictionary` | Returns UI layout configuration |
+
+---
+
+### UI Configuration
+
+Generators and Metas can define custom UI layouts by overriding `_get_ui_config()`:
+
+```gdscript
+func _get_ui_config() -> Dictionary:
+    return {
+        "sections": [
+            {"name": "Transform", "params": ["position", "rotation"], "expanded": true},
+            {"name": "Appearance", "params": ["color", "scale"], "expanded": false}
+        ],
+        "param_config": {
+            "position": {
+                "display_name": "Spawn Position",
+                "tooltip": "Base position for NPC spawning",
+                "control": "vector3"
+            }
+        }
+    }
+```
 
 ## Examples
 

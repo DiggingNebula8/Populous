@@ -12,6 +12,7 @@ extends EditorPlugin
 
 const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+const PopulousGraphPanel = preload("res://addons/Populous/Base/Editor/GraphMode/graph_panel.gd")
 
 #═══════════════════════════════════════════════════════════════════════════════
 # WINDOW STATE
@@ -26,6 +27,9 @@ var is_json_tres_window_open: bool = false
 var batch_resource_window: Window
 var is_batch_resource_window_open: bool = false
 
+# Graph Panel (Bottom Dock)
+var graph_panel: Control = null
+
 #═══════════════════════════════════════════════════════════════════════════════
 # PLUGIN LIFECYCLE
 #═══════════════════════════════════════════════════════════════════════════════
@@ -33,6 +37,14 @@ var is_batch_resource_window_open: bool = false
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
 	add_tool_submenu_item(populous_constants.Strings.populous, _create_populous_menu())
+	
+	# Create and register Graph Panel as bottom dock
+	graph_panel = PopulousGraphPanel.new()
+	add_control_to_bottom_panel(graph_panel, "Populous Graph")
+	
+	# Connect to editor selection changes for auto-show
+	var editor_selection = get_editor_interface().get_selection()
+	editor_selection.selection_changed.connect(_on_editor_selection_changed)
 
 #═══════════════════════════════════════════════════════════════════════════════
 # MENU CREATION
@@ -233,4 +245,45 @@ func _exit_tree() -> void:
 	if is_batch_resource_window_open and batch_resource_window != null and is_instance_valid(batch_resource_window):
 		batch_resource_window.queue_free()
 		batch_resource_window = null
+	
+	# Remove graph panel from bottom dock
+	if graph_panel != null and is_instance_valid(graph_panel):
+		remove_control_from_bottom_panel(graph_panel)
+		graph_panel.queue_free()
+		graph_panel = null
+	
 	remove_tool_menu_item(populous_constants.Strings.populous)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GRAPH PANEL SELECTION
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Called when editor selection changes - auto-show graph panel for PopulousContainers
+func _on_editor_selection_changed() -> void:
+	var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
+	
+	for node in selected_nodes:
+		if _is_populous_container(node):
+			# Auto-show the graph panel
+			make_bottom_panel_item_visible(graph_panel)
+			
+			# Set the container (resource can be picked from the panel)
+			if graph_panel:
+				graph_panel.set_container(node)
+			return
+	
+	# If no PopulousContainer selected, clear the container
+	if graph_panel:
+		graph_panel.set_container(null)
+
+func _is_populous_container(node: Node) -> bool:
+	return node.has_meta(populous_constants.Strings.populous_container)
+
+func _get_populous_resource(node: Node) -> Resource:
+	# Try to get the populous_resource property if it exists
+	if node.has_method("get") and "populous_resource" in node:
+		return node.populous_resource
+	# Or check for a resource property
+	if "resource" in node:
+		return node.resource
+	return null
