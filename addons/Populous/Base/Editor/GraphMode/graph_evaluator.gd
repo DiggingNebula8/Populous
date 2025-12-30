@@ -71,7 +71,6 @@ func evaluate() -> Dictionary:
 						# Write to parameter source
 						if param_source:
 							param_source.set_param(param_key, value)
-							print("[GraphEvaluator] Set param '%s' = %s" % [param_key, str(value)])
 	
 	return results
 
@@ -101,7 +100,6 @@ func _evaluate_panel_node(panel: GraphNode, results: Dictionary) -> void:
 				results[key] = value
 				if param_source:
 					param_source.set_param(key, value)
-					print("[GraphEvaluator] Set param '%s' = %s" % [key, str(value)])
 		
 		idx += 1
 

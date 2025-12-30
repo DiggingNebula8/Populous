@@ -13,7 +13,6 @@ const GraphEvaluator = preload("res://addons/Populous/Base/Editor/GraphMode/grap
 const GraphSerializer = preload("res://addons/Populous/Base/Editor/GraphMode/graph_serializer.gd")
 const NodeRegistry = preload("res://addons/Populous/Base/Editor/GraphMode/node_registry.gd")
 const ConstantNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Values/constant_node.gd")
-const ParamOutputNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Outputs/param_output_node.gd")
 const ParamPanelNode = preload("res://addons/Populous/Base/Editor/GraphMode/Nodes/Outputs/param_panel_node.gd")
 
 #═══════════════════════════════════════════════════════════════════════════════
@@ -47,6 +46,9 @@ var _eval_timer: Timer = null
 
 ## Map of menu ID to node name for Add Node menu
 var _menu_node_map: Dictionary = {}
+
+## Flag to prevent duplicate signal connections
+var _menu_signal_connected: bool = false
 
 #═══════════════════════════════════════════════════════════════════════════════
 # UI REFERENCES
@@ -191,18 +193,18 @@ func _setup_add_node_menu() -> void:
 		var category = category_data.category
 		var nodes = category_data.nodes
 		
-		if id > 0:
-			popup.add_separator(category)
-		else:
-			# Add category label for first section
-			popup.add_separator(category)
+		# Add separator with category name for all sections
+		popup.add_separator(category)
 		
 		for node_info in nodes:
 			popup.add_item(node_info.name, id)
 			_menu_node_map[id] = node_info.name
 			id += 1
 	
-	popup.id_pressed.connect(_on_add_node_menu_selected)
+	# Only connect signal once to prevent duplicate handlers
+	if not _menu_signal_connected:
+		popup.id_pressed.connect(_on_add_node_menu_selected)
+		_menu_signal_connected = true
 
 #═══════════════════════════════════════════════════════════════════════════════
 # PUBLIC API
@@ -216,11 +218,7 @@ func _on_resource_picker_changed(resource: Resource) -> void:
 ## Set the container (called from populous.gd on selection change)
 func set_container(container: Node) -> void:
 	populous_container = container
-	if container_label:
-		if container:
-			container_label.text = "📦 " + container.name
-		else:
-			container_label.text = "📦 No Container"
+	_update_container_label()
 	
 	# Show the panel even without a resource
 	_show_graph_editor()
@@ -231,12 +229,7 @@ func load_resource(resource: Resource, container: Node = null) -> void:
 	if container != null:
 		populous_container = container
 	
-	# Update container label
-	if container_label:
-		if populous_container:
-			container_label.text = "📦 " + populous_container.name
-		else:
-			container_label.text = "📦 No Container"
+	_update_container_label()
 	
 	# Update resource picker
 	if resource_picker and resource_picker.edited_resource != resource:
@@ -248,6 +241,14 @@ func load_resource(resource: Resource, container: Node = null) -> void:
 		return
 	
 	_show_graph_editor()
+
+## Helper to update container label text
+func _update_container_label() -> void:
+	if container_label:
+		if populous_container:
+			container_label.text = "Container: " + populous_container.name
+		else:
+			container_label.text = "No Container"
 	
 	# Setup parameter source
 	if param_source == null:
@@ -340,25 +341,18 @@ func _auto_generate_graph() -> void:
 		call_deferred("_connect_to_panel", const_node.name, panel_node.name, index)
 		
 		index += 1
+	
+	# Request initial evaluation after all connections are made
+	call_deferred("_request_evaluation")
 
 func _connect_to_panel(from_node: String, panel_name: String, port_idx: int) -> void:
 	graph_editor.connect_node(from_node, 0, panel_name, port_idx)
-	
-	# Initial evaluation
-	_request_evaluation()
 
 func _create_constant_node(key: String, value: Variant) -> GraphNode:
 	var node = ConstantNode.new()
 	node.name = "Constant_" + key + "_" + str(randi())
 	# Set value after adding to tree so _ready() runs first
 	node.call_deferred("set_constant_value", value, key)
-	return node
-
-func _create_output_node(key: String, type: int) -> GraphNode:
-	var node = ParamOutputNode.new()
-	node.name = "Output_" + key + "_" + str(randi())
-	# Set parameter after adding to tree
-	node.call_deferred("set_parameter", key, type)
 	return node
 
 #═══════════════════════════════════════════════════════════════════════════════
