@@ -527,7 +527,7 @@ func _on_delete_nodes_request(nodes: Array[StringName]) -> void:
 			continue
 		
 		# Don't allow deleting the ParamPanel node
-		if node is PopulousParamPanelNode or node.name == "ParamPanel":
+		if node is ParamPanelNode or node.name == "ParamPanel":
 			continue
 		
 		# Disconnect all connections to/from this node first
