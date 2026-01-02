@@ -114,7 +114,7 @@ func _on_name_changed(new_text: String) -> void:
 	_notify_value_changed()
 
 func _on_type_changed(index: int) -> void:
-	port_type = index
+	port_type = type_selector.get_item_id(index)
 	
 	# Rebuild ports and slots
 	output_ports.clear()

@@ -250,13 +250,13 @@ func _update_container_label() -> void:
 		else:
 			container_label.text = "No Container"
 	
-	# Setup parameter source
-	if param_source == null:
-		param_source = PopulousParameterSource.new()
-	param_source.set_resource(resource)
-	if evaluator == null:
-		evaluator = PopulousGraphEvaluator.new()
-	evaluator.setup(graph_editor, param_source)
+ 	# Setup parameter source
+ 	if param_source == null:
+ 		param_source = PopulousParameterSource.new()
+ 	param_source.set_resource(current_resource)
+ 	if evaluator == null:
+ 		evaluator = PopulousGraphEvaluator.new()
+ 	evaluator.setup(graph_editor, param_source)
 	
 	# Load or generate graph
 	_load_or_generate_graph()

@@ -182,7 +182,7 @@ func _deserialize(data: Dictionary) -> void:
 #═══════════════════════════════════════════════════════════════════════════════
 
 func _on_operation_changed(index: int) -> void:
-	operation = index as Operation
+	operation = operation_button.get_item_id(index) as Operation
 	title = _get_node_title()
 	_notify_value_changed()
 
