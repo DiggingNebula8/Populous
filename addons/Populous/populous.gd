@@ -1,11 +1,22 @@
 @tool
 extends EditorPlugin
 
+## Populous Editor Plugin - NPC generation framework for Godot.
+## 
+## Provides tools for spawning and configuring NPCs in your scenes:
+## - Graph Mode: Visual node-based parameter editor (Bottom Dock)
+## - JSON TRES Tool: Convert JSON files to Godot resources
+## - Batch Resource Creator: Create multiple resources from FBX files
+## 
+## Access via Project → Tools → Populous menu.
+
 const populous_constants = preload("res://addons/Populous/Base/Constants/populous_constants.gd")
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+const PopulousGraphPanel = preload("res://addons/Populous/Base/Editor/GraphMode/graph_panel.gd")
 
-var populous_window: Window
-var is_populous_window_open: bool = false
+#═══════════════════════════════════════════════════════════════════════════════
+# WINDOW STATE
+#═══════════════════════════════════════════════════════════════════════════════
 
 var json_tres_window: Window
 var is_json_tres_window_open: bool = false
@@ -13,42 +24,49 @@ var is_json_tres_window_open: bool = false
 var batch_resource_window: Window
 var is_batch_resource_window_open: bool = false
 
+# Graph Panel (Bottom Dock)
+var graph_panel: Control = null
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PLUGIN LIFECYCLE
+#═══════════════════════════════════════════════════════════════════════════════
+
 func _enter_tree():
 	# Add "populous" submenu under "Project -> Tools"
 	add_tool_submenu_item(populous_constants.Strings.populous, _create_populous_menu())
+	
+	# Create and register Graph Panel as bottom dock
+	graph_panel = PopulousGraphPanel.new()
+	add_control_to_bottom_panel(graph_panel, "Populous Graph")
+	
+	# Connect to editor selection changes for auto-show
+	var editor_selection = get_editor_interface().get_selection()
+	editor_selection.selection_changed.connect(_on_editor_selection_changed)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# MENU CREATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 func _create_populous_menu():
 	var menu = PopupMenu.new()
-	menu.add_item(populous_constants.Strings.populous, 0)
-	menu.add_item(populous_constants.Strings.create_container, 1)
-	menu.add_item(populous_constants.Strings.json_tres, 2)
-	menu.add_item(populous_constants.Strings.batch_tres, 3)
+	menu.add_item(populous_constants.Strings.create_container, 0)
+	menu.add_item(populous_constants.Strings.json_tres, 1)
+	menu.add_item(populous_constants.Strings.batch_tres, 2)
 	menu.id_pressed.connect(_on_populous_menu_selected)
 	return menu
 
 ## Handles menu item selection from the Populous submenu.
-##
-## @param id: The menu item ID that was selected.
-## @return: void
 func _on_populous_menu_selected(id: int) -> void:
 	match id:
-		0: _toggle_populous_window()
-		1: _create_container()
-		2: _toggle_json_tres_window()
-		3: _toggle_batch_resource_window()
+		0: _create_container()
+		1: _toggle_json_tres_window()
+		2: _toggle_batch_resource_window()
+
+#═══════════════════════════════════════════════════════════════════════════════
+# WINDOW MANAGEMENT
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Helper function to handle common window toggle logic for all Populous tools.
-## 
-## Opens or closes a window based on its current state. If opening, instantiates
-## the scene, configures the window, and shows it. If closing, queues the window for deletion.
-## 
-## @param is_open: Whether the window is currently open.
-## @param window: The Window instance (may be null if closed).
-## @param scene: PackedScene to instantiate for the window.
-## @param title: Window title text.
-## @param size: Window size in pixels.
-## @param close_callback: Callable to connect to the window's close_requested signal.
-## @return: Dictionary with `is_open` (bool) and `window` (Window or null) keys.
 func _toggle_window(
 	is_open: bool,
 	window: Window,
@@ -57,7 +75,6 @@ func _toggle_window(
 	size: Vector2i,
 	close_callback: Callable
 ) -> Dictionary:
-	# Returns {is_open: bool, window: Window or null}
 	if is_open:
 		if window != null:
 			window.queue_free()
@@ -86,114 +103,116 @@ func _toggle_window(
 	
 	return {is_open = true, window = new_window}
 
-func _toggle_populous_window():
-	var result = _toggle_window(
-		is_populous_window_open,
-		populous_window,
-		populous_constants.Scenes.populous_tool,
-		"Populous Tool",
-		Vector2i(720, 720),
-		_on_populous_window_closed
-	)
-	is_populous_window_open = result.is_open
-	populous_window = result.window
-
-## Callback when the Populous Tool window is closed.
-##
-## @return: void
-func _on_populous_window_closed() -> void:
-	is_populous_window_open = false
-	if populous_window != null and is_instance_valid(populous_window):
-		populous_window.queue_free()
-	populous_window = null
-
 ## Toggles the JSON Tres Tool window open/closed.
-##
-## @return: void
 func _toggle_json_tres_window() -> void:
 	var result = _toggle_window(
 		is_json_tres_window_open,
-		json_tres_window,
+		json_tres_window if is_instance_valid(json_tres_window) else null,
 		populous_constants.Scenes.json_tres_tool,
-		"JSON Tres Tool",
-		Vector2i(720, 480),
+		populous_constants.Strings.json_tres,
+		Vector2i(600, 400),
 		_on_json_tres_window_closed
 	)
 	is_json_tres_window_open = result.is_open
 	json_tres_window = result.window
 
-func _on_json_tres_window_closed():
+## Callback when the JSON Tres Tool window is closed.
+func _on_json_tres_window_closed() -> void:
 	is_json_tres_window_open = false
-	json_tres_window.queue_free()
+	if json_tres_window != null and is_instance_valid(json_tres_window):
+		json_tres_window.queue_free()
+	json_tres_window = null
 
-func _create_container():
-	# Get the root node of the current scene
-	var tree = get_tree()
-	if tree == null:
-		PopulousLogger.error("Node is not in a SceneTree. Cannot create container.")
-		return
-	var scene_root = tree.edited_scene_root
-	if scene_root == null:
-		PopulousLogger.error("No active scene found. Please open a scene before creating a container.")
-		return
-	
-	if populous_constants == null:
-		PopulousLogger.error("Failed to load constants resource")
-		return
-
-	# Count existing PopulousContainers
-	var count = 0
-	for child in scene_root.get_children():
-		if child.name.begins_with(populous_constants.Strings.populous_container):
-			count += 1
-
-	# Create a new Node3D instance
-	var container = Node3D.new()
-	container.name = populous_constants.Strings.populous_container + str(count)
-
-	# Add it as a child of the active scene root
-	scene_root.add_child(container)
-
-	# Set the owner to the scene root so it appears in the scene tree
-	container.owner = scene_root
-	container.set_meta(populous_constants.Strings.populous_container, true)
-
-	PopulousLogger.info("Container created successfully: " + container.name)
-	
-
-func _toggle_batch_resource_window():
+## Toggles the Batch Resource Creator window open/closed.
+func _toggle_batch_resource_window() -> void:
 	var result = _toggle_window(
 		is_batch_resource_window_open,
-		batch_resource_window,
+		batch_resource_window if is_instance_valid(batch_resource_window) else null,
 		populous_constants.Scenes.batch_tres_tool,
-		"Batch Resource Creator",
-		populous_constants.UI.batch_resource_window_size,
+		populous_constants.Strings.batch_tres,
+		Vector2i(800, 600),
 		_on_batch_resource_window_closed
 	)
 	is_batch_resource_window_open = result.is_open
 	batch_resource_window = result.window
 
 ## Callback when the Batch Resource Creator window is closed.
-##
-## @return: void
 func _on_batch_resource_window_closed() -> void:
 	is_batch_resource_window_open = false
 	if batch_resource_window != null and is_instance_valid(batch_resource_window):
 		batch_resource_window.queue_free()
 	batch_resource_window = null
 
+#═══════════════════════════════════════════════════════════════════════════════
+# CONTAINER CREATION
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Creates a new PopulousContainer node in the scene.
+func _create_container() -> void:
+	var scene_root = get_editor_interface().get_edited_scene_root()
+	if scene_root == null:
+		PopulousLogger.warning("Cannot create container - no scene is open")
+		return
+	
+	var container = Node3D.new()
+	container.name = "PopulousContainer"
+	container.set_meta(populous_constants.Strings.populous_container, true)
+	scene_root.add_child(container)
+	container.owner = scene_root
+	
+	# Select the new container
+	get_editor_interface().get_selection().clear()
+	get_editor_interface().get_selection().add_node(container)
+	
+	PopulousLogger.info("Created PopulousContainer: " + container.name)
+
 ## Called when the plugin is disabled in the editor.
-## Cleans up all open windows and removes the menu item.
-##
-## @return: void
 func _exit_tree() -> void:
-	if is_populous_window_open and populous_window != null and is_instance_valid(populous_window):
-		populous_window.queue_free()
-		populous_window = null
 	if is_json_tres_window_open and json_tres_window != null and is_instance_valid(json_tres_window):
 		json_tres_window.queue_free()
 		json_tres_window = null
 	if is_batch_resource_window_open and batch_resource_window != null and is_instance_valid(batch_resource_window):
 		batch_resource_window.queue_free()
 		batch_resource_window = null
+	
+	# Remove graph panel from bottom dock
+	if graph_panel != null and is_instance_valid(graph_panel):
+		remove_control_from_bottom_panel(graph_panel)
+		graph_panel.queue_free()
+		graph_panel = null
+	
 	remove_tool_menu_item(populous_constants.Strings.populous)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# GRAPH PANEL SELECTION
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Called when editor selection changes - auto-show graph panel for PopulousContainers
+func _on_editor_selection_changed() -> void:
+	var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
+	
+	for node in selected_nodes:
+		if _is_populous_container(node):
+			# Auto-show the graph panel
+			make_bottom_panel_item_visible(graph_panel)
+			
+			# Set the container (resource can be picked from the panel)
+			if graph_panel:
+				graph_panel.set_container(node)
+			return
+	
+	# If no PopulousContainer selected, clear the container
+	if graph_panel:
+		graph_panel.set_container(null)
+
+func _is_populous_container(node: Node) -> bool:
+	return node.has_meta(populous_constants.Strings.populous_container)
+
+func _get_populous_resource(node: Node) -> Resource:
+	# Try to get the populous_resource property if it exists
+	if node.has_method("get") and "populous_resource" in node:
+		return node.populous_resource
+	# Or check for a resource property
+	if "resource" in node:
+		return node.resource
+	return null

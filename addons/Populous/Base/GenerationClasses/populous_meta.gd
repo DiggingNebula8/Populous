@@ -1,16 +1,27 @@
 @tool
 class_name PopulousMeta extends Resource
 
-const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
-
-
 ## Base class for NPC metadata.
-## Extend this class to create custom meta resources that apply unique data to NPCs.
+## 
+## EXTENSION POINTS:
+## - Override `set_metadata()` to apply custom metadata to NPCs
+## - Override `_get_params()` to expose parameters to UI
+## - Override `_set_params()` to handle parameter updates
 ## 
 ## Meta resources control:
 ## - NPC names and identifiers
 ## - Custom metadata (stats, properties, etc.)
 ## - Visual customization
+## 
+## EXAMPLES:
+## - See RandomPopulousMeta for simple random names/colors
+## - See CapsulePersonPopulousMeta for modular character parts
+
+const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# METADATA APPLICATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Applies metadata to a spawned NPC node.
 ## 
@@ -20,7 +31,11 @@ const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger
 ## @return: void
 func set_metadata(npc: Node) -> void:
 	npc.name = "PopulousNPC"
-	npc.set_meta("PopulousMeta",true)
+	npc.set_meta("PopulousMeta", true)
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Returns a dictionary of parameters that can be edited in the UI.
 ## 
@@ -33,8 +48,29 @@ func _get_params() -> Dictionary:
 ## Sets parameters from a dictionary (typically from UI changes).
 ## 
 ## Override this method in child classes to handle parameter updates.
+## Use PopulousParamValidator for type-safe parameter handling.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.
 ## @return: void
 func _set_params(params: Dictionary) -> void:
 	pass  # Child classes handle actual params
+
+## Returns UI configuration for the Populous Tool.
+## 
+## Override this method to customize how parameters are displayed in the UI.
+## The tool will use this config to create sections, apply tooltips, and
+## select appropriate control types.
+## 
+## Return format:
+## {
+##   "sections": [
+##     {"name": "Section Name", "params": ["param1", "param2"], "expanded": true}
+##   ],
+##   "param_config": {
+##     "param1": {"display_name": "Display Name", "tooltip": "Help text", "control": "control_type"}
+##   }
+## }
+## 
+## @return: Dictionary with UI configuration, or empty dict for default behavior.
+func _get_ui_config() -> Dictionary:
+	return {}  # Override in child classes for custom UI layout

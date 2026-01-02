@@ -1,16 +1,32 @@
 @tool
 class_name PopulousGenerator extends Resource
 
+## Base class for NPC generation logic.
+## 
+## EXTENSION POINTS:
+## - Override `_generate()` for custom spawning logic
+## - Override `_get_params()` to expose parameters to UI
+## - Override `_set_params()` to handle parameter updates
+## - Use `_spawn_npc()` helper to add NPCs to container
+## - Use `_clean_container()` helper to remove previous NPCs
+## - Use `_setup_npc_owner()` helper for editor integration
+## 
+## EXAMPLES:
+## - See RandomPopulousGenerator for grid-based spawning
+## - See CapsulePersonPopulousGenerator for random positioning
+
 const PopulousLogger = preload("res://addons/Populous/Base/Utils/populous_logger.gd")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# RESOURCES
+#═══════════════════════════════════════════════════════════════════════════════
 
 @export var resource: PackedScene = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousNPC.tscn")
 @export var meta_resource: PopulousMeta = preload("res://addons/Populous/Base/Resources/GenerationResources/PopulousMeta.tres")
 
-## Base class for NPC generation logic.
-## 
-## Extend this class to create custom generators that define how NPCs are spawned.
-## Override `_generate()` to implement custom spawning logic, and `_get_params()` / `_set_params()`
-## to expose parameters for UI editing.
+#═══════════════════════════════════════════════════════════════════════════════
+# GENERATION
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Generates NPCs in the specified container.
 ## 
@@ -25,38 +41,27 @@ func _generate(populous_container: Node) -> void:
 		PopulousLogger.error("Cannot generate NPCs - container is null")
 		return
 	
-	var npc_resource: PackedScene = resource
-	
-	if npc_resource == null:
+	if resource == null:
 		PopulousLogger.error("Cannot generate NPCs - NPC resource (PackedScene) is not set")
 		return
 		
-	var npc_meta_resource = meta_resource
-	
-	if npc_meta_resource == null:
+	if meta_resource == null:
 		PopulousLogger.error("Cannot generate NPCs - Meta resource is not set")
 		return
 		
 	# Clean previous NPCs
-	for child in populous_container.get_children():
-		child.queue_free()
+	_clean_container(populous_container)
 		
-	var spawned_npc: Node = npc_resource.instantiate()
+	# Spawn single NPC using helper
+	var spawned_npc = _spawn_npc(populous_container)
 	if spawned_npc == null:
-		PopulousLogger.error("Failed to instantiate NPC from resource")
 		return
 	
-	populous_container.add_child(spawned_npc)
-	
-	var tree = populous_container.get_tree()
-	if tree != null:
-		var scene_root = tree.edited_scene_root
-		if scene_root != null:
-			spawned_npc.owner = scene_root
-	
-	npc_meta_resource.set_metadata(spawned_npc)
-	
 	PopulousLogger.debug("Successfully spawned NPC")
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PARAMETER BINDING
+#═══════════════════════════════════════════════════════════════════════════════
 
 ## Returns a dictionary of parameters that can be edited in the UI.
 ## 
@@ -71,8 +76,78 @@ func _get_params() -> Dictionary:
 ## 
 ## Override this method in child classes to handle parameter updates.
 ## Parameters are updated in real-time as users modify UI controls.
+## Use PopulousParamValidator for type-safe parameter handling.
 ## 
 ## @param params: Dictionary containing parameter key-value pairs.
 ## @return: void
 func _set_params(params: Dictionary) -> void:
 	pass  # Child classes handle actual params
+
+## Returns UI configuration for the Populous Tool.
+## 
+## Override this method to customize how parameters are displayed in the UI.
+## The tool will use this config to create sections, apply tooltips, and
+## select appropriate control types.
+## 
+## Return format:
+## {
+##   "sections": [
+##     {"name": "Section Name", "params": ["param1", "param2"], "expanded": true}
+##   ],
+##   "param_config": {
+##     "param1": {"display_name": "Display Name", "tooltip": "Help text", "control": "control_type"}
+##   }
+## }
+## 
+## @return: Dictionary with UI configuration, or empty dict for default behavior.
+func _get_ui_config() -> Dictionary:
+	return {}  # Override in child classes for custom UI layout
+
+#═══════════════════════════════════════════════════════════════════════════════
+# HELPERS
+#═══════════════════════════════════════════════════════════════════════════════
+
+## Cleans all children from the container.
+## Call this before spawning new NPCs.
+## 
+## @param container: The container node to clean.
+## @return: void
+func _clean_container(container: Node) -> void:
+	for child in container.get_children():
+		child.queue_free()
+
+## Sets up NPC ownership for proper editor integration.
+## Call this after adding NPC to container.
+## 
+## @param npc: The NPC node to set ownership for.
+## @param container: The container the NPC was added to.
+## @return: void
+func _setup_npc_owner(npc: Node, container: Node) -> void:
+	var tree = container.get_tree()
+	if tree != null:
+		var scene_root = tree.edited_scene_root
+		if scene_root != null:
+			npc.owner = scene_root
+
+## Spawns a single NPC with proper setup.
+## Handles instantiation, parenting, ownership, and metadata application.
+## 
+## @param container: The container node to spawn the NPC in.
+## @return: The spawned NPC, or null if spawning failed.
+func _spawn_npc(container: Node) -> Node:
+	if resource == null:
+		PopulousLogger.error("Cannot spawn NPC - resource is null")
+		return null
+	
+	var npc = resource.instantiate()
+	if npc == null:
+		PopulousLogger.error("Failed to instantiate NPC from resource")
+		return null
+	
+	container.add_child(npc)
+	_setup_npc_owner(npc, container)
+	
+	if meta_resource != null:
+		meta_resource.set_metadata(npc)
+	
+	return npc
