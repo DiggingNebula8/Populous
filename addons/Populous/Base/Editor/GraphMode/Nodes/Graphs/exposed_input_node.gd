@@ -60,7 +60,7 @@ func _create_ui() -> void:
 	name_label.custom_minimum_size = Vector2(45, 0)
 	name_hbox.add_child(name_label)
 	
-	var name_edit = LineEdit.new()
+	name_edit = LineEdit.new()
 	name_edit.text = port_name
 	name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_edit.text_changed.connect(_on_name_changed)

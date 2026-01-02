@@ -252,15 +252,15 @@ func _update_container_label() -> void:
 			container_label.text = "Container: " + populous_container.name
 		else:
 			container_label.text = "No Container"
-	
- 	# Setup parameter source
- 	if param_source == null:
- 		param_source = PopulousParameterSource.new()
- 	param_source.set_resource(current_resource)
- 	if evaluator == null:
- 		evaluator = PopulousGraphEvaluator.new()
- 	evaluator.setup(graph_editor, param_source)
-	
+
+	# Setup parameter source
+	if param_source == null:
+		param_source = PopulousParameterSource.new()
+	param_source.set_resource(current_resource)
+	if evaluator == null:
+		evaluator = PopulousGraphEvaluator.new()
+	evaluator.setup(graph_editor, param_source)
+
 	# Load or generate graph
 	_load_or_generate_graph()
 
@@ -463,29 +463,6 @@ func _on_export_pressed() -> void:
 	# Add dialog to scene tree
 	get_tree().root.add_child(dialog)
 	dialog.popup_centered(Vector2(600, 400))
-
-func _on_export_file_selected(path: String) -> void:
-	var success = GraphSerializer.export_to_file(graph_editor, path)
-	if success:
-		print("[PopulousGraph] Graph exported to: ", path)
-	else:
-		push_error("Failed to export graph to: ", path)
-	
-	# Clean up the specific dialog instance
-	if _export_dialog != null and is_instance_valid(_export_dialog):
-		_export_dialog.queue_free()
-		_export_dialog = null
-	)
-	
-	# Store the dialog reference for proper cleanup
-	_export_dialog = dialog
-	
-	# Add dialog to scene tree
-	get_tree().root.add_child(dialog)
-	dialog.popup_centered(Vector2(600, 400))
-
-## File dialog instance for export functionality
-var _export_dialog: FileDialog = null
 
 func _on_export_file_selected(path: String) -> void:
 	var success = GraphSerializer.export_to_file(graph_editor, path)
