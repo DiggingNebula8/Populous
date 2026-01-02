@@ -60,7 +60,7 @@ func _create_ui() -> void:
 	name_label.custom_minimum_size = Vector2(45, 0)
 	name_hbox.add_child(name_label)
 	
-	name_edit = LineEdit.new()
+	var name_edit = LineEdit.new()
 	name_edit.text = port_name
 	name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_edit.text_changed.connect(_on_name_changed)
@@ -77,7 +77,13 @@ func _create_ui() -> void:
 	type_selector.add_item("Vector2", PortType.VECTOR2)
 	type_selector.add_item("Vector3", PortType.VECTOR3)
 	type_selector.add_item("Color", PortType.COLOR)
-	type_selector.selected = port_type
+	
+	# Set the selected index properly (find the index matching the port_type ID)
+	for i in range(type_selector.item_count):
+		if type_selector.get_item_id(i) == port_type:
+			type_selector.select(i)
+			break
+	
 	type_selector.item_selected.connect(_on_type_changed)
 	vbox.add_child(type_selector)
 	
@@ -102,7 +108,11 @@ func _deserialize(data: Dictionary) -> void:
 	if name_edit:
 		name_edit.text = port_name
 	if type_selector:
-		type_selector.selected = port_type
+		# Find the index of the item with the matching ID
+		for i in range(type_selector.item_count):
+			if type_selector.get_item_id(i) == port_type:
+				type_selector.select(i)
+				break
 
 #═══════════════════════════════════════════════════════════════════════════════
 # EVENT HANDLERS

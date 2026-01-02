@@ -50,6 +50,9 @@ var _menu_node_map: Dictionary = {}
 ## Flag to prevent duplicate signal connections
 var _menu_signal_connected: bool = false
 
+## File dialog instance for export functionality
+var _export_dialog: FileDialog = null
+
 #═══════════════════════════════════════════════════════════════════════════════
 # UI REFERENCES
 #═══════════════════════════════════════════════════════════════════════════════
@@ -448,7 +451,14 @@ func _on_export_pressed() -> void:
 		dialog.current_file = "graph_template.pgraph"
 	
 	dialog.file_selected.connect(_on_export_file_selected)
-	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.canceled.connect(func(): 
+		if _export_dialog != null and is_instance_valid(_export_dialog):
+			_export_dialog.queue_free()
+			_export_dialog = null
+	)
+	
+	# Store the dialog reference for proper cleanup
+	_export_dialog = dialog
 	
 	# Add dialog to scene tree
 	get_tree().root.add_child(dialog)
@@ -461,10 +471,33 @@ func _on_export_file_selected(path: String) -> void:
 	else:
 		push_error("Failed to export graph to: ", path)
 	
-	# Clean up dialog
-	for child in get_tree().root.get_children():
-		if child is FileDialog:
-			child.queue_free()
+	# Clean up the specific dialog instance
+	if _export_dialog != null and is_instance_valid(_export_dialog):
+		_export_dialog.queue_free()
+		_export_dialog = null
+	)
+	
+	# Store the dialog reference for proper cleanup
+	_export_dialog = dialog
+	
+	# Add dialog to scene tree
+	get_tree().root.add_child(dialog)
+	dialog.popup_centered(Vector2(600, 400))
+
+## File dialog instance for export functionality
+var _export_dialog: FileDialog = null
+
+func _on_export_file_selected(path: String) -> void:
+	var success = GraphSerializer.export_to_file(graph_editor, path)
+	if success:
+		print("[PopulousGraph] Graph exported to: ", path)
+	else:
+		push_error("Failed to export graph to: ", path)
+	
+	# Clean up the specific dialog instance
+	if _export_dialog != null and is_instance_valid(_export_dialog):
+		_export_dialog.queue_free()
+	_export_dialog = null
 
 func _on_reset_pressed() -> void:
 	if param_source:
